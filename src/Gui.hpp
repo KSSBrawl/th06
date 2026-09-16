@@ -74,23 +74,14 @@ struct GuiMsgVm
     i32 currentMsgIdx;
     ZunTimer timer;
     i32 framesElapsedDuringPause;
-    AnmVm portraits[2];
-    AnmVm dialogueLines[2];
-    AnmVm introLines[2];
+    FakePaddedAnmVm portraits[2];
+    FakePaddedAnmVm dialogueLines[2];
+    FakePaddedAnmVm introLines[2];
     D3DCOLOR textColorsA[4];
     D3DCOLOR textColorsB[4];
     u32 fontSize;
     u32 ignoreWaitCounter;
     u8 dialogueSkippable;
-
-    GuiMsgVm()
-    {
-        FAKE_INLINE_DWORD_STACK_PADDING<24>();
-        // this doesn't match without the extra block, do not remove
-        {
-            FAKE_INLINE_DWORD_STACK_PADDING<1>();
-        }
-    }
 };
 ZUN_ASSERT_SIZE(GuiMsgVm, 0x6a8);
 
@@ -103,6 +94,14 @@ struct GuiFormattedText
 };
 ZUN_ASSERT_SIZE(GuiFormattedText, 0x20);
 
+struct PadEvilNoWhy
+{
+    PadEvilNoWhy()
+    {
+        FAKE_INLINE_DWORD_STACK_PADDING<14>();
+    }
+};
+
 struct GuiImpl
 {
     GuiImpl();
@@ -112,6 +111,7 @@ struct GuiImpl
 
     AnmVm vms[26];
     u8 bossHealthBarState;
+    PadEvilNoWhy ew; // why does this make the constructor match
     AnmVm stageNameSprite;
     AnmVm songNameSprite;
     AnmVm playerSpellcardPortrait;
