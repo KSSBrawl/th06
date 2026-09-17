@@ -997,8 +997,7 @@ ZunResult Player::UpdateFireBulletsTimer(Player *p)
 
     p->fireBulletTimer++;
 
-    if ((i32)p->fireBulletTimer >= 30 || p->playerState == PLAYER_STATE_DEAD ||
-        p->playerState == PLAYER_STATE_SPAWNING)
+    if ((i32)p->fireBulletTimer >= 30 || p->playerState == PLAYER_STATE_DEAD || p->playerState == PLAYER_STATE_SPAWNING)
     {
         p->fireBulletTimer = -1;
     }

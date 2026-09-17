@@ -275,7 +275,7 @@ ZunResult Ending::ParseEndFile()
             case END_OPCODE_WAIT_RESET:
                 /* waitreset(maxframes, minframes) */
                 this->endFileDataPtr++;
-                this->timer3 = this->ReadEndFileParameter();   // maxFrames
+                this->timer3 = this->ReadEndFileParameter();             // maxFrames
                 this->minWaitResetFrames = this->ReadEndFileParameter(); // minframes
                 while (this->endFileDataPtr[0] != '\n' && this->endFileDataPtr[0] != '\r')
                 {
@@ -290,8 +290,8 @@ ZunResult Ending::ParseEndFile()
             case END_OPCODE_WAIT:
                 /* wait(maxFrames, minFrames) */
                 this->endFileDataPtr++;
-                this->timer2 = this->ReadEndFileParameter(); // maxFrames
-                this->minWaitFrames = this->ReadEndFileParameter();    // minFrames
+                this->timer2 = this->ReadEndFileParameter();        // maxFrames
+                this->minWaitFrames = this->ReadEndFileParameter(); // minFrames
                 while (this->endFileDataPtr[0] != '\n' && this->endFileDataPtr[0] != '\r')
                 {
                     this->endFileDataPtr++;
