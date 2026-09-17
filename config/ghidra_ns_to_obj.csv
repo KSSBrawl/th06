@@ -27,6 +27,5 @@ SoundPlayer,th06::SoundPlayer
 Stage,th06::Stage,th06::AnmManager::ExecuteAnmIdx
 Supervisor,th06::Supervisor
 TextHelper,th06::TextHelper
-ZunTimer,th06::ZunTimer
 main,WinMain
 zwave,th06::CSound,th06::CSoundManager,th06::CStreamingSound,th06::CWaveFile
