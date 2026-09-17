@@ -42,7 +42,7 @@ void EnemyManager::Initialize()
         enemy->vms[i].anmFileIndex = -1;
     }
     enemy->flags.isSlotOccupied = 1;
-    enemy->bossTimer.InitializeForPopup();
+    enemy->bossTimer = 0;
     enemy->flags.isInteractable = 1;
     enemy->flags.isCollidable = 1;
     enemy->flags.hasBeenInBounds = 0;
@@ -63,7 +63,7 @@ void EnemyManager::Initialize()
     enemy->deathAnm2 = 0;
     enemy->deathAnm3 = 0;
     enemy->shootInterval = 0;
-    enemy->shootIntervalTimer.InitializeForPopup();
+    enemy->shootIntervalTimer = 0;
     enemy->shootOffset = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
     enemy->anmExLeft = -1;
     enemy->anmExRight = -1;
@@ -164,14 +164,14 @@ void EnemyManager::RunEclTimeline()
         // number of lives lost?
         subrankIncreaseFrame = 10 * 4 * 60;
         subrankIncreaseFrame -= g_GameManager.livesRemaining * 4 * 60;
-        if (this->timelineTime.HasTicked() && this->timelineTime.AsFrames() % subrankIncreaseFrame == 0)
+        if (this->timelineTime.HasTicked() && this->timelineTime % subrankIncreaseFrame == 0)
         {
             g_GameManager.IncreaseSubrank(100);
         }
     }
     while (0 <= this->timelineInstr->time)
     {
-        if ((ZunBool)(this->timelineTime.current == this->timelineInstr->time))
+        if (this->timelineTime == (i32)this->timelineInstr->time)
         {
             switch (this->timelineInstr->opCode)
             {
@@ -303,7 +303,7 @@ void EnemyManager::RunEclTimeline()
             case 9:
                 if (g_Gui.MsgWait())
                 {
-                    this->timelineTime.Decrement(1);
+                    this->timelineTime--;
                     return;
                 }
                 break;
@@ -317,12 +317,12 @@ void EnemyManager::RunEclTimeline()
                 if (this->bosses[this->timelineInstr->arg0] != NULL &&
                     this->bosses[this->timelineInstr->arg0]->flags.isSlotOccupied)
                 {
-                    this->timelineTime.Decrement(1);
+                    this->timelineTime--;
                     return;
                 }
             }
         }
-        else if ((ZunBool)(this->timelineTime.current < this->timelineInstr->time))
+        else if (this->timelineTime < (i32)this->timelineInstr->time)
         {
             break;
         }
@@ -390,7 +390,7 @@ ZunBool Enemy::HandleTimerCallback()
 
     if (this->flags.isBoss)
     {
-        g_Gui.SetSpellcardSeconds((this->timerCallbackThreshold - this->bossTimer.AsFrames()) / 60);
+        g_Gui.SetSpellcardSeconds((this->timerCallbackThreshold - this->bossTimer) / 60);
     }
 
     if (this->HasBossTimerFinished())
@@ -403,7 +403,7 @@ ZunBool Enemy::HandleTimerCallback()
         g_EclManager.CallEclSub(&this->currentContext, this->timerCallbackSub);
         this->timerCallbackThreshold = -1;
         this->timerCallbackSub = this->deathCallbackSub;
-        this->bossTimer.InitializeForPopup();
+        this->bossTimer = 0;
         if (!this->flags.isTimeoutSpell)
         {
             g_EnemyManager.spellcardInfo.isCapturing = false;
@@ -733,10 +733,10 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
         Enemy::UpdateEffects(curEnemy);
         if (g_GameManager.isTimeStopped == 0)
         {
-            curEnemy->bossTimer.Tick();
+            curEnemy->bossTimer++;
         }
     }
-    mgr->timelineTime.Tick();
+    mgr->timelineTime++;
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 

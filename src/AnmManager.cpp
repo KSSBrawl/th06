@@ -474,17 +474,12 @@ ZunResult AnmManager::SetActiveSprite(AnmVm *vm, u32 sprite_index)
 
 void AnmManager::SetAndExecuteScript(AnmVm *vm, AnmRawInstr *beginingOfScript)
 {
-    ZunTimer *timer;
-
     vm->flags.flip = 0;
     vm->Initialize();
     vm->beginingOfScript = beginingOfScript;
     vm->currentInstruction = vm->beginingOfScript;
 
-    timer = &(vm->currentTimeInScript);
-    timer->current = 0;
-    timer->subFrame = 0.0;
-    timer->previous = -999;
+    vm->currentTimeInScript = 0;
 
     vm->flags.isVisible = 0;
     if (beginingOfScript)
@@ -1028,7 +1023,7 @@ i32 AnmManager::ExecuteScript(AnmVm *vm)
         goto yolo;
     }
 
-    while (curInstr = vm->currentInstruction, curInstr->time <= vm->currentTimeInScript.AsFrames())
+    while (curInstr = vm->currentInstruction, curInstr->time <= vm->currentTimeInScript)
     {
         switch (curInstr->opcode)
         {
@@ -1040,14 +1035,14 @@ i32 AnmManager::ExecuteScript(AnmVm *vm)
         case AnmOpcode_SetActiveSprite:
             vm->flags.isVisible = 1;
             this->SetActiveSprite(vm, curInstr->args[0] + this->spriteIndices[vm->anmFileIndex]);
-            vm->timeOfLastSpriteSet = vm->currentTimeInScript.AsFrames();
+            vm->timeOfLastSpriteSet = vm->currentTimeInScript;
             break;
         case AnmOpcode_SetRandomSprite:
             vm->flags.isVisible = 1;
             local_c = &curInstr->args[0];
             this->SetActiveSprite(vm, local_c[0] + g_Rng.GetRandomU16InRange(local_c[1]) +
                                           this->spriteIndices[vm->anmFileIndex]);
-            vm->timeOfLastSpriteSet = vm->currentTimeInScript.AsFrames();
+            vm->timeOfLastSpriteSet = vm->currentTimeInScript;
             break;
         case AnmOpcode_SetScale:
             vm->scaleX = *(f32 *)&curInstr->args[0];
@@ -1097,7 +1092,7 @@ i32 AnmManager::ExecuteScript(AnmVm *vm)
             vm->scaleInterpFinalX = *local_1c++;
             vm->scaleInterpFinalY = *local_1c++;
             vm->scaleInterpEndTime = *(u16 *)local_1c;
-            vm->scaleInterpTime.InitializeForPopup();
+            vm->scaleInterpTime = 0;
             vm->scaleInterpInitialX = vm->scaleX;
             vm->scaleInterpInitialY = vm->scaleY;
             break;
@@ -1106,7 +1101,7 @@ i32 AnmManager::ExecuteScript(AnmVm *vm)
             vm->alphaInterpInitial = vm->color;
             vm->alphaInterpFinal = COLOR_SET_ALPHA2(vm->color, local_20[0]);
             vm->alphaInterpEndTime = local_20[1];
-            vm->alphaInterpTime.InitializeForPopup();
+            vm->alphaInterpTime = 0;
             break;
         case AnmOpcode_SetBlendAdditive:
             vm->flags.blendMode = AnmVmBlendMode_One;
@@ -1146,7 +1141,7 @@ i32 AnmManager::ExecuteScript(AnmVm *vm)
             vm->posInterpFinal =
                 D3DXVECTOR3(*(f32 *)&curInstr->args[0], *(f32 *)&curInstr->args[1], *(f32 *)&curInstr->args[2]);
             vm->posInterpEndTime = curInstr->args[3];
-            vm->posInterpTime.InitializeForPopup();
+            vm->posInterpTime = 0;
             break;
         case AnmOpcode_StopHide:
             vm->flags.isVisible = 0;
@@ -1154,7 +1149,7 @@ i32 AnmManager::ExecuteScript(AnmVm *vm)
             if (vm->pendingInterrupt == 0)
             {
                 vm->flags.isStopped = 1;
-                vm->currentTimeInScript.Decrement(1);
+                vm->currentTimeInScript--;
                 goto stop;
             }
         yolo:
@@ -1176,7 +1171,7 @@ i32 AnmManager::ExecuteScript(AnmVm *vm)
             {
                 if (nextInstr == NULL)
                 {
-                    vm->currentTimeInScript.Decrement(1);
+                    vm->currentTimeInScript--;
                     goto stop;
                 }
                 curInstr = nextInstr;
@@ -1184,7 +1179,7 @@ i32 AnmManager::ExecuteScript(AnmVm *vm)
 
             curInstr = (AnmRawInstr *)((i32)curInstr->args + curInstr->argsCount);
             vm->currentInstruction = curInstr;
-            vm->currentTimeInScript.SetCurrent(vm->currentInstruction->time);
+            vm->currentTimeInScript = vm->currentInstruction->time;
             vm->flags.isVisible = 1;
             continue;
         case AnmOpcode_SetVisibility:
@@ -1247,8 +1242,8 @@ stop:
     }
     if (vm->scaleInterpEndTime > 0)
     {
-        vm->scaleInterpTime.Tick();
-        if (vm->scaleInterpTime.AsFrames() >= vm->scaleInterpEndTime)
+        vm->scaleInterpTime++;
+        if ((i32)vm->scaleInterpTime >= vm->scaleInterpEndTime)
         {
             vm->scaleY = vm->scaleInterpFinalY;
             vm->scaleX = vm->scaleInterpFinalX;
@@ -1281,7 +1276,7 @@ stop:
     }
     if (0 < vm->alphaInterpEndTime)
     {
-        vm->alphaInterpTime.Tick();
+        vm->alphaInterpTime++;
         local_2c = vm->alphaInterpInitial;
         local_28 = vm->alphaInterpFinal;
         local_30 = vm->alphaInterpTime.AsFramesFloat() / (f32)vm->alphaInterpEndTime;
@@ -1301,7 +1296,7 @@ stop:
             COLOR_SET_COMPONENT(local_2c, local_38, local_34 >= 256 ? 255 : local_34);
         }
         vm->color = local_2c;
-        if (vm->alphaInterpTime.AsFrames() >= vm->alphaInterpEndTime)
+        if ((i32)vm->alphaInterpTime >= vm->alphaInterpEndTime)
         {
             vm->alphaInterpEndTime = 0;
         }
@@ -1339,13 +1334,13 @@ stop:
             vm->posOffset.z = local_3c * vm->posInterpFinal.z + (1.0f - local_3c) * vm->posInterpInitial.z;
         }
 
-        if (vm->posInterpTime.AsFrames() >= vm->posInterpEndTime)
+        if ((i32)vm->posInterpTime >= vm->posInterpEndTime)
         {
             vm->posInterpEndTime = 0;
         }
-        vm->posInterpTime.Tick();
+        vm->posInterpTime++;
     }
-    vm->currentTimeInScript.Tick();
+    vm->currentTimeInScript++;
     return 0;
 }
 

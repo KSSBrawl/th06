@@ -38,7 +38,7 @@ ZunResult Player::RegisterChain(u8 unk)
     Player *p = &g_Player;
     memset(p, 0, sizeof(Player));
 
-    p->invulnerabilityTimer.InitializeForPopup();
+    p->invulnerabilityTimer = 0;
     p->unk_9e1 = unk;
     p->chainCalc = g_Chain.CreateElem((ChainCallback)Player::OnUpdate);
     p->chainDraw1 = g_Chain.CreateElem((ChainCallback)Player::OnDrawHighPrio);
@@ -115,7 +115,7 @@ ZunResult Player::AddedCallback(Player *p)
     p->fireBulletCallback = p->characterData.fireBulletCallback;
     p->fireBulletFocusCallback = p->characterData.fireBulletFocusCallback;
     p->playerState = PLAYER_STATE_SPAWNING;
-    p->invulnerabilityTimer.SetCurrent(120);
+    p->invulnerabilityTimer = 120;
     p->orbState = ORB_HIDDEN;
     g_AnmManager->SetAndExecuteScriptIdx(&p->orbsSprite[0], ANM_SCRIPT_PLAYER_ORB_LEFT);
     g_AnmManager->SetAndExecuteScriptIdx(&p->orbsSprite[1], ANM_SCRIPT_PLAYER_ORB_RIGHT);
@@ -123,13 +123,13 @@ ZunResult Player::AddedCallback(Player *p)
     {
         curBullet->bulletState = 0;
     }
-    p->fireBulletTimer.SetCurrent(-1);
+    p->fireBulletTimer = -1;
     p->bombInfo.calc = g_BombData[g_GameManager.CharacterShotType()].calc;
     p->bombInfo.draw = g_BombData[g_GameManager.CharacterShotType()].draw;
     p->bombInfo.isInUse = 0;
     for (idx = 0; idx < ARRAY_SIZE_SIGNED(p->laserTimer); idx++)
     {
-        p->laserTimer[idx].InitializeForPopup();
+        p->laserTimer[idx] = 0;
     }
     p->verticalMovementSpeedMultiplierDuringBomb = 1.0;
     p->horizontalMovementSpeedMultiplierDuringBomb = 1.0;
@@ -176,7 +176,7 @@ ChainCallbackResult Player::OnUpdate(Player *p)
         g_GameManager.bombsRemaining--;
         g_Gui.flags.flag1 = 2;
         p->bombInfo.isInUse = 1;
-        p->bombInfo.timer.SetCurrent(0);
+        p->bombInfo.timer = 0;
         p->bombInfo.duration = 999;
         p->bombInfo.calc(p);
         g_EnemyManager.spellcardInfo.isCapturing = false;
@@ -233,13 +233,13 @@ ChainCallbackResult Player::OnUpdate(Player *p)
             p->playerSprite.flags.blendMode = AnmVmBlendMode_One;
             p->previousHorizontalSpeed = 0.0f;
             p->previousVerticalSpeed = 0.0f;
-            if (p->invulnerabilityTimer.AsFrames() >= 30)
+            if ((i32)p->invulnerabilityTimer >= 30)
             {
                 p->playerState = PLAYER_STATE_SPAWNING;
                 p->positionCenter.x = g_GameManager.arcadeRegionSize.x / 2.0f;
                 p->positionCenter.y = g_GameManager.arcadeRegionSize.y - 64.0f;
                 p->positionCenter.z = 0.2;
-                p->invulnerabilityTimer.SetCurrent(0);
+                p->invulnerabilityTimer = 0;
                 p->playerSprite.scaleX = 3.0;
                 p->playerSprite.scaleY = 3.0;
                 g_AnmManager->SetAndExecuteScriptIdx(&p->playerSprite, ANM_SCRIPT_PLAYER_IDLE);
@@ -275,16 +275,16 @@ ChainCallbackResult Player::OnUpdate(Player *p)
         p->playerSprite.flags.blendMode = AnmVmBlendMode_One;
         p->verticalMovementSpeedMultiplierDuringBomb = 1.0;
         p->horizontalMovementSpeedMultiplierDuringBomb = 1.0;
-        p->playerSprite.color = COLOR_SET_ALPHA(COLOR_WHITE, p->invulnerabilityTimer.AsFrames() * 255 / 30);
+        p->playerSprite.color = COLOR_SET_ALPHA(COLOR_WHITE, p->invulnerabilityTimer * 255 / 30);
         p->respawnTimer = 0;
-        if (30 <= p->invulnerabilityTimer.AsFrames())
+        if (30 <= p->invulnerabilityTimer)
         {
             p->playerState = PLAYER_STATE_INVULNERABLE;
             p->playerSprite.scaleX = 1.0;
             p->playerSprite.scaleY = 1.0;
             p->playerSprite.color = COLOR_WHITE;
             p->playerSprite.flags.blendMode = AnmVmBlendMode_InvSrcAlpha;
-            p->invulnerabilityTimer.SetCurrent(240);
+            p->invulnerabilityTimer = 240;
             p->respawnTimer = 6;
         }
     }
@@ -295,15 +295,15 @@ ChainCallbackResult Player::OnUpdate(Player *p)
     }
     if (p->playerState == PLAYER_STATE_INVULNERABLE)
     {
-        p->invulnerabilityTimer.Decrement(1);
-        if (p->invulnerabilityTimer.AsFrames() <= 0)
+        p->invulnerabilityTimer--;
+        if ((i32)p->invulnerabilityTimer <= 0)
         {
             p->playerState = PLAYER_STATE_ALIVE;
-            p->invulnerabilityTimer.SetCurrent(0);
+            p->invulnerabilityTimer = 0;
             p->playerSprite.flags.colorOp = AnmVmColorOp_Modulate;
             p->playerSprite.color = COLOR_WHITE;
         }
-        else if (p->invulnerabilityTimer.AsFrames() % 8 < 2)
+        else if (p->invulnerabilityTimer % 8 < 2)
         {
             p->playerSprite.flags.colorOp = AnmVmColorOp_Add;
             p->playerSprite.color = 0xff404040;
@@ -316,7 +316,7 @@ ChainCallbackResult Player::OnUpdate(Player *p)
     }
     else
     {
-        p->invulnerabilityTimer.Tick();
+        p->invulnerabilityTimer++;
     }
     if (p->playerState != PLAYER_STATE_DEAD && p->playerState != PLAYER_STATE_SPAWNING)
     {
@@ -407,7 +407,7 @@ i32 Player::CalcDamageToEnemy(D3DXVECTOR3 *enemyPos, D3DXVECTOR3 *enemyHitboxSiz
                 bullet->size.x = 48.0f;
                 bullet->size.y = 48.0f;
             }
-            if (bullet->unk_140.AsFrames() % 6 == 0)
+            if (bullet->unk_140 % 6 == 0)
             {
                 g_EffectManager.SpawnParticles(PARTICLE_EFFECT_UNK_5, &bullet->position, 1, COLOR_WHITE);
             }
@@ -476,9 +476,9 @@ void Player::UpdatePlayerBullets(Player *player)
 
     for (idx = 0; idx < ARRAY_SIZE_SIGNED(player->laserTimer); idx++)
     {
-        if (player->laserTimer[idx].AsFrames() != 0)
+        if (player->laserTimer[idx] != 0)
         {
-            player->laserTimer[idx].Decrement(1);
+            player->laserTimer[idx]--;
         }
     }
     bullet = &player->bullets[0];
@@ -494,7 +494,7 @@ void Player::UpdatePlayerBullets(Player *player)
         case BULLET_TYPE_1:
             if (bullet->bulletState == PLAYER_BULLET_STATE_FIRED)
             {
-                if (player->positionOfLastEnemyHit.x > -100.0f && bullet->unk_140.AsFrames() < 40 &&
+                if (player->positionOfLastEnemyHit.x > -100.0f && (i32)bullet->unk_140 < 40 &&
                     bullet->unk_140.HasTicked())
                 {
                     vector.x = player->positionOfLastEnemyHit.x - bullet->position.x;
@@ -582,7 +582,7 @@ void Player::UpdatePlayerBullets(Player *player)
         {
             bullet->bulletState = PLAYER_BULLET_STATE_UNUSED;
         }
-        bullet->unk_140.Tick();
+        bullet->unk_140++;
     }
 }
 
@@ -844,12 +844,12 @@ ZunResult Player::HandlePlayerInputs()
     switch (this->orbState)
     {
     case ORB_HIDDEN:
-        this->focusMovementTimer.InitializeForPopup();
+        this->focusMovementTimer = 0;
         break;
 
     case ORB_UNFOCUSED:
         horizontalOrbOffset = 24.0;
-        this->focusMovementTimer.InitializeForPopup();
+        this->focusMovementTimer = 0;
         if (this->isFocus)
         {
             this->orbState = ORB_FOCUSING;
@@ -861,14 +861,14 @@ ZunResult Player::HandlePlayerInputs()
 
     CASE_ORB_FOCUSING:
     case ORB_FOCUSING:
-        this->focusMovementTimer.Tick();
+        this->focusMovementTimer++;
 
         intermediateFloat = this->focusMovementTimer.AsFramesFloat() / 8.0f;
         verticalOrbOffset = (1.0f - intermediateFloat) * 32.0f + -32.0f;
         intermediateFloat *= intermediateFloat;
         horizontalOrbOffset = -16.0f * intermediateFloat + 24.0f;
 
-        if ((ZunBool)(this->focusMovementTimer.current >= 8))
+        if (this->focusMovementTimer >= 8)
         {
             this->orbState = ORB_FOCUSED;
         }
@@ -876,7 +876,7 @@ ZunResult Player::HandlePlayerInputs()
         {
 
             this->orbState = ORB_UNFOCUSING;
-            this->focusMovementTimer.SetCurrent(8 - this->focusMovementTimer.AsFrames());
+            this->focusMovementTimer = 8 - this->focusMovementTimer;
 
             goto CASE_ORB_UNFOCUSING;
         }
@@ -888,7 +888,7 @@ ZunResult Player::HandlePlayerInputs()
     case ORB_FOCUSED:
         horizontalOrbOffset = 8.0;
         verticalOrbOffset = -32.0;
-        this->focusMovementTimer.InitializeForPopup();
+        this->focusMovementTimer = 0;
         if (!this->isFocus)
         {
             this->orbState = ORB_UNFOCUSING;
@@ -900,21 +900,21 @@ ZunResult Player::HandlePlayerInputs()
 
     CASE_ORB_UNFOCUSING:
     case ORB_UNFOCUSING:
-        this->focusMovementTimer.Tick();
+        this->focusMovementTimer++;
 
         intermediateFloat = this->focusMovementTimer.AsFramesFloat() / 8.0f;
         verticalOrbOffset = (32.0f * intermediateFloat) + -32.0f;
         intermediateFloat *= intermediateFloat;
         intermediateFloat = 1.0f - intermediateFloat;
         horizontalOrbOffset = -16.0f * intermediateFloat + 24.0f;
-        if ((ZunBool)(this->focusMovementTimer.current >= 8))
+        if (this->focusMovementTimer >= 8)
         {
             this->orbState = ORB_UNFOCUSED;
         }
         if (this->isFocus)
         {
             this->orbState = ORB_FOCUSING;
-            this->focusMovementTimer.SetCurrent(8 - this->focusMovementTimer.AsFrames());
+            this->focusMovementTimer = 8 - this->focusMovementTimer;
             goto CASE_ORB_FOCUSING;
         }
     }
@@ -976,15 +976,15 @@ void Player::DrawBulletExplosions(Player *p)
 
 void Player::StartFireBulletTimer(Player *p)
 {
-    if (p->fireBulletTimer.AsFrames() < 0)
+    if ((i32)p->fireBulletTimer < 0)
     {
-        p->fireBulletTimer.InitializeForPopup();
+        p->fireBulletTimer = 0;
     }
 }
 
 ZunResult Player::UpdateFireBulletsTimer(Player *p)
 {
-    if (p->fireBulletTimer.AsFrames() < 0)
+    if ((i32)p->fireBulletTimer < 0)
     {
         return ZUN_SUCCESS;
     }
@@ -992,15 +992,14 @@ ZunResult Player::UpdateFireBulletsTimer(Player *p)
     if (p->fireBulletTimer.HasTicked() && (!g_Player.bombInfo.isInUse || g_GameManager.character != CHARA_MARISA ||
                                            g_GameManager.shotType != SHOT_TYPE_B))
     {
-        p->SpawnBullets(p, p->fireBulletTimer.AsFrames());
+        p->SpawnBullets(p, p->fireBulletTimer);
     }
 
-    p->fireBulletTimer.Tick();
+    p->fireBulletTimer++;
 
-    if (p->fireBulletTimer.AsFrames() >= 30 || p->playerState == PLAYER_STATE_DEAD ||
-        p->playerState == PLAYER_STATE_SPAWNING)
+    if ((i32)p->fireBulletTimer >= 30 || p->playerState == PLAYER_STATE_DEAD || p->playerState == PLAYER_STATE_SPAWNING)
     {
-        p->fireBulletTimer.SetCurrent(-1);
+        p->fireBulletTimer = -1;
     }
     return ZUN_SUCCESS;
 }
@@ -1106,9 +1105,9 @@ FireBulletResult Player::FireSingleBullet(Player *player, PlayerBullet *bullet, 
     if (bulletData->bulletType == BULLET_TYPE_LASER)
     {
         bulletFrame = bulletData->bulletFrame;
-        if (!player->laserTimer[bulletFrame].AsFrames())
+        if (!player->laserTimer[bulletFrame])
         {
-            player->laserTimer[bulletFrame].SetCurrent(bulletData->waitBetweenBullets);
+            player->laserTimer[bulletFrame] = bulletData->waitBetweenBullets;
 
             bullet->unk_152 = bulletFrame;
             bullet->spawnPositionIdx = bulletData->spawnPositionIdx;
@@ -1145,7 +1144,7 @@ FireBulletResult Player::FireSingleBullet(Player *player, PlayerBullet *bullet, 
 
         bullet->velocity.y = sinf(bulletData->direction) * bulletData->velocity;
 
-        bullet->unk_140.InitializeForPopup();
+        bullet->unk_140 = 0;
 
         bullet->bulletType = bulletData->bulletType;
         bullet->damage = bulletData->damage;
@@ -1403,12 +1402,12 @@ void Player::Die()
     g_EffectManager.SpawnParticles(PARTICLE_EFFECT_UNK_12, &this->positionCenter, 1, COLOR_NEONBLUE);
     g_EffectManager.SpawnParticles(PARTICLE_EFFECT_UNK_6, &this->positionCenter, 16, COLOR_WHITE);
     this->playerState = PLAYER_STATE_DEAD;
-    this->invulnerabilityTimer.InitializeForPopup();
+    this->invulnerabilityTimer = 0;
     g_SoundPlayer.PlaySoundByIdx(SOUND_PICHUN, 0);
     g_GameManager.deaths++;
     for (curLaserTimerIdx = 0; curLaserTimerIdx < ARRAY_SIZE_SIGNED(this->laserTimer); curLaserTimerIdx++)
     {
-        this->laserTimer[curLaserTimerIdx].SetCurrent(2);
+        this->laserTimer[curLaserTimerIdx] = 2;
     }
     return;
 }

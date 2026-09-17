@@ -224,7 +224,7 @@ Effect *EffectManager::SpawnParticles(i32 effectIdx, D3DXVECTOR3 *pos, i32 count
 
         effect->vm.color = color;
         effect->updateCallback = g_Effects[effectIdx].updateCallback;
-        effect->timer.InitializeForPopup();
+        effect->timer = 0;
         effect->unk_17a = 0;
         effect->unk_17b = 0;
         count--;
@@ -270,7 +270,7 @@ ChainCallbackResult EffectManager::OnUpdate(EffectManager *mgr)
             effect->inUseFlag = 0;
         }
 
-        effect->timer.Tick();
+        effect->timer++;
     }
 
     return CHAIN_CALLBACK_RESULT_CONTINUE;

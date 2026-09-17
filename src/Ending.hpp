@@ -3,7 +3,6 @@
 #include "AnmVm.hpp"
 #include "Chain.hpp"
 #include "ZunResult.hpp"
-#include "ZunTimer.hpp"
 #include "inttypes.hpp"
 
 namespace th06
@@ -46,8 +45,8 @@ struct Ending
     {
         memset(this, 0, sizeof(Ending));
         this->line2Delay = 8;
-        this->timer2.InitializeForPopup();
-        this->timer1.InitializeForPopup();
+        this->timer2 = 0;
+        this->timer1 = 0;
         this->backgroundPos.x = 0.0f;
         this->backgroundPos.y = 0.0f;
         this->backgroundScrollSpeed = 0.0f;

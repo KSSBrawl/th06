@@ -415,7 +415,7 @@ void BulletManager::RemoveAllBullets(ZunBool turnIntoItem)
         if (laser->state < 2)
         {
             laser->state = 2;
-            laser->timer.InitializeForPopup();
+            laser->timer = 0;
 
             if (turnIntoItem)
             {
@@ -498,7 +498,7 @@ i32 BulletManager::DespawnBullets(i32 maxBonusScore, ZunBool awardPoints)
         if (laser->state < 2)
         {
             laser->state = 2;
-            laser->timer.InitializeForPopup();
+            laser->timer = 0;
 
             if (awardPoints != 0)
             {
@@ -587,7 +587,7 @@ Laser *BulletManager::SpawnLaserPattern(EnemyLaserShooter *bulletProps)
         }
 
         laser->flags = bulletProps->flags;
-        laser->timer.InitializeForPopup();
+        laser->timer = 0;
         laser->startOffset = bulletProps->startOffset;
         laser->endOffset = bulletProps->endOffset;
         laser->startLength = bulletProps->startLength;
@@ -704,13 +704,13 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
             }
         HELL:
             curBullet->state = BULLET_STATE_FIRED;
-            curBullet->timer.InitializeForPopup();
+            curBullet->timer = 0;
         case BULLET_STATE_FIRED:
             if (curBullet->exFlags != 0)
             {
                 if (curBullet->exFlags & 1)
                 {
-                    if ((ZunBool)(curBullet->timer.current <= 16))
+                    if (curBullet->timer <= 16)
                     {
                         bulletSpeed = 5.0f - curBullet->timer.AsFramesFloat() * 5.0f / 16.0f;
                         sincosmul(&curBullet->velocity, curBullet->angle, bulletSpeed + curBullet->speed);
@@ -722,7 +722,7 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
                 }
                 else if (curBullet->exFlags & 0x10)
                 {
-                    if ((ZunBool)(curBullet->timer.current >= curBullet->ex5Int0))
+                    if (curBullet->timer >= curBullet->ex5Int0)
                     {
                         curBullet->exFlags &= ~0x10;
                     }
@@ -734,7 +734,7 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
                 }
                 else if (curBullet->exFlags & 0x20)
                 {
-                    if ((ZunBool)(curBullet->timer.current >= curBullet->ex5Int0))
+                    if (curBullet->timer >= curBullet->ex5Int0)
                     {
                         curBullet->exFlags &= ~0x20;
                     }
@@ -749,8 +749,7 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
                 }
                 if (curBullet->exFlags & 0x40)
                 {
-                    if ((ZunBool)(curBullet->timer.current >=
-                                  curBullet->dirChangeInterval * (curBullet->dirChangeNumTimes + 1)))
+                    if (curBullet->timer >= curBullet->dirChangeInterval * (curBullet->dirChangeNumTimes + 1))
                     {
                         curBullet->dirChangeNumTimes++;
 
@@ -776,8 +775,7 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
                 }
                 else if (curBullet->exFlags & 0x100)
                 {
-                    if ((ZunBool)(curBullet->timer.current >=
-                                  curBullet->dirChangeInterval * (curBullet->dirChangeNumTimes + 1)))
+                    if (curBullet->timer >= curBullet->dirChangeInterval * (curBullet->dirChangeNumTimes + 1))
                     {
                         curBullet->dirChangeNumTimes++;
 
@@ -803,8 +801,7 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
                 }
                 else if (curBullet->exFlags & 0x80)
                 {
-                    if ((ZunBool)(curBullet->timer.current >=
-                                  curBullet->dirChangeInterval * (curBullet->dirChangeNumTimes + 1)))
+                    if (curBullet->timer >= curBullet->dirChangeInterval * (curBullet->dirChangeNumTimes + 1))
                     {
                         curBullet->dirChangeNumTimes++;
 
@@ -952,7 +949,7 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
             }
             break;
         }
-        curBullet->timer.Tick();
+        curBullet->timer++;
     }
 
     curLaser = &mgr->lasers[0];
@@ -1001,7 +998,7 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
             else
             {
                 res = ZUN_MIN(curLaser->startTime, 30);
-                if (curLaser->startTime - res < curLaser->timer.AsFrames())
+                if (curLaser->startTime - res < curLaser->timer)
                 {
                     local_14 = curLaser->timer.AsFramesFloat() * curLaser->width / curLaser->startTime;
                 }
@@ -1017,29 +1014,29 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
                 laserSize.x = local_14 / 2.0f;
             }
 
-            if ((ZunBool)(curLaser->timer.current >= curLaser->hitboxStartTime))
+            if (curLaser->timer >= curLaser->hitboxStartTime)
             {
                 g_Player.CalcLaserHitbox(&laserCenter, &laserSize, &curLaser->pos, curLaser->angle,
-                                         curLaser->timer.AsFrames() % 12 == 0);
+                                         curLaser->timer % 12 == 0);
             }
 
-            if ((ZunBool)(curLaser->timer.current < curLaser->startTime))
+            if (curLaser->timer < curLaser->startTime)
             {
                 break;
             }
 
-            curLaser->timer.InitializeForPopup();
+            curLaser->timer = 0;
             curLaser->state++;
         case 1:
             g_Player.CalcLaserHitbox(&laserCenter, &laserSize, &curLaser->pos, curLaser->angle,
-                                     curLaser->timer.AsFrames() % 12 == 0);
+                                     curLaser->timer % 12 == 0);
 
-            if ((ZunBool)(curLaser->timer.current < curLaser->duration))
+            if (curLaser->timer < curLaser->duration)
             {
                 break;
             }
 
-            curLaser->timer.InitializeForPopup();
+            curLaser->timer = 0;
             curLaser->state++;
 
             if (curLaser->despawnDuration == 0)
@@ -1074,13 +1071,13 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
                 }
             }
 
-            if ((ZunBool)(curLaser->timer.current < curLaser->hitboxEndDelay))
+            if (curLaser->timer < curLaser->hitboxEndDelay)
             {
                 g_Player.CalcLaserHitbox(&laserCenter, &laserSize, &curLaser->pos, curLaser->angle,
-                                         curLaser->timer.AsFrames() % 12 == 0);
+                                         curLaser->timer % 12 == 0);
             }
 
-            if ((ZunBool)(curLaser->timer.current < curLaser->despawnDuration))
+            if (curLaser->timer < curLaser->despawnDuration)
             {
                 break;
             }
@@ -1094,11 +1091,11 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
             curLaser->inUse = 0;
         }
 
-        curLaser->timer.Tick();
+        curLaser->timer++;
         g_AnmManager->ExecuteScript(&curLaser->vm0);
     }
 
-    mgr->time.Tick();
+    mgr->time++;
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 

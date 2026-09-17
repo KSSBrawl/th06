@@ -191,12 +191,6 @@
             "reverse_fn_order": false
         },
         {
-            "name": "ZunTimer",
-            "target_path": "build/objdiff/orig/ZunTimer.obj",
-            "base_path": "build/objdiff/reimpl/ZunTimer.obj",
-            "reverse_fn_order": false
-        },
-        {
             "name": "main",
             "target_path": "build/objdiff/orig/main.obj",
             "base_path": "build/objdiff/reimpl/main.obj",

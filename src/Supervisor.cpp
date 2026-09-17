@@ -505,20 +505,79 @@ void Supervisor::DrawFpsCounter()
     return;
 }
 
+void ZunTimer::Initialize()
+{
+    this->current = 0;
+    this->previous = -1;
+    this->subFrame = 0;
+}
+
+void ZunTimer::Increment(i32 value)
+{
+    if (g_Supervisor.framerateMultiplier > 0.99f)
+    {
+        this->current += value;
+
+        return;
+    }
+
+    if (value < 0)
+    {
+        Decrement(-value);
+
+        return;
+    }
+
+    this->previous = this->current;
+    this->subFrame += g_Supervisor.effectiveFramerateMultiplier * (float)value;
+
+    while (this->subFrame >= 1.0f)
+    {
+        this->current += 1;
+        this->subFrame -= 1.0f;
+    }
+}
+
+void ZunTimer::Decrement(i32 value)
+{
+    if (g_Supervisor.framerateMultiplier > 0.99f)
+    {
+        this->current -= value;
+
+        return;
+    }
+
+    if (value < 0)
+    {
+        Increment(-value);
+
+        return;
+    }
+
+    this->previous = this->current;
+    this->subFrame -= g_Supervisor.effectiveFramerateMultiplier * (float)value;
+
+    while (this->subFrame < 0.0f)
+    {
+        this->current -= 1;
+        this->subFrame += 1.0f;
+    }
+}
+
 void Supervisor::TickTimer(i32 *frames, f32 *subframes)
 {
     if (this->framerateMultiplier <= 0.99f)
     {
-        *subframes = *subframes + this->effectiveFramerateMultiplier;
+        *subframes += this->effectiveFramerateMultiplier;
         if (*subframes >= 1.0f)
         {
-            *frames = *frames + 1;
-            *subframes = *subframes - 1.0f;
+            *frames += 1;
+            *subframes -= 1.0f;
         }
     }
     else
     {
-        *frames = *frames + 1;
+        *frames += 1;
     }
 }
 

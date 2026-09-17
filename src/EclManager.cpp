@@ -72,7 +72,7 @@ void EclManager::Unload()
 ZunResult EclManager::CallEclSub(EnemyEclContext *ctx, i16 subId)
 {
     ctx->currentInstr = this->subTable[subId];
-    ctx->time.InitializeForPopup();
+    ctx->time = 0;
     ctx->subId = subId;
     return ZUN_SUCCESS;
 }
@@ -109,7 +109,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
         }
 
     YOLO:
-        if ((ZunBool)(enemy->currentContext.time.current == instruction->time))
+        if (enemy->currentContext.time == instruction->time)
         {
             if (!(instruction->skipForDifficulty & (1 << g_GameManager.difficulty)))
             {
@@ -422,14 +422,14 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
             case ECL_OPCODE_SHOOTINTERVAL:
                 enemy->shootInterval = instruction->args.setInt;
                 enemy->shootInterval += enemy->ShootInterval(g_GameManager.rank);
-                enemy->shootIntervalTimer.SetCurrent(0);
+                enemy->shootIntervalTimer = 0;
                 break;
             case ECL_OPCODE_SHOOTINTERVALDELAYED:
                 enemy->shootInterval = instruction->args.setInt;
                 enemy->shootInterval += enemy->ShootInterval(g_GameManager.rank);
                 if (enemy->shootInterval != 0)
                 {
-                    enemy->shootIntervalTimer.SetCurrent(g_Rng.GetRandomU32InRange(enemy->shootInterval));
+                    enemy->shootIntervalTimer = g_Rng.GetRandomU32InRange(enemy->shootInterval);
                 }
                 break;
             case ECL_OPCODE_SHOOTDISABLED:
@@ -518,7 +518,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                     enemy->lasers[instruction->args.laserOp.laserIdx]->state < 2)
                 {
                     enemy->lasers[instruction->args.laserOp.laserIdx]->state = 2;
-                    enemy->lasers[instruction->args.laserOp.laserIdx]->timer.SetCurrent(0);
+                    enemy->lasers[instruction->args.laserOp.laserIdx]->timer = 0;
                 }
                 break;
             case ECL_OPCODE_LASERCLEARALL:
@@ -775,7 +775,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                 g_Stage.spellcardState = NOT_RUNNING;
                 break;
             case ECL_OPCODE_BOSSTIMERSET:
-                enemy->bossTimer.SetCurrent(instruction->args.setInt);
+                enemy->bossTimer = instruction->args.setInt;
                 break;
             case ECL_OPCODE_LIFECALLBACKTHRESHOLD:
                 enemy->lifeCallbackThreshold = instruction->args.setInt;
@@ -785,7 +785,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                 break;
             case ECL_OPCODE_TIMERCALLBACKTHRESHOLD:
                 enemy->timerCallbackThreshold = instruction->args.setInt;
-                enemy->bossTimer.SetCurrent(0);
+                enemy->bossTimer = 0;
                 break;
             case ECL_OPCODE_TIMERCALLBACKSUB:
                 enemy->timerCallbackSub = instruction->args.setInt;
@@ -832,8 +832,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                 }
                 break;
             case ECL_OPCODE_TIMESET:
-                enemy->currentContext.time.IncrementInline(
-                    *EnemyEclInstr::GetVar(enemy, &instruction->args.timeSet.timeToSet, NULL));
+                enemy->currentContext.time += *EnemyEclInstr::GetVar(enemy, &instruction->args.timeSet.timeToSet, NULL);
                 break;
             case ECL_OPCODE_DROPITEMID:
                 g_ItemManager.SpawnItem(&enemy->position, instruction->args.dropItem.itemId, 0);
@@ -910,7 +909,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                 break;
             case ECL_OPCODE_BOSSTIMERCLEAR:
                 enemy->timerCallbackSub = enemy->deathCallbackSub;
-                enemy->bossTimer.SetCurrent(0);
+                enemy->bossTimer = 0;
                 break;
             case ECL_OPCODE_SPELLCARDFLAGTIMEOUT:
                 enemy->flags.isTimeoutSpell = instruction->args.setInt;
@@ -932,7 +931,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                 enemy->axisSpeed.z = 0.0;
                 break;
             case 2:
-                enemy->moveInterpTimer.Decrement(1);
+                enemy->moveInterpTimer--;
                 local_bc = enemy->moveInterpTimer.AsFramesFloat() / enemy->moveInterpStartTime;
                 if (local_bc >= 1.0f)
                 {
@@ -959,7 +958,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                 }
                 enemy->axisSpeed = local_bc * enemy->moveInterp + enemy->moveInterpStartPos - enemy->position;
                 enemy->angle = atan2f(enemy->axisSpeed.y, enemy->axisSpeed.x);
-                if ((ZunBool)(enemy->moveInterpTimer.current <= 0))
+                if (enemy->moveInterpTimer <= 0)
                 {
                     enemy->flags.movementMode = 0;
                     enemy->position = enemy->moveInterpStartPos + enemy->moveInterp;
@@ -971,12 +970,12 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
             {
                 if (0 < enemy->shootInterval)
                 {
-                    enemy->shootIntervalTimer.Tick();
-                    if ((ZunBool)(enemy->shootIntervalTimer.current >= enemy->shootInterval))
+                    enemy->shootIntervalTimer++;
+                    if (enemy->shootIntervalTimer >= enemy->shootInterval)
                     {
                         enemy->bulletProps.position = enemy->position + enemy->shootOffset;
                         g_BulletManager.SpawnBulletPattern(&enemy->bulletProps);
-                        enemy->shootIntervalTimer.InitializeForPopup();
+                        enemy->shootIntervalTimer = 0;
                     }
                 }
                 if (0 <= enemy->anmExLeft)
@@ -1029,7 +1028,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                 }
             }
             enemy->currentContext.currentInstr = instruction;
-            enemy->currentContext.time.Tick();
+            enemy->currentContext.time++;
             return ZUN_SUCCESS;
         }
     }

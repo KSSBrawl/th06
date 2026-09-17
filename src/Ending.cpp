@@ -130,7 +130,7 @@ ZunResult Ending::ParseEndFile()
 
     if (this->timer3 > 0)
     {
-        this->timer3.Decrement(1);
+        this->timer3--;
         if (this->minWaitResetFrames != 0)
         {
             this->minWaitResetFrames--;
@@ -139,7 +139,7 @@ ZunResult Ending::ParseEndFile()
         {
             if (WAS_PRESSED(TH_BUTTON_SELECTMENU) || this->hasSeenEnding && IS_PRESSED(TH_BUTTON_SKIP))
             {
-                this->timer3.InitializeForPopup();
+                this->timer3 = 0;
             }
         }
         if (this->timer3 <= 0)
@@ -155,7 +155,7 @@ ZunResult Ending::ParseEndFile()
 
     if (this->timer2 > 0)
     {
-        this->timer2.Decrement(1);
+        this->timer2--;
 
         if (this->minWaitFrames != 0)
         {
@@ -165,7 +165,7 @@ ZunResult Ending::ParseEndFile()
         {
             if (WAS_PRESSED(TH_BUTTON_SELECTMENU) || this->hasSeenEnding && IS_PRESSED(TH_BUTTON_SKIP))
             {
-                this->timer2.InitializeForPopup();
+                this->timer2 = 0;
             }
         }
         goto endParsing;
@@ -275,7 +275,7 @@ ZunResult Ending::ParseEndFile()
             case END_OPCODE_WAIT_RESET:
                 /* waitreset(maxframes, minframes) */
                 this->endFileDataPtr++;
-                this->timer3.SetCurrent(this->ReadEndFileParameter());   // maxFrames
+                this->timer3 = this->ReadEndFileParameter();             // maxFrames
                 this->minWaitResetFrames = this->ReadEndFileParameter(); // minframes
                 while (this->endFileDataPtr[0] != '\n' && this->endFileDataPtr[0] != '\r')
                 {
@@ -290,8 +290,8 @@ ZunResult Ending::ParseEndFile()
             case END_OPCODE_WAIT:
                 /* wait(maxFrames, minFrames) */
                 this->endFileDataPtr++;
-                this->timer2.SetCurrent(this->ReadEndFileParameter()); // maxFrames
-                this->minWaitFrames = this->ReadEndFileParameter();    // minFrames
+                this->timer2 = this->ReadEndFileParameter();        // maxFrames
+                this->minWaitFrames = this->ReadEndFileParameter(); // minFrames
                 while (this->endFileDataPtr[0] != '\n' && this->endFileDataPtr[0] != '\r')
                 {
                     this->endFileDataPtr++;
@@ -369,12 +369,12 @@ ZunResult Ending::ParseEndFile()
             // If select button is pressed, display the next line instantly? not sure
             if (IS_PRESSED(TH_BUTTON_SELECTMENU))
             {
-                this->timer2.SetCurrent(this->topLineDelay);
+                this->timer2 = this->topLineDelay;
                 this->minWaitFrames = this->topLineDelay;
             }
             else
             {
-                this->timer2.SetCurrent(this->line2Delay);
+                this->timer2 = this->line2Delay;
                 this->minWaitFrames = this->line2Delay;
             }
 
@@ -412,7 +412,7 @@ ZunResult Ending::ParseEndFile()
     }
 
 endParsing:
-    this->timer1.Tick();
+    this->timer1++;
     this->backgroundPos.y -= this->backgroundScrollSpeed;
     if (this->backgroundPos.y <= 0.0f)
     {
@@ -438,8 +438,8 @@ ZunResult Ending::LoadEnding(char *endFilePath)
     {
         this->endFileDataPtr = (char *)this->endFileData;
         this->line2Delay = 8;
-        this->timer2.InitializeForPopup();
-        this->timer1.InitializeForPopup();
+        this->timer2 = 0;
+        this->timer1 = 0;
         if (endFileDat != NULL)
         {
             free(endFileDat);

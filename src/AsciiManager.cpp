@@ -38,7 +38,7 @@ ChainCallbackResult AsciiManager::OnUpdate(AsciiManager *mgr)
             }
 
             curPopup->position.y -= 0.5f * g_Supervisor.effectiveFramerateMultiplier;
-            curPopup->timer.Tick();
+            curPopup->timer++;
             if (curPopup->timer > 60)
             {
                 curPopup->inUse = false;
@@ -316,7 +316,7 @@ void AsciiManager::CreatePopup1(D3DXVECTOR3 *position, i32 value, D3DCOLOR color
 
     popup->characterCount = characterCount;
     popup->color = color;
-    popup->timer.InitializeForPopup();
+    popup->timer = 0;
     popup->position = *position;
 
     this->nextPopupIndex1++;
@@ -357,7 +357,7 @@ void AsciiManager::CreatePopup2(D3DXVECTOR3 *position, i32 value, D3DCOLOR color
 
     popup->characterCount = characterCount;
     popup->color = color;
-    popup->timer.InitializeForPopup();
+    popup->timer = 0;
     popup->position = *position;
 
     this->nextPopupIndex2++;
