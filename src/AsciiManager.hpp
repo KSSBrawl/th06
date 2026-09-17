@@ -5,8 +5,8 @@
 #include "AnmManager.hpp"
 #include "Chain.hpp"
 #include "StageMenu.hpp"
+#include "Supervisor.hpp"
 #include "ZunResult.hpp"
-#include "ZunTimer.hpp"
 #include "inttypes.hpp"
 
 namespace th06

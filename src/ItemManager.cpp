@@ -50,7 +50,7 @@ void ItemManager::SpawnItem(D3DXVECTOR3 *position, ItemType itemType, int state)
         item->startPosition.z = 0.0f;
         item->itemType = itemType;
         item->state = state;
-        item->timer.InitializeForPopup();
+        item->timer = 0;
         if (state == 2)
         {
             // From 48.0f to 336.0f
@@ -114,7 +114,7 @@ void ItemManager::OnUpdate()
                 curItem->currentPosition = fVar5 * curItem->targetPosition + curItem->startPosition * (1.0f - fVar5);
                 goto yolo;
             }
-            else if ((i32)(curItem->timer.current == 60))
+            else if (curItem->timer == 60)
             {
                 curItem->startPosition = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
             }
@@ -325,7 +325,7 @@ void ItemManager::OnUpdate()
             itemAcquired = true;
             continue;
         }
-        curItem->timer.Tick();
+        curItem->timer++;
         g_AnmManager->ExecuteScript(&curItem->sprite);
     }
     if (itemAcquired)

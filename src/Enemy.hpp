@@ -8,7 +8,6 @@
 #include "SoundPlayer.hpp"
 #include "ZunBool.hpp"
 #include "ZunResult.hpp"
-#include "ZunTimer.hpp"
 #include "inttypes.hpp"
 #include <Windows.h>
 #include <d3d8.h>

@@ -44,7 +44,7 @@ void Gui::ShowBonusScore(u32 bonusScore)
 {
     this->impl->bonusScore.pos = D3DXVECTOR3(416.0f, 32.0f, 0.0f);
     this->impl->bonusScore.isShown = 1;
-    this->impl->bonusScore.timer.InitializeForPopup();
+    this->impl->bonusScore.timer = 0;
     this->impl->bonusScore.fmtArg = bonusScore;
     return;
 }
@@ -53,7 +53,7 @@ void Gui::ShowFullPowerMode(i32 fmtArg)
 {
     this->impl->fullPowerMode.pos = D3DXVECTOR3(416.0f, 232.0f, 0.0f);
     this->impl->fullPowerMode.isShown = 1;
-    this->impl->fullPowerMode.timer.InitializeForPopup();
+    this->impl->fullPowerMode.timer = 0;
     this->impl->fullPowerMode.fmtArg = fmtArg;
     return;
 }
@@ -62,7 +62,7 @@ void Gui::ShowSpellcardBonus(u32 spellcardScore)
 {
     this->impl->spellCardBonus.pos = D3DXVECTOR3(224.0f, 16.0f, 0.0f);
     this->impl->spellCardBonus.isShown = 1;
-    this->impl->spellCardBonus.timer.InitializeForPopup();
+    this->impl->spellCardBonus.timer = 0;
     this->impl->spellCardBonus.fmtArg = spellcardScore;
     return;
 }
@@ -532,9 +532,9 @@ ZunResult GuiImpl::RunMsg()
     }
     if (this->msg.dialogueSkippable && IS_PRESSED(TH_BUTTON_SKIP))
     {
-        this->msg.timer.SetCurrent(this->msg.currentInstr->time);
+        this->msg.timer = this->msg.currentInstr->time;
     }
-    while ((i32)(this->msg.timer.current >= this->msg.currentInstr->time))
+    while (this->msg.timer >= (i32)this->msg.currentInstr->time)
     {
         switch (this->msg.currentInstr->opcode)
         {
@@ -674,7 +674,7 @@ ZunResult GuiImpl::RunMsg()
         this->msg.currentInstr =
             (MsgRawInstr *)(((i32) & this->msg.currentInstr->args) + this->msg.currentInstr->argSize);
     }
-    this->msg.timer.NextTick();
+    this->msg.timer++;
 SKIP_TIME_INCREMENT:
     g_AnmManager->ExecuteScript(&this->msg.portraits[0]);
     g_AnmManager->ExecuteScript(&this->msg.portraits[1]);
@@ -682,9 +682,9 @@ SKIP_TIME_INCREMENT:
     g_AnmManager->ExecuteScript(&this->msg.dialogueLines[1]);
     g_AnmManager->ExecuteScript(&this->msg.introLines[0]);
     g_AnmManager->ExecuteScript(&this->msg.introLines[1]);
-    if ((i32)(this->msg.timer.current < 60) && this->msg.dialogueSkippable && IS_PRESSED(TH_BUTTON_SKIP))
+    if (this->msg.timer < 60 && this->msg.dialogueSkippable && IS_PRESSED(TH_BUTTON_SKIP))
     {
-        this->msg.timer.SetCurrent(60);
+        this->msg.timer = 60;
     }
     return ZUN_SUCCESS;
 }
@@ -702,7 +702,7 @@ ZunResult GuiImpl::DrawDialogue()
     {
         return ZUN_SUCCESS;
     }
-    if ((i32)(this->msg.timer.current < 60))
+    if (this->msg.timer < 60)
     {
         dialogueBoxHeight = this->msg.timer.AsFramesFloat() * 48.0f / 60.0f;
     }
@@ -883,7 +883,7 @@ void Gui::UpdateStageElements()
     }
     if (this->impl->bonusScore.isShown)
     {
-        if ((i32)(this->impl->bonusScore.timer.current < 30))
+        if (this->impl->bonusScore.timer < 30)
         {
             this->impl->bonusScore.pos.x =
                 (this->impl->bonusScore.timer.AsFramesFloat() * -312.0f / 30.0f) + (f32)GAME_REGION_RIGHT;
@@ -896,11 +896,11 @@ void Gui::UpdateStageElements()
         {
             this->impl->bonusScore.isShown = 0;
         }
-        this->TickTimer(&this->impl->bonusScore.timer);
+        this->impl->bonusScore.timer++;
     }
     if (this->impl->fullPowerMode.isShown)
     {
-        if ((i32)(this->impl->fullPowerMode.timer.current < 30))
+        if (this->impl->fullPowerMode.timer < 30)
         {
             this->impl->fullPowerMode.pos.x =
                 (this->impl->fullPowerMode.timer.AsFramesFloat() * -312.0f / 30.0f) + (f32)GAME_REGION_RIGHT;
@@ -913,7 +913,7 @@ void Gui::UpdateStageElements()
         {
             this->impl->fullPowerMode.isShown = 0;
         }
-        this->TickTimer(&this->impl->fullPowerMode.timer);
+        this->impl->fullPowerMode.timer++;
     }
     if (this->impl->spellCardBonus.isShown)
     {
@@ -921,7 +921,7 @@ void Gui::UpdateStageElements()
         {
             this->impl->spellCardBonus.isShown = 0;
         }
-        this->TickTimer(&this->impl->spellCardBonus.timer);
+        this->impl->spellCardBonus.timer++;
     }
     if (this->impl->finishedStage == 1)
     {

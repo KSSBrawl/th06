@@ -63,7 +63,6 @@ enum ResultScreenMainMenuCursor
 
 struct Th6k
 {
-
     u32 magic;
     u16 th6kLen;
     u16 unkLen;
@@ -97,7 +96,6 @@ ZUN_ASSERT_SIZE(Clrd, 0x18);
 
 struct Pscr
 {
-
     Th6k base;
     i32 score;
     u8 character;
@@ -108,7 +106,6 @@ ZUN_ASSERT_SIZE(Pscr, 0x14);
 
 struct Hscr
 {
-
     Th6k base;
     u32 score;
     u8 character;
@@ -136,7 +133,6 @@ ZUN_ASSERT_SIZE(ScoreListNode, 0xc);
 
 struct ScoreDat
 {
-
     u8 xorseed[2];
     u16 csum;
     u16 unk_8;

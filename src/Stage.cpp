@@ -70,7 +70,7 @@ ChainCallbackResult Stage::OnUpdate(Stage *stage)
                 stage->position.y = stage->positionInterpInitial.y;
                 stage->position.z = stage->positionInterpInitial.z;
             }
-            else if ((ZunBool)(stage->scriptTime.current >= curInsn->frame))
+            else if (stage->scriptTime >= curInsn->frame)
             {
                 pos = *(D3DXVECTOR3 *)curInsn->args;
                 stage->position.x = pos.x;
@@ -89,7 +89,7 @@ ChainCallbackResult Stage::OnUpdate(Stage *stage)
             }
             break;
         case STDOP_FOG:
-            if ((ZunBool)(stage->scriptTime.current >= curInsn->frame))
+            if (stage->scriptTime >= curInsn->frame)
             {
                 stage->skyFog.color = curInsn->args[0];
                 stage->skyFog.nearPlane = ((f32 *)curInsn->args)[1];
@@ -106,17 +106,17 @@ ChainCallbackResult Stage::OnUpdate(Stage *stage)
             }
             break;
         case STDOP_FOG_INTERP:
-            if ((ZunBool)(stage->scriptTime.current >= curInsn->frame))
+            if (stage->scriptTime >= curInsn->frame)
             {
                 stage->skyFogInterpInitial = stage->skyFog;
                 stage->skyFogInterpDuration = curInsn->args[0];
-                stage->skyFogInterpTimer.InitializeForPopup();
+                stage->skyFogInterpTimer = 0;
                 stage->instructionIndex++;
                 continue;
             }
             break;
         case STDOP_CAMERA_FACING:
-            if ((ZunBool)(stage->scriptTime.current >= curInsn->frame))
+            if (stage->scriptTime >= curInsn->frame)
             {
                 stage->facingDirInterpInitial = stage->facingDirInterpFinal;
                 stage->facingDirInterpFinal = *(D3DXVECTOR3 *)curInsn->args;
@@ -125,10 +125,10 @@ ChainCallbackResult Stage::OnUpdate(Stage *stage)
             }
             break;
         case STDOP_CAMERA_FACING_INTERP_LINEAR:
-            if ((ZunBool)(stage->scriptTime.current >= curInsn->frame))
+            if (stage->scriptTime >= curInsn->frame)
             {
                 stage->facingDirInterpDuration = curInsn->args[0];
-                stage->facingDirInterpTimer.InitializeForPopup();
+                stage->facingDirInterpTimer = 0;
                 stage->instructionIndex++;
                 continue;
             }
@@ -156,13 +156,13 @@ ChainCallbackResult Stage::OnUpdate(Stage *stage)
         }
         if (stage->facingDirInterpDuration != 0)
         {
-            if ((ZunBool)(stage->facingDirInterpTimer.current < stage->facingDirInterpDuration))
+            if (stage->facingDirInterpTimer < stage->facingDirInterpDuration)
             {
-                stage->facingDirInterpTimer.Tick();
+                stage->facingDirInterpTimer++;
             }
             else
             {
-                stage->facingDirInterpTimer.SetCurrent(stage->facingDirInterpDuration);
+                stage->facingDirInterpTimer = stage->facingDirInterpDuration;
             }
             pos = stage->facingDirInterpFinal - stage->facingDirInterpInitial;
             facingDirInterpRatio = stage->facingDirInterpTimer.AsFramesFloat() / stage->facingDirInterpDuration;
@@ -172,7 +172,7 @@ ChainCallbackResult Stage::OnUpdate(Stage *stage)
         }
         if (stage->skyFogInterpDuration != 0)
         {
-            stage->skyFogInterpTimer.Tick();
+            stage->skyFogInterpTimer++;
             skyFogInterpRatio = stage->skyFogInterpTimer.AsFramesFloat() / stage->skyFogInterpDuration;
             if (skyFogInterpRatio >= 1.0f)
             {
@@ -195,14 +195,14 @@ ChainCallbackResult Stage::OnUpdate(Stage *stage)
             g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGCOLOR, stage->skyFog.color);
             g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGSTART, *(u32 *)&stage->skyFog.nearPlane);
             g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGEND, *(u32 *)&stage->skyFog.farPlane);
-            if ((ZunBool)(stage->skyFogInterpTimer.current >= stage->skyFogInterpDuration))
+            if (stage->skyFogInterpTimer >= stage->skyFogInterpDuration)
             {
                 stage->skyFogInterpDuration = 0;
             }
         }
         if (curInsn->opcode != STDOP_PAUSE)
         {
-            stage->scriptTime.Tick();
+            stage->scriptTime++;
         }
         stage->UpdateObjects();
         if (stage->spellcardState >= RUNNING)
@@ -281,17 +281,9 @@ ChainCallbackResult Stage::OnDrawLowPrio(Stage *stage)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-#pragma var_order(interpFinal, interpInitial, scriptTimer, facingDirTimer)
 ZunResult Stage::AddedCallback(Stage *stage)
 {
-    ZunTimer *facingDirTimer;
-    ZunTimer *scriptTimer;
-
-    D3DXVECTOR3 interpFinal;
-    D3DXVECTOR3 interpInitial;
-
-    scriptTimer = &stage->scriptTime;
-    scriptTimer->InitializeForPopup();
+    stage->scriptTime = 0;
 
     stage->instructionIndex = 0;
     stage->position.x = 0.0;
@@ -308,19 +300,11 @@ ZunResult Stage::AddedCallback(Stage *stage)
     stage->skyFog.color = COLOR_BLACK;
     stage->skyFog.nearPlane = 200.0;
     stage->skyFog.farPlane = 500.0;
-    interpFinal.x = 0;
-    interpFinal.y = 0;
-    interpFinal.z = 1.0;
-    stage->facingDirInterpFinal = interpFinal;
-
-    interpInitial.x = 0;
-    interpInitial.y = 0;
-    interpInitial.z = 1.0;
-    stage->facingDirInterpInitial = interpInitial;
+    stage->facingDirInterpFinal = D3DXVECTOR3(0, 0, 1.0);
+    stage->facingDirInterpInitial = D3DXVECTOR3(0, 0, 1.0);
 
     stage->facingDirInterpDuration = 1;
-    facingDirTimer = &stage->facingDirInterpTimer;
-    facingDirTimer->InitializeForPopup();
+    stage->facingDirInterpTimer = 0;
     stage->unpauseFlag = 0;
 
     g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGCOLOR, stage->skyFog.color);
@@ -329,18 +313,14 @@ ZunResult Stage::AddedCallback(Stage *stage)
     return ZUN_SUCCESS;
 }
 
-#pragma var_order(stg, timer)
 ZunResult Stage::RegisterChain(u32 stage)
 {
-
     Stage *stg = &g_Stage;
-    ZunTimer *timer;
 
     memset(stg, 0, sizeof(Stage));
     stg->stdData = NULL;
 
-    timer = &stg->timer;
-    timer->InitializeForPopup();
+    stg->timer = 0;
 
     stg->stage = stage;
     g_StageCalcChain.callback = (ChainCallback)Stage::OnUpdate;

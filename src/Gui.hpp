@@ -3,7 +3,6 @@
 #include "AnmVm.hpp"
 #include "Chain.hpp"
 #include "Enemy.hpp"
-#include "ZunTimer.hpp"
 #include "diffbuild.hpp"
 #include "inttypes.hpp"
 #include <Windows.h>
@@ -190,11 +189,6 @@ struct Gui
     i32 SpellcardSecondsRemaining()
     {
         return this->spellcardSecondsRemaining;
-    }
-
-    void TickTimer(ZunTimer *timer)
-    {
-        timer->NextTick();
     }
 
     GuiFlags flags;

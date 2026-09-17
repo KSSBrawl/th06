@@ -52,7 +52,7 @@ ChainCallbackResult ScreenEffect::CalcFadeIn(ScreenEffect *effect)
         return CHAIN_CALLBACK_RESULT_CONTINUE_AND_REMOVE_JOB;
     }
 
-    effect->timer.Tick();
+    effect->timer++;
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
@@ -118,7 +118,7 @@ ChainCallbackResult ScreenEffect::CalcFadeOut(ScreenEffect *effect)
         return CHAIN_CALLBACK_RESULT_CONTINUE_AND_REMOVE_JOB;
     }
 
-    effect->timer.Tick();
+    effect->timer++;
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
@@ -223,7 +223,7 @@ ChainCallbackResult ScreenEffect::ShakeScreen(ScreenEffect *effect)
         return CHAIN_CALLBACK_RESULT_CONTINUE;
     }
 
-    effect->timer.Tick();
+    effect->timer++;
     if (effect->timer >= effect->effectLength)
     {
         g_GameManager.arcadeRegionTopLeftPos.x = 32.0f;
@@ -274,7 +274,7 @@ ChainCallbackResult ScreenEffect::ShakeScreen(ScreenEffect *effect)
 
 ZunResult ScreenEffect::AddedCallback(ScreenEffect *effect)
 {
-    effect->timer.InitializeForPopup();
+    effect->timer = 0;
     return ZUN_SUCCESS;
 }
 

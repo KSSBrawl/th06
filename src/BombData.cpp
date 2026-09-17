@@ -35,7 +35,7 @@ void BombData::BombReimuACalc(Player *player)
     {
         g_Gui.ShowBombNamePortrait(ANM_SCRIPT_FACE_BOMB_PORTRAIT, TH_REIMU_A_BOMB_NAME);
         player->bombInfo.duration = 300;
-        player->invulnerabilityTimer.SetCurrent(360);
+        player->invulnerabilityTimer = 360;
 
         for (i = 0; i < 8; i = i + 1)
         {
@@ -53,7 +53,7 @@ void BombData::BombReimuACalc(Player *player)
     if (player->bombInfo.timer >= 60 && player->bombInfo.timer < 180)
     {
 
-        if (player->bombInfo.timer.AsFrames() % 16 == 0 && (i = (player->bombInfo.timer.AsFrames() - 60) / 16))
+        if (player->bombInfo.timer % 16 == 0 && (i = (player->bombInfo.timer - 60) / 16))
         {
             player->bombInfo.reimuABombProjectilesState[i] = 1;
             player->bombInfo.reimuABombProjectilesRelated[i] = 4.0f;
@@ -177,7 +177,7 @@ void BombData::BombReimuACalc(Player *player)
         g_AnmManager->ExecuteScript(&player->bombInfo.sprites[0][i * 4 + 2]);
         g_AnmManager->ExecuteScript(&player->bombInfo.sprites[0][i * 4 + 3]);
     }
-    player->bombInfo.timer.Tick();
+    player->bombInfo.timer++;
 }
 
 #pragma var_order(bombSprite, idx)
@@ -268,7 +268,7 @@ void BombData::BombReimuBCalc(Player *player)
         g_ItemManager.RemoveAllItems();
         g_Gui.ShowBombNamePortrait(ANM_SCRIPT_FACE_ENEMY_SPELLCARD_PORTRAIT, TH_REIMU_B_BOMB_NAME);
         player->bombInfo.duration = 140;
-        player->invulnerabilityTimer.SetCurrent(200);
+        player->invulnerabilityTimer = 200;
         bombSprite = player->bombInfo.sprites[0];
 
         for (i = 0; i < 4; i++, bombSprite++)
@@ -310,7 +310,7 @@ void BombData::BombReimuBCalc(Player *player)
         for (i = 0; i < 4; i++)
         {
             g_AnmManager->ExecuteScript(&player->bombInfo.sprites[0][i]);
-            if (player->bombInfo.timer.HasTicked() && player->bombInfo.timer.AsFrames() % 2 != 0)
+            if (player->bombInfo.timer.HasTicked() && player->bombInfo.timer % 2 != 0)
             {
                 player->bombProjectiles[i].posX =
                     player->bombInfo.bombRegionPositions[i].x + player->bombInfo.sprites[0][i].posOffset.x;
@@ -326,7 +326,7 @@ void BombData::BombReimuBCalc(Player *player)
     }
 
     player->playerState = PLAYER_STATE_INVULNERABLE;
-    player->bombInfo.timer.Tick();
+    player->bombInfo.timer++;
 }
 
 #pragma var_order(bombSprite, i)
@@ -368,7 +368,7 @@ void BombData::BombMarisaACalc(Player *player)
         g_ItemManager.RemoveAllItems();
         g_Gui.ShowBombNamePortrait(ANM_SCRIPT_FACE_ENEMY_SPELLCARD_PORTRAIT, TH_MARISA_A_BOMB_NAME);
         player->bombInfo.duration = 250;
-        player->invulnerabilityTimer.SetCurrent(300);
+        player->invulnerabilityTimer = 300;
 
         starSprite = player->bombInfo.sprites[0];
         for (i = 0; i < ARRAY_SIZE_SIGNED(player->bombInfo.sprites); i++, starSprite++)
@@ -393,7 +393,7 @@ void BombData::BombMarisaACalc(Player *player)
             player->bombInfo.bombRegionPositions[i] +=
                 player->bombInfo.bombRegionVelocities[i] * g_Supervisor.effectiveFramerateMultiplier;
 
-            if (player->bombInfo.timer.HasTicked() && player->bombInfo.timer.AsFrames() % 3 != 0)
+            if (player->bombInfo.timer.HasTicked() && player->bombInfo.timer % 3 != 0)
             {
                 player->bombProjectiles[i].posX = player->bombInfo.bombRegionPositions[i].x;
                 player->bombProjectiles[i].posY = player->bombInfo.bombRegionPositions[i].y;
@@ -409,7 +409,7 @@ void BombData::BombMarisaACalc(Player *player)
         }
     }
     player->playerState = PLAYER_STATE_INVULNERABLE;
-    player->bombInfo.timer.Tick();
+    player->bombInfo.timer++;
 
     return;
 }
@@ -479,7 +479,7 @@ void BombData::BombMarisaBCalc(Player *player)
         g_ItemManager.RemoveAllItems();
         g_Gui.ShowBombNamePortrait(ANM_SCRIPT_FACE_BOMB_PORTRAIT, TH_MARISA_B_BOMB_NAME);
         player->bombInfo.duration = 300;
-        player->invulnerabilityTimer.SetCurrent(360);
+        player->invulnerabilityTimer = 360;
         bombSprite = player->bombInfo.sprites[0];
         for (i = 0; i < 4; i++, bombSprite++)
         {
@@ -501,7 +501,7 @@ void BombData::BombMarisaBCalc(Player *player)
             ScreenEffect::RegisterChain(SCREEN_EFFECT_SHAKE, 200, 24, 0, 0);
         }
 
-        if (player->bombInfo.timer.HasTicked() && player->bombInfo.timer.AsFrames() % 4 != 0)
+        if (player->bombInfo.timer.HasTicked() && player->bombInfo.timer % 4 != 0)
         {
             player->bombProjectiles[0].posX = 192.0f;
             player->bombProjectiles[0].posY = player->positionCenter.y / 2.0f;
@@ -521,7 +521,7 @@ void BombData::BombMarisaBCalc(Player *player)
     }
 
     player->playerState = PLAYER_STATE_INVULNERABLE;
-    player->bombInfo.timer.Tick();
+    player->bombInfo.timer++;
 }
 
 #pragma var_order(bombSprite, i, spriteAngle)

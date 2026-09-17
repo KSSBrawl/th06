@@ -52,7 +52,7 @@ void MoveDirTime(Enemy *enemy, EclRawInstr *instr)
     enemy->moveInterpStartPos = enemy->position;
     enemy->moveInterpStartTime = alu->res;
 
-    enemy->moveInterpTimer.SetCurrent(enemy->moveInterpStartTime);
+    enemy->moveInterpTimer = enemy->moveInterpStartTime;
 
     enemy->flags.movementMode = 2;
 }
@@ -70,7 +70,7 @@ void MovePosTime(Enemy *enemy, EclRawInstr *instr)
     enemy->moveInterpStartPos = enemy->position;
     enemy->moveInterpStartTime = alu->res;
 
-    enemy->moveInterpTimer.SetCurrent(enemy->moveInterpStartTime);
+    enemy->moveInterpTimer = enemy->moveInterpStartTime;
 
     enemy->flags.movementMode = 2;
     enemy->axisSpeed = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
@@ -91,7 +91,7 @@ void MoveTime(Enemy *enemy, EclRawInstr *instr)
     enemy->moveInterpStartPos = enemy->position;
     enemy->moveInterpStartTime = alu->res;
 
-    enemy->moveInterpTimer.SetCurrent(enemy->moveInterpStartTime);
+    enemy->moveInterpTimer = enemy->moveInterpStartTime;
 
     enemy->flags.movementMode = 2;
 }
@@ -786,7 +786,7 @@ void ExInsBatWingEffect(Enemy *enemy, EclRawInstr *instr)
         effect->unk_128 = -effect->unk_11c / 120.0f;
     }
 
-    enemy->exInsFunc6Timer.Tick();
+    enemy->exInsFunc6Timer++;
 }
 
 #pragma var_order(laserProps, i, lengthMultiplier, attackType, innerLoopCount, angleDiff, outerLoopCount, laserAngle,  \
@@ -976,7 +976,7 @@ void ExInsStage6Func9(Enemy *enemy, EclRawInstr *instr)
                                           currentBullet->sprites.spriteBullet.baseSpriteIndex +
                                               currentBullet->spriteOffset);
             currentBullet->speed = 0.01f;
-            currentBullet->timer.InitializeForPopup();
+            currentBullet->timer = 0;
             currentBullet->ex5Int0 = 120;
             distance = (enemy->position.x - currentBullet->pos.x) * (enemy->position.x - currentBullet->pos.x) +
                        (enemy->position.y - currentBullet->pos.y) * (enemy->position.y - currentBullet->pos.y);
@@ -1023,7 +1023,7 @@ void ExInsStage6Func11(Enemy *enemy, EclRawInstr *instr)
                                           currentBullet->sprites.spriteBullet.baseSpriteIndex +
                                               currentBullet->spriteOffset);
             currentBullet->speed = 0.01f;
-            currentBullet->timer.InitializeForPopup();
+            currentBullet->timer = 0;
             currentBullet->ex5Int0 = 120;
 
             sincosmul(&currentBullet->ex4Acceleration, g_Rng.GetRandomF32InRange(ZUN_PI * 2) - ZUN_PI, 0.01f);
@@ -1048,11 +1048,11 @@ void ExInsHandleBatTransformation(Enemy *enemy, EclRawInstr *instr)
         }
 
         enemy->flags.isInteractable = 0;
-        enemy->exInsFunc10Timer.SetCurrent(60);
+        enemy->exInsFunc10Timer = 60;
     }
     else
     {
-        if (enemy->exInsFunc10Timer > 0 && (enemy->exInsFunc10Timer.Decrement(1), enemy->exInsFunc10Timer == 0))
+        if (enemy->exInsFunc10Timer > 0 && (enemy->exInsFunc10Timer--, enemy->exInsFunc10Timer == 0))
         {
             if (enemy->anmExLeft < 0)
             {
@@ -1186,7 +1186,7 @@ void ExInsStageXFunc15(Enemy *enemy, EclRawInstr *instr)
                 {
                     innerBullet->exFlags |= 0x10;
                     innerBullet->speed = 0.01f;
-                    innerBullet->timer.InitializeForPopup();
+                    innerBullet->timer = 0;
                     innerBullet->ex5Int0 = 120;
                     bulletsAngle =
                         atan2f(innerBullet->pos.y - enemy->position.y, innerBullet->pos.x - enemy->position.x);
