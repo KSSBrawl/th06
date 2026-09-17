@@ -12,6 +12,7 @@ Kirisame_Marisa_(Love),0x46bb60,global,17
 Kirisame_Marisa_(Devil),0x46bb74,global,17
 Hakurei_Reimu_(Dream),0x46bb88,global,15
 Hakurei_Reimu_(Spirit),0x46bb98,global,15
+g_DifficultyWeightsList,0x46bca4,global,20
 th06::g_TextureFormatD3D8Mapping,0x46c220,global,24
 th06::CSound::`vftable',0x46c680,vtable,4
 th06::CStreamingSound::`vftable',0x46c69c,vtable,4
