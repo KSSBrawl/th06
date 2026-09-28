@@ -96,7 +96,6 @@ enum StageOpcode
 
 struct Stage
 {
-    Stage();
     static ZunResult RegisterChain(u32 stage);
     static void CutChain();
     static ChainCallbackResult OnUpdate(Stage *stage);

@@ -12,7 +12,9 @@ struct MidiTimer
     MidiTimer();
     ~MidiTimer();
 
-    virtual void OnTimerElapsed();
+    virtual void OnTimerElapsed()
+    {
+    }
 
     i32 StopTimer();
     u32 StartTimer(u32 delay, LPTIMECALLBACK cb, DWORD_PTR data);

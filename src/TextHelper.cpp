@@ -73,12 +73,6 @@ bool TextHelper::AllocateBufferWithFallback(i32 width, i32 height, D3DFORMAT for
     return false;
 }
 
-struct THBITMAPINFO
-{
-    BITMAPINFOHEADER bmiHeader;
-    RGBQUAD bmiColors[17];
-};
-
 #pragma function(strlen)
 void strlen_dummy(const char *a)
 {
@@ -94,44 +88,44 @@ bool TextHelper::TryAllocateBuffer(i32 width, i32 height, D3DFORMAT format)
     u8 *bitmapData;
     HBITMAP bitmapObj;
     FormatInfo *formatInfo;
-    THBITMAPINFO bitmapInfo;
+    BITMAPV4HEADER bitmapInfo;
     HDC deviceContext;
     i32 imageWidthInBytes;
 
     this->ReleaseBuffer();
-    memset(&bitmapInfo, 0, sizeof(THBITMAPINFO));
+    memset(&bitmapInfo, 0, sizeof(BITMAPV4HEADER));
     formatInfo = this->GetFormatInfo(format);
     if (formatInfo == NULL)
     {
         return false;
     }
     imageWidthInBytes = ((((width * formatInfo->bitCount) / 8) + 3) / 4) * 4;
-    bitmapInfo.bmiHeader.biSize = sizeof(THBITMAPINFO);
-    bitmapInfo.bmiHeader.biWidth = width;
-    bitmapInfo.bmiHeader.biHeight = -(height + 1);
-    bitmapInfo.bmiHeader.biPlanes = 1;
-    bitmapInfo.bmiHeader.biBitCount = formatInfo->bitCount;
-    bitmapInfo.bmiHeader.biSizeImage = height * imageWidthInBytes;
+    bitmapInfo.bV4Size = sizeof(BITMAPV4HEADER);
+    bitmapInfo.bV4Width = width;
+    bitmapInfo.bV4Height = -(height + 1);
+    bitmapInfo.bV4Planes = 1;
+    bitmapInfo.bV4BitCount = formatInfo->bitCount;
+    bitmapInfo.bV4SizeImage = height * imageWidthInBytes;
     if (format != D3DFMT_X1R5G5B5 && format != D3DFMT_X8R8G8B8)
     {
-        bitmapInfo.bmiHeader.biCompression = 3;
-        ((u32 *)bitmapInfo.bmiColors)[0] = formatInfo->redMask;
-        ((u32 *)bitmapInfo.bmiColors)[1] = formatInfo->greenMask;
-        ((u32 *)bitmapInfo.bmiColors)[2] = formatInfo->blueMask;
-        ((u32 *)bitmapInfo.bmiColors)[3] = formatInfo->alphaMask;
+        bitmapInfo.bV4V4Compression = 3;
+        bitmapInfo.bV4RedMask = formatInfo->redMask;
+        bitmapInfo.bV4GreenMask = formatInfo->greenMask;
+        bitmapInfo.bV4BlueMask = formatInfo->blueMask;
+        bitmapInfo.bV4AlphaMask = formatInfo->alphaMask;
     }
     bitmapObj = CreateDIBSection(NULL, (BITMAPINFO *)&bitmapInfo, 0, (void **)&bitmapData, NULL, 0);
     if (bitmapObj == NULL)
     {
         return false;
     }
-    memset(bitmapData, 0, bitmapInfo.bmiHeader.biSizeImage);
+    memset(bitmapData, 0, bitmapInfo.bV4SizeImage);
     deviceContext = CreateCompatibleDC(NULL);
     originalBitmapObj = SelectObject(deviceContext, bitmapObj);
     this->hdc = deviceContext;
     this->gdiObj2 = bitmapObj;
     this->buffer = bitmapData;
-    this->imageSizeInBytes = bitmapInfo.bmiHeader.biSizeImage;
+    this->imageSizeInBytes = bitmapInfo.bV4SizeImage;
     this->gdiObj = originalBitmapObj;
     this->width = width;
     this->height = height;

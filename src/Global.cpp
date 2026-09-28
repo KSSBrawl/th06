@@ -5,7 +5,7 @@
 #include <windows.h>
 
 #ifdef DEBUG
-#include <cstdarg>
+#include <stdarg.h>
 #endif
 
 #include "GameWindow.hpp"
@@ -1100,7 +1100,7 @@ void DebugPrint2(const char *fmt, ...)
 {
 #ifdef DEBUG
     char tmpBuffer[512];
-    std::va_list args;
+    va_list args;
 
     va_start(args, fmt);
     vsprintf(tmpBuffer, fmt, args);

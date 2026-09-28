@@ -102,7 +102,6 @@ ZUN_ASSERT_SIZE(GuiFormattedText, 0x20);
 
 struct GuiImpl
 {
-    GuiImpl();
     ZunResult RunMsg();
     ZunResult DrawDialogue();
     void MsgRead(i32 msgIdx);
@@ -1464,8 +1463,6 @@ ZunResult Gui::RegisterChain()
     g_Chain.AddToDrawChain(&g_GuiDrawChain, TH_CHAIN_PRIO_DRAW_GUI);
     return ZUN_SUCCESS;
 }
-
-GuiImpl::GuiImpl() {};
 
 void Gui::CutChain()
 {

@@ -2240,7 +2240,7 @@ void DebugPrint(const char *fmt, ...)
 {
 #ifdef DEBUG
     char tmpBuffer[512];
-    std::va_list args;
+    va_list args;
 
     va_start(args, fmt);
     vsprintf(tmpBuffer, fmt, args);
