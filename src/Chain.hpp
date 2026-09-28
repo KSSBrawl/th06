@@ -50,7 +50,8 @@ class Chain
     ChainElem drawChain;
     unsigned int midiOutputDeviceCount;
     unsigned int unk;
-    i32 unk_48[13];
+    // actual size unknown, this isn't referenced and might have some padding included
+    i32 unk_48[14];
 
     void ReleaseSingleChain(ChainElem *root);
 

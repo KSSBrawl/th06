@@ -719,7 +719,4 @@ void MidiOutput::FadeOutSetVolume(i32 volume)
 AnmManager::~AnmManager()
 {
 }
-void MidiTimer::OnTimerElapsed()
-{
-}
 }; // namespace th06

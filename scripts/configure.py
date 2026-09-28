@@ -27,7 +27,7 @@ def configure(build_type):
         if build_type == BuildType.DIFFBUILD:
             cl_common_flags += " /DDIFFBUILD"
         if build_type == BuildType.BINARY_MATCHBUILD:
-            cl_common_flags += " /DDBINARYMATCHBUILD"
+            cl_common_flags += " /DBINARYMATCHBUILD"
         writer.variable("cl_common_flags", cl_common_flags)
         writer.variable(
             "cl_flags",
@@ -39,7 +39,7 @@ def configure(build_type):
         writer.variable("rc", "rc.exe")
         writer.variable("link", "link.exe")
 
-        th06_link_flags = "/subsystem:windows /machine:X86 /opt:win98 /incremental:no /opt:ref /opt:icf /map /mapinfo:exports /mapinfo:lines /nodefaultlib:libcpmt.lib"
+        th06_link_flags = "/subsystem:windows /machine:X86 /opt:win98 /incremental:no /opt:ref /opt:icf /map /mapinfo:exports /mapinfo:lines"
 
         writer.variable("msvc_deps_prefix", "Note: including file:")
 

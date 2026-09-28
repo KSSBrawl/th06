@@ -273,40 +273,38 @@ i32 Player::CalcDamageToEnemy(D3DXVECTOR3 *enemyPos, D3DXVECTOR3 *enemyHitboxSiz
     return damage;
 }
 
-#pragma var_order(padding1, bombProjectileTop, bombProjectileLeft, curBombIdx, padding2, bulletBottom, bulletRight,    \
-                  padding3, bulletTop, bulletLeft, curBombProjectile, padding4, bombProjectileBottom,                  \
-                  bombProjectileRight)
+#pragma var_order(bombProjectileTopLeft, curBombIdx, bulletBottomRight, bulletTopLeft, curBombProjectile,              \
+                  bombProjectileBottomRight)
 i32 Player::CalcKillBoxCollision(D3DXVECTOR3 *bulletCenter, D3DXVECTOR3 *bulletSize)
 {
     PlayerRect *curBombProjectile;
-    f32 bulletLeft, bulletTop, bulletRight, bulletBottom;
-    f32 bombProjectileLeft, bombProjectileTop, bombProjectileRight, bombProjectileBottom;
+    D3DXVECTOR3 bulletTopLeft, bulletBottomRight;
+    D3DXVECTOR3 bombProjectileTopLeft, bombProjectileBottomRight;
     i32 curBombIdx;
-    i32 padding1, padding2, padding3, padding4;
 
     curBombProjectile = this->bombProjectiles;
-    bulletLeft = bulletCenter->x - bulletSize->x / 2.0f;
-    bulletTop = bulletCenter->y - bulletSize->y / 2.0f;
-    bulletRight = bulletCenter->x + bulletSize->x / 2.0f;
-    bulletBottom = bulletCenter->y + bulletSize->y / 2.0f;
+    bulletTopLeft.x = bulletCenter->x - bulletSize->x / 2.0f;
+    bulletTopLeft.y = bulletCenter->y - bulletSize->y / 2.0f;
+    bulletBottomRight.x = bulletCenter->x + bulletSize->x / 2.0f;
+    bulletBottomRight.y = bulletCenter->y + bulletSize->y / 2.0f;
     for (curBombIdx = 0; curBombIdx < ARRAY_SIZE_SIGNED(this->bombProjectiles); curBombIdx++, curBombProjectile++)
     {
         if (curBombProjectile->sizeX == 0.0f)
         {
             continue;
         }
-        bombProjectileLeft = curBombProjectile->posX - curBombProjectile->sizeX / 2.0f;
-        bombProjectileTop = curBombProjectile->posY - curBombProjectile->sizeY / 2.0f;
-        bombProjectileRight = curBombProjectile->posX + curBombProjectile->sizeX / 2.0f;
-        bombProjectileBottom = curBombProjectile->posY + curBombProjectile->sizeY / 2.0f;
-        if (!(bombProjectileLeft > bulletRight || bombProjectileRight < bulletLeft ||
-              bombProjectileTop > bulletBottom || bombProjectileBottom < bulletTop))
+        bombProjectileTopLeft.x = curBombProjectile->posX - curBombProjectile->sizeX / 2.0f;
+        bombProjectileTopLeft.y = curBombProjectile->posY - curBombProjectile->sizeY / 2.0f;
+        bombProjectileBottomRight.x = curBombProjectile->posX + curBombProjectile->sizeX / 2.0f;
+        bombProjectileBottomRight.y = curBombProjectile->posY + curBombProjectile->sizeY / 2.0f;
+        if (!(bombProjectileTopLeft.x > bulletBottomRight.x || bombProjectileBottomRight.x < bulletTopLeft.x ||
+              bombProjectileTopLeft.y > bulletBottomRight.y || bombProjectileBottomRight.y < bulletTopLeft.y))
         {
             return 2;
         }
     }
-    if (this->hitboxTopLeft.x > bulletRight || this->hitboxTopLeft.y > bulletBottom ||
-        this->hitboxBottomRight.x < bulletLeft || this->hitboxBottomRight.y < bulletTop)
+    if (this->hitboxTopLeft.x > bulletBottomRight.x || this->hitboxTopLeft.y > bulletBottomRight.y ||
+        this->hitboxBottomRight.x < bulletTopLeft.x || this->hitboxBottomRight.y < bulletTopLeft.y)
     {
         return 0;
     }

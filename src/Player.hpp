@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cmath>
 #include <d3dx8math.h>
+#include <math.h>
 
 #include "AnmManager.hpp"
 #include "AnmVm.hpp"

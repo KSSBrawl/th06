@@ -1,9 +1,9 @@
 #pragma once
 
 #include "dxutil.hpp"
-#include <cstdarg>
 #include <d3d8.h>
 #include <d3dx8.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <windows.h>
 
@@ -216,9 +216,7 @@ class GameErrorContext
 
     GameErrorContext()
     {
-        m_BufferEnd = m_Buffer;
-        m_Buffer[0] = '\0';
-        // Required to get some mov eax, [m_Buffer_ptr]
+        ResetContext();
         m_ShowMessageBox = false;
         Log(TH_ERR_LOGGER_START);
     }
@@ -231,7 +229,6 @@ class GameErrorContext
     {
         m_BufferEnd = m_Buffer;
         m_BufferEnd[0] = '\0';
-        // TODO: check if it should be m_Buffer[0] above.
     }
 
     const char *Fatal(const char *fmt, ...);

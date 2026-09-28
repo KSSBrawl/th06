@@ -1,6 +1,6 @@
 #include <D3DX8.h>
-#include <cstdio>
 #include <direct.h>
+#include <stdio.h>
 #include <windows.h>
 
 #include "MainMenu.hpp"

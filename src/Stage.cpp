@@ -31,10 +31,6 @@ DIFFABLE_STATIC_SORTED(B5, ChainElem, g_StageCalcChain);
 DIFFABLE_STATIC_SORTED(B2, ChainElem, g_StageOnDrawHighPrioChain);
 DIFFABLE_STATIC_SORTED(B4, ChainElem, g_StageOnDrawLowPrioChain);
 
-Stage::Stage()
-{
-}
-
 #pragma var_order(posInterpRatio, curInsn, pos, facingDirInterpRatio, skyFogInterpRatio, idx)
 ChainCallbackResult Stage::OnUpdate(Stage *stage)
 {
