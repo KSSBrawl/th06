@@ -480,13 +480,11 @@ u16 Controller::GetControllerInput(u16 buttons)
             return buttons;
         }
 
-        ac = SetButtonFromControllerInputs(&buttons, g_Supervisor.cfg.controllerMapping.shootButton, TH_BUTTON_SHOOT,
-                                           aa.dwButtons);
+        ac = SetButtonFromControllerInputs(&buttons, g_ControllerMapping.shootButton, TH_BUTTON_SHOOT, aa.dwButtons);
 
         if (g_ControllerMapping.shootButton != g_ControllerMapping.focusButton)
         {
-            SetButtonFromControllerInputs(&buttons, g_Supervisor.cfg.controllerMapping.focusButton, TH_BUTTON_FOCUS,
-                                          aa.dwButtons);
+            SetButtonFromControllerInputs(&buttons, g_ControllerMapping.focusButton, TH_BUTTON_FOCUS, aa.dwButtons);
         }
         else
         {
@@ -585,7 +583,7 @@ u16 Controller::GetControllerInput(u16 buttons)
             a2 = SetButtonFromDirectInputJoystate(&buttons, g_Supervisor.cfg.controllerMapping.shootButton,
                                                   TH_BUTTON_SHOOT, a0.rgbButtons);
 
-            if (g_Supervisor.cfg.controllerMapping.shootButton != g_Supervisor.cfg.controllerMapping.focusButton)
+            if (g_ControllerMapping.shootButton != g_ControllerMapping.focusButton)
             {
                 SetButtonFromDirectInputJoystate(&buttons, g_Supervisor.cfg.controllerMapping.focusButton,
                                                  TH_BUTTON_FOCUS, a0.rgbButtons);

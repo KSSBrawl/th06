@@ -1585,4 +1585,7 @@ void AnmManager::TakeScreenshot(i32 textureId, i32 left, i32 top, i32 width, i32
     destSurface->Release();
     sourceSurface->Release();
 }
+AnmManager::~AnmManager()
+{
+}
 }; // namespace th06
