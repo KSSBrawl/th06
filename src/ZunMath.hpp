@@ -84,11 +84,6 @@ inline void sincosmul(D3DXVECTOR3 *out_vel, f32 input, f32 multiplier)
     }
 }
 
-inline f32 invertf(f32 x)
-{
-    return 1.f / x;
-}
-
 inline f32 rintf(f32 float_in)
 {
     __asm {
