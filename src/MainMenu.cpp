@@ -2328,7 +2328,7 @@ ZunResult MainMenu::AddedCallback(MainMenu *m)
     switch (g_Supervisor.wantedState2)
     {
     case SUPERVISOR_STATE_GAMEMANAGER:
-    case SUPERVISOR_STATE_GAMEMANAGER_REINIT:
+    case SUPERVISOR_STATE_NEXT_STAGE:
     case SUPERVISOR_STATE_RESULTSCREEN_FROMGAME:
         m->cursor = g_GameManager.difficulty == EXTRA;
         break;

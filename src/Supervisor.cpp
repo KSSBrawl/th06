@@ -137,7 +137,7 @@ ChainCallbackResult Supervisor::OnUpdate(Supervisor *s)
                     return CHAIN_CALLBACK_RESULT_EXIT_GAME_SUCCESS;
                 }
                 break;
-            case SUPERVISOR_STATE_GAMEMANAGER_REINIT:
+            case SUPERVISOR_STATE_NEXT_STAGE:
                 GameManager::CutChain();
                 if (GameManager::RegisterChain() != ZUN_SUCCESS)
                 {

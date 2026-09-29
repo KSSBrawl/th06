@@ -76,7 +76,7 @@ enum SupervisorState
     SUPERVISOR_STATE_INIT,
     SUPERVISOR_STATE_MAINMENU,
     SUPERVISOR_STATE_GAMEMANAGER,
-    SUPERVISOR_STATE_GAMEMANAGER_REINIT,
+    SUPERVISOR_STATE_NEXT_STAGE,
     SUPERVISOR_STATE_EXITSUCCESS,
     SUPERVISOR_STATE_EXITERROR,
     SUPERVISOR_STATE_RESULTSCREEN,
@@ -194,6 +194,11 @@ struct Supervisor
     ZunBool IsWindowed()
     {
         return this->cfg.windowed;
+    }
+
+    ZunBool IsNotLoadingNextStage()
+    {
+        return this->curState != SUPERVISOR_STATE_NEXT_STAGE;
     }
 
     HINSTANCE hInstance;

@@ -97,7 +97,7 @@ HRESULT CSoundManager::SetPrimaryBufferFormat(DWORD dwPrimaryChannels, DWORD dwP
     wfx.nChannels = (WORD)dwPrimaryChannels;
     wfx.nSamplesPerSec = dwPrimaryFreq;
     wfx.wBitsPerSample = (WORD)dwPrimaryBitRate;
-    wfx.nBlockAlign = wfx.wBitsPerSample / 8 * wfx.nChannels;
+    wfx.nBlockAlign = wfx.wBitsPerSample / CHAR_BIT * wfx.nChannels;
     wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
 
     if (FAILED(hr = pDSBPrimary->SetFormat(&wfx)))
