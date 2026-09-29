@@ -99,7 +99,7 @@ bool TextHelper::TryAllocateBuffer(i32 width, i32 height, D3DFORMAT format)
     {
         return false;
     }
-    imageWidthInBytes = ((((width * formatInfo->bitCount) / 8) + 3) / 4) * 4;
+    imageWidthInBytes = ((((width * formatInfo->bitCount) / CHAR_BIT) + 3) / 4) * 4;
     bitmapInfo.bV4Size = sizeof(BITMAPV4HEADER);
     bitmapInfo.bV4Width = width;
     bitmapInfo.bV4Height = -(height + 1);
@@ -156,18 +156,16 @@ struct A1R5G5B5
     u16 alpha : 1;
 };
 
-#pragma var_order(bufferRegion, idx, doubleArea, bufferCursor, bufferStart)
+#pragma var_order(bufferRegion, idx, doubleArea, bufferCursor)
 bool TextHelper::InvertAlpha(i32 x, i32 y, i32 spriteWidth, i32 fontHeight)
 {
     i32 doubleArea;
     u8 *bufferRegion;
     i32 idx;
-    u8 *bufferStart;
     A1R5G5B5 *bufferCursor;
 
     doubleArea = spriteWidth * fontHeight * 2;
-    bufferStart = &this->buffer[0];
-    bufferRegion = &bufferStart[y * spriteWidth * 2];
+    bufferRegion = &this->GetBuffer()[y * spriteWidth * 2];
     switch (this->format)
     {
     case D3DFMT_A8R8G8B8:
@@ -207,44 +205,38 @@ bool TextHelper::InvertAlpha(i32 x, i32 y, i32 spriteWidth, i32 fontHeight)
 }
 
 #pragma function(memcpy)
-#pragma var_order(dstBuf, dstWidthBytes, rectToLock, curHeight, srcWidthBytes, outSurfaceDesc, srcBuf, lockedRect,     \
-                  width, height, thisFormat, thisHeight)
+#pragma var_order(dstBuf, dstWidthBytes, rectToLock, curHeight, srcWidthBytes, outSurfaceDesc, srcBuf, lockedRect)
 bool TextHelper::CopyTextToSurface(LPDIRECT3DSURFACE8 outSurface)
 {
     D3DLOCKED_RECT lockedRect;
     u8 *srcBuf;
     D3DSURFACE_DESC outSurfaceDesc;
     size_t srcWidthBytes;
-    int curHeight;
+    i32 curHeight;
     RECT rectToLock;
     int dstWidthBytes;
     u8 *dstBuf;
-    i32 width;
-    i32 height;
-    D3DFORMAT thisFormat;
-    i32 thisHeight;
 
-    if (!(bool)(u32)(this->gdiObj2 != NULL))
+    if (!this->IsAllocated())
     {
         return false;
     }
     outSurface->GetDesc(&outSurfaceDesc);
     rectToLock.left = 0;
     rectToLock.top = 0;
-    rectToLock.right = width = this->width;
-    rectToLock.bottom = height = this->height;
+    rectToLock.right = this->GetWidth();
+    rectToLock.bottom = this->GetHeight();
     if (outSurface->LockRect(&lockedRect, &rectToLock, 0))
     {
         return false;
     }
     dstWidthBytes = lockedRect.Pitch;
-    srcWidthBytes = this->imageWidthInBytes;
-    srcBuf = this->buffer;
+    srcWidthBytes = this->GetImageWidthInBytes();
+    srcBuf = this->GetBuffer();
     dstBuf = (u8 *)lockedRect.pBits;
-    thisFormat = this->format;
-    if (outSurfaceDesc.Format == thisFormat)
+    if (outSurfaceDesc.Format == this->GetFormat())
     {
-        for (curHeight = 0; thisHeight = this->height, curHeight < thisHeight; curHeight++)
+        for (curHeight = 0; curHeight < this->GetHeight(); curHeight++)
         {
             memcpy(dstBuf, srcBuf, srcWidthBytes);
             srcBuf += srcWidthBytes;
@@ -301,7 +293,7 @@ void TextHelper::RenderTextToTexture(i32 xPos, i32 yPos, i32 spriteWidth, i32 sp
     TextHelper textHelper;
     g_TextBufferSurface->GetDesc(&textSurfaceDesc);
     textHelper.AllocateBufferWithFallback(textSurfaceDesc.Width, textSurfaceDesc.Height, textSurfaceDesc.Format);
-    hdc = textHelper.hdc;
+    hdc = textHelper.GetHDC();
     h = SelectObject(hdc, font);
     textHelper.InvertAlpha(0, 0, spriteWidth * 2, fontHeight * 2 + 6);
 

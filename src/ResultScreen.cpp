@@ -1831,7 +1831,7 @@ ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
                             // Yes, this seems to be required to match. No, I don't like it either
                             memcpy(name, "    ", 4);
                             memcpy(name + 4, "    ", 4);
-                            name[8] = 0;
+                            name[8] = '\0';
 
                             name[resultScreen->cursor >= 8 ? 7 : resultScreen->cursor] = '_';
                             g_AsciiManager.AddFormatText(&spritePos, "   %8s", &name);
@@ -1879,7 +1879,7 @@ ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
 
                             memcpy(name, "    ", 4);
                             memcpy(name + 4, "    ", 4);
-                            name[8] = 0;
+                            name[8] = '\0';
 
                             name[resultScreen->cursor >= 8 ? 7 : resultScreen->cursor] = '_';
                             g_AsciiManager.AddFormatText(&spritePos, "%8s", &name);
@@ -2056,7 +2056,7 @@ ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
 
                 memcpy(name, "    ", 4);
                 memcpy(name + 4, "    ", 4);
-                name[8] = 0;
+                name[8] = '\0';
 
                 name[resultScreen->cursor >= 8 ? 7 : resultScreen->cursor] = '_';
                 g_AsciiManager.AddFormatText(&spritePos, "      %8s", &name);

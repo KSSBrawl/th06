@@ -268,7 +268,7 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
 
     failedToLoadReplay = false;
     g_Supervisor.d3dDevice->ResourceManagerDiscardBytes(0);
-    if (g_Supervisor.curState != SUPERVISOR_STATE_GAMEMANAGER_REINIT)
+    if (g_Supervisor.curState != SUPERVISOR_STATE_NEXT_STAGE)
     {
         g_Supervisor.defaultConfig.bombCount = g_GameManager.bombsRemaining;
         g_Supervisor.defaultConfig.lifeCount = g_GameManager.livesRemaining;
@@ -441,7 +441,7 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
     }
     mgr->isInRetryMenu = false;
     mgr->isInMenu = true;
-    if (g_Supervisor.curState != SUPERVISOR_STATE_GAMEMANAGER_REINIT)
+    if (g_Supervisor.curState != SUPERVISOR_STATE_NEXT_STAGE)
     {
         g_Supervisor.unk1b4 = 0.0f;
         g_Supervisor.unk1b8 = 0.0f;

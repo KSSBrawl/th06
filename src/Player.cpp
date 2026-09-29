@@ -1329,8 +1329,7 @@ ZunResult Player::AddedCallback(Player *p)
     switch (g_GameManager.character)
     {
     case CHARA_REIMU:
-        // This is likely an inline function from g_Supervisor returning an i32.
-        if ((i32)(g_Supervisor.curState != SUPERVISOR_STATE_GAMEMANAGER_REINIT) &&
+        if (g_Supervisor.IsNotLoadingNextStage() &&
             g_AnmManager->LoadAnm(ANM_FILE_PLAYER, "data/player00.anm", ANM_OFFSET_PLAYER) != ZUN_SUCCESS)
         {
             return ZUN_ERROR;
@@ -1338,7 +1337,7 @@ ZunResult Player::AddedCallback(Player *p)
         g_AnmManager->SetAndExecuteScriptIdx(&p->playerSprite, ANM_SCRIPT_PLAYER_IDLE);
         break;
     case CHARA_MARISA:
-        if ((i32)(g_Supervisor.curState != SUPERVISOR_STATE_GAMEMANAGER_REINIT) &&
+        if (g_Supervisor.IsNotLoadingNextStage() &&
             g_AnmManager->LoadAnm(ANM_FILE_PLAYER, "data/player01.anm", ANM_OFFSET_PLAYER) != ZUN_SUCCESS)
         {
             return ZUN_ERROR;
@@ -1392,7 +1391,7 @@ ZunResult Player::AddedCallback(Player *p)
 
 ZunResult Player::DeletedCallback(Player *p)
 {
-    if ((i32)(g_Supervisor.curState != SUPERVISOR_STATE_GAMEMANAGER_REINIT))
+    if (g_Supervisor.IsNotLoadingNextStage())
     {
         g_AnmManager->ReleaseAnm(ANM_FILE_PLAYER);
     }

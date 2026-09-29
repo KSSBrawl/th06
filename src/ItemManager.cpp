@@ -81,19 +81,20 @@ i32 __inline calculatePointScore(Item *curItem, i32 scoreAcquiredItemTop, i32 sc
                : (scoreAcquiredItemBottom - (((i32)curItem->currentPosition.y - 128) * posMultiplier));
 }
 
-#pragma var_order(idx, itemScore, playerAngle, itemAcquired, curItem, fVar5, idx2, iVar8, idx3, iVar9)
+#pragma var_order(idx, itemScore, playerAngle, itemAcquired, curItem, fVar5, powerLevelA, prevPowerLevelA,             \
+                  powerLevelB, prevPowerLevelB)
 void ItemManager::OnUpdate()
 {
-    i32 iVar9;
-    i32 iVar8;
+    i32 prevPowerLevelB;
+    i32 prevPowerLevelA;
     i32 itemScore;
-    i32 idx3;
-    i32 idx2;
+    i32 powerLevelB;
+    i32 powerLevelA;
     i32 idx;
     Item *curItem;
     f32 fVar5;
     f32 playerAngle;
-    i32 itemAcquired;
+    ZunBool itemAcquired;
 
     curItem = &this->items[0];
 
@@ -174,12 +175,12 @@ void ItemManager::OnUpdate()
                 }
                 else
                 {
-                    idx2 = 0;
-                    while (g_GameManager.currentPower >= g_PowerUpThresholds[idx2])
+                    powerLevelA = 0;
+                    while (g_GameManager.currentPower >= g_PowerUpThresholds[powerLevelA])
                     {
-                        idx2++;
+                        powerLevelA++;
                     }
-                    iVar8 = idx2;
+                    prevPowerLevelA = powerLevelA;
                     g_GameManager.powerItemCountForScore = 0;
                     g_GameManager.currentPower++;
                     if (g_GameManager.currentPower >= MAX_POWER)
@@ -190,11 +191,11 @@ void ItemManager::OnUpdate()
                     }
                     g_GameManager.AddScore(10);
                     g_Gui.flags.flag2 = 2;
-                    while (g_GameManager.currentPower >= g_PowerUpThresholds[idx2])
+                    while (g_GameManager.currentPower >= g_PowerUpThresholds[powerLevelA])
                     {
-                        idx2++;
+                        powerLevelA++;
                     }
-                    if (idx2 != iVar8)
+                    if (powerLevelA != prevPowerLevelA)
                     {
                         g_AsciiManager.CreatePopup1(&curItem->currentPosition, -1, 0xff80c0ff);
                         g_SoundPlayer.PlaySoundByIdx(SOUND_POWERUP);
@@ -259,12 +260,12 @@ void ItemManager::OnUpdate()
                 }
                 else
                 {
-                    idx3 = 0;
-                    while (g_GameManager.currentPower >= g_PowerUpThresholds[idx3])
+                    powerLevelB = 0;
+                    while (g_GameManager.currentPower >= g_PowerUpThresholds[powerLevelB])
                     {
-                        idx3++;
+                        powerLevelB++;
                     }
-                    iVar9 = idx3;
+                    prevPowerLevelB = powerLevelB;
                     g_GameManager.currentPower += 8;
                     if (g_GameManager.currentPower >= MAX_POWER)
                     {
@@ -274,11 +275,11 @@ void ItemManager::OnUpdate()
                     }
                     g_Gui.flags.flag2 = 2;
                     g_GameManager.AddScore(10);
-                    while (g_GameManager.currentPower >= g_PowerUpThresholds[idx3])
+                    while (g_GameManager.currentPower >= g_PowerUpThresholds[powerLevelB])
                     {
-                        idx3++;
+                        powerLevelB++;
                     }
-                    if (idx3 != iVar9)
+                    if (powerLevelB != prevPowerLevelB)
                     {
                         g_AsciiManager.CreatePopup1(&curItem->currentPosition, -1, 0xff80c0ff);
                         g_SoundPlayer.PlaySoundByIdx(SOUND_POWERUP);

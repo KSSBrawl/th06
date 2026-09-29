@@ -78,17 +78,17 @@ BulletManager::BulletManager()
     this->InitializeToZero();
 }
 
-#pragma var_order(bulletSpeed, local_c, bullet, bulletAngle)
+#pragma var_order(bulletSpeed, idx, bullet, bulletAngle)
 u32 BulletManager::SpawnSingleBullet(EnemyBulletShooter *bulletProps, i32 bulletIdx1, i32 bulletIdx2, f32 angle)
 {
     f32 bulletAngle;
     Bullet *bullet;
-    i32 local_c;
+    i32 idx;
     f32 bulletSpeed;
 
-    local_c = 0;
+    idx = 0;
     bullet = &this->bullets[this->nextBulletIndex];
-    for (local_c = 0; local_c < ARRAY_SIZE_SIGNED(this->bullets); local_c++)
+    for (idx = 0; idx < ARRAY_SIZE_SIGNED(this->bullets); idx++)
     {
         this->nextBulletIndex++;
 
@@ -110,7 +110,7 @@ u32 BulletManager::SpawnSingleBullet(EnemyBulletShooter *bulletProps, i32 bullet
         break;
     }
 
-    if (local_c >= ARRAY_SIZE_SIGNED(this->bullets))
+    if (idx >= ARRAY_SIZE_SIGNED(this->bullets))
     {
         return 1;
     }
@@ -1347,7 +1347,7 @@ ZunResult BulletManager::AddedCallback(BulletManager *mgr)
 {
     u32 idx;
 
-    if ((ZunBool)(g_Supervisor.curState != SUPERVISOR_STATE_GAMEMANAGER_REINIT))
+    if (g_Supervisor.IsNotLoadingNextStage())
     {
         if (g_AnmManager->LoadAnm(ANM_FILE_BULLET3, "data/etama3.anm", ANM_OFFSET_BULLET3) != ZUN_SUCCESS)
         {
@@ -1433,7 +1433,7 @@ ZunResult BulletManager::AddedCallback(BulletManager *mgr)
 
 ZunResult BulletManager::DeletedCallback(BulletManager *arg)
 {
-    if ((i32)(g_Supervisor.curState != SUPERVISOR_STATE_GAMEMANAGER_REINIT))
+    if (g_Supervisor.IsNotLoadingNextStage())
     {
         g_AnmManager->ReleaseAnm(ANM_FILE_BULLET3);
         g_AnmManager->ReleaseAnm(ANM_FILE_BULLET4);

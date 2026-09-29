@@ -68,7 +68,7 @@ struct ZunTimer
     void SetCurrent(i32 value)
     {
         this->current = value;
-        this->subFrame = 0;
+        this->subFrame = 0.0f;
         this->previous = -999;
     }
     void operator=(i32 value)

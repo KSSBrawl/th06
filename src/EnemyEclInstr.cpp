@@ -30,16 +30,12 @@ ZUN_ASSERT_SIZE(PatchouliShottypeVars, 0x18);
 DIFFABLE_STATIC_ARRAY_ASSIGN(PatchouliShottypeVars, 2, g_PatchouliShottypeVars) = {{{{0, 3, 1}, {2, 3, 4}}},
                                                                                    {{{1, 4, 0}, {4, 2, 3}}}};
 
-#pragma var_order(i, currentBullet, effectIndex, velocityVector, bulletTimer, accelerationMultiplier, accelerationAngle)
+#pragma var_order(i, currentBullet, effectIndex)
 void ExInsCirnoRainbowBallJank(Enemy *enemy, EclRawInstr *instr)
 {
-    f32 accelerationAngle;
-    f32 accelerationMultiplier;
-    ZunTimer *bulletTimer;
     Bullet *currentBullet;
     i32 effectIndex;
     i32 i;
-    D3DXVECTOR3 velocityVector;
 
     currentBullet = g_BulletManager.bullets;
     effectIndex = instr->args.exInstr.i32Param;
@@ -60,22 +56,13 @@ void ExInsCirnoRainbowBallJank(Enemy *enemy, EclRawInstr *instr)
         {
         case 0:
             currentBullet->speed = 0.0f;
-            velocityVector.x = 0.0f;
-            velocityVector.y = 0.0f;
-            velocityVector.z = 0.0f;
-            currentBullet->velocity = velocityVector;
+            currentBullet->velocity = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
             break;
         case 1:
             currentBullet->exFlags |= 0x10;
             currentBullet->ex5Int0 = 220;
-            // TODO: Inline as currentBullet->timer.Initialize()
-            bulletTimer = &currentBullet->timer;
-            bulletTimer->current = 0;
-            bulletTimer->subFrame = 0.0f;
-            bulletTimer->previous = -999;
-            accelerationMultiplier = 0.01f;
-            accelerationAngle = g_Rng.GetRandomF32ZeroToOne() * ZUN_2PI - ZUN_PI;
-            sincosmul(&currentBullet->ex4Acceleration, accelerationAngle, accelerationMultiplier);
+            currentBullet->timer = 0;
+            sincosmul(&currentBullet->ex4Acceleration, g_Rng.GetRandomF32ZeroToOne() * ZUN_2PI - ZUN_PI, 0.01f);
             break;
         }
     }

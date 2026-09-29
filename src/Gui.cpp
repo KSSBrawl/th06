@@ -347,7 +347,7 @@ ZunResult Gui::ActualAddedCallback()
 {
     i32 idx;
 
-    if ((i32)(g_Supervisor.curState != SUPERVISOR_STATE_GAMEMANAGER_REINIT))
+    if (g_Supervisor.IsNotLoadingNextStage())
     {
         memset(this->impl, 0, sizeof(GuiImpl));
         if (g_AnmManager->LoadAnm(ANM_FILE_FRONT, "data/front.anm", ANM_OFFSET_FRONT) != ZUN_SUCCESS)
@@ -507,7 +507,7 @@ ZunResult Gui::ActualAddedCallback()
         }
         break;
     }
-    if ((i32)(g_Supervisor.curState != SUPERVISOR_STATE_GAMEMANAGER_REINIT))
+    if (g_Supervisor.IsNotLoadingNextStage())
     {
         for (idx = 0; idx < ARRAY_SIZE_SIGNED(this->impl->vms); idx++)
         {
@@ -751,7 +751,7 @@ ZunResult GuiImpl::RunMsg()
             }
             if (g_GameManager.currentStage < 5 || (g_GameManager.difficulty != EASY && g_GameManager.currentStage == 5))
             {
-                g_Supervisor.curState = SUPERVISOR_STATE_GAMEMANAGER_REINIT;
+                g_Supervisor.curState = SUPERVISOR_STATE_NEXT_STAGE;
             }
             else if (!g_GameManager.isInReplay)
             {
@@ -1426,7 +1426,7 @@ ZunResult Gui::DeletedCallback(Gui *gui)
     g_AnmManager->ReleaseAnm(ANM_FILE_FACE_STAGE_B);
     g_AnmManager->ReleaseAnm(ANM_FILE_FACE_STAGE_C);
     gui->FreeMsgFile();
-    if ((i32)(g_Supervisor.curState != SUPERVISOR_STATE_GAMEMANAGER_REINIT))
+    if (g_Supervisor.IsNotLoadingNextStage())
     {
         g_AnmManager->ReleaseAnm(ANM_FILE_FRONT);
         g_AnmManager->ReleaseAnm(ANM_FILE_LOADING);
@@ -1441,7 +1441,7 @@ ZunResult Gui::DeletedCallback(Gui *gui)
 ZunResult Gui::RegisterChain()
 {
     Gui *gui = &g_Gui;
-    if ((i32)(g_Supervisor.curState != SUPERVISOR_STATE_GAMEMANAGER_REINIT))
+    if (g_Supervisor.IsNotLoadingNextStage())
     {
         memset(gui, 0, sizeof(Gui));
         gui->impl = ZUN_NEW(GuiImpl);
