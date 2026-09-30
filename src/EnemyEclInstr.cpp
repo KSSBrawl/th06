@@ -151,39 +151,35 @@ void ExInsShootStarPattern(Enemy *enemy, EclRawInstr *instr)
 #define METAL_WATER_SIGN_MERCURY_POISON 3
 #define EARTH_METAL_SIGN_EMERALD_MEGALITH 4
 
-// The weird comments are just to preserve formatting in the github CI
+// clang-format off
+// NOTE: The CI will try to reformat this into unreadable mess
 DIFFABLE_STATIC_ASSIGN(i32, g_PatchouliShottypeVars[CHARACTER_COUNT][SHOTTYPES_PER_CHARACTER][3]) = {
-    {
-        // Reimu
-        {
-            // A
-            FIRE_EARTH_SIGN_LAVA_CROMLECH,   //
-            METAL_WATER_SIGN_MERCURY_POISON, //
-            WOOD_FIRE_SIGN_FOREST_BLAZE      //
+    { // Reimu
+        { // A
+            FIRE_EARTH_SIGN_LAVA_CROMLECH,
+            METAL_WATER_SIGN_MERCURY_POISON,
+            WOOD_FIRE_SIGN_FOREST_BLAZE
         },
-        {
-            // B
-            WATER_WOOD_SIGN_WATER_ELF,        //
-            METAL_WATER_SIGN_MERCURY_POISON,  //
-            EARTH_METAL_SIGN_EMERALD_MEGALITH //
-        } //
-    }, //
-    {
-        // Marisa
-        {
-            // A
-            WOOD_FIRE_SIGN_FOREST_BLAZE,       //
-            EARTH_METAL_SIGN_EMERALD_MEGALITH, //
-            FIRE_EARTH_SIGN_LAVA_CROMLECH      //
+        { // B
+            WATER_WOOD_SIGN_WATER_ELF,
+            METAL_WATER_SIGN_MERCURY_POISON,
+            EARTH_METAL_SIGN_EMERALD_MEGALITH
+        }
+    },
+    { // Marisa
+        { // A
+            WOOD_FIRE_SIGN_FOREST_BLAZE,
+            EARTH_METAL_SIGN_EMERALD_MEGALITH,
+            FIRE_EARTH_SIGN_LAVA_CROMLECH
         },
-        {
-            // B
-            EARTH_METAL_SIGN_EMERALD_MEGALITH, //
-            WATER_WOOD_SIGN_WATER_ELF,         //
-            METAL_WATER_SIGN_MERCURY_POISON    //
-        } //
-    } //
+        { // B
+            EARTH_METAL_SIGN_EMERALD_MEGALITH,
+            WATER_WOOD_SIGN_WATER_ELF,
+            METAL_WATER_SIGN_MERCURY_POISON
+        }
+    }
 };
+// clang-format on
 
 void ExInsPatchouliShottypeSetVars(Enemy *enemy, EclRawInstr *instr)
 {
