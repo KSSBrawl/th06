@@ -76,38 +76,54 @@ struct EnemyEclContext
     EclRawInstr *currentInstr;
     ZunTimer time;
     void (*funcSetFunc)(Enemy *, EclRawInstr *);
-    i32 var0;
-    i32 var1;
-    i32 var2;
-    i32 var3;
+    i32 int0;
+    i32 int1;
+    i32 int2;
+    i32 int3;
     f32 float0;
     f32 float1;
     f32 float2;
     f32 float3;
-    i32 var4;
-    i32 var5;
-    i32 var6;
-    i32 var7;
+    i32 counter0;
+    i32 counter1;
+    i32 counter2;
+    i32 counter3;
     i32 compareRegister;
     u16 subId;
 };
 ZUN_ASSERT_TYPE(EnemyEclContext, 0x4c, 4);
 
+enum EnemyMoveMode
+{
+    EnemyMove_AxisSpeed,
+    EnemyMove_Velocity,
+    EnemyMove_Interp
+};
+
+enum EnemyInterpMode
+{
+    EnemyInterp_Linear,
+    EnemyInterp_Decelerate,
+    EnemyInterp_DecelerateFast,
+    EnemyInterp_Accelerate,
+    EnemyInterp_AccelerateFast,
+};
+
 enum EnemyDeathMode
 {
-    DESPAWN_NO_CALLBACK,
-    DISABLE_INTERACTION,
-    DROP_ITEMS_ONLY,
-    SET_HP_TO_1
+    EnemyDeath_DespawnNoCallback,
+    EnemyDeath_DisableInteraction,
+    EnemyDeath_DropItemsOnly,
+    EnemyDeath_SetHpTo1
 };
 
 struct EnemyFlags
 {
     // First byte
-    u8 movementMode : 2;
-    u8 movementEaseType : 3;
+    u8 movementMode : 2; // EnemyMoveMode
+    u8 moveInterpMode : 3; // EnemyInterpMode
     u8 shootingDisabled : 1;
-    u8 invertX : 1;
+    u8 mirrored : 1;
     u8 isSlotOccupied : 1;
 
     // Second byte
@@ -116,7 +132,7 @@ struct EnemyFlags
     u8 hasBeenInBounds : 1;
     u8 isBoss : 1;
     u8 isDamageable : 1;
-    u8 deathMode : 3;
+    u8 deathMode : 3; // EnemyDeathMode
 
     // Third byte
     u8 shouldClampPos : 1;
@@ -152,7 +168,7 @@ struct Enemy
 {
     void Move()
     {
-        if (!this->flags.invertX)
+        if (!this->flags.mirrored)
         {
             this->position.x += g_Supervisor.effectiveFramerateMultiplier * this->axisSpeed.x;
         }

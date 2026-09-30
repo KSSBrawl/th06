@@ -25,46 +25,50 @@ struct AnmLoadedSprite
 };
 ZUN_ASSERT_TYPE(AnmLoadedSprite, 0x38, 4);
 
-#define AnmOpcode_Exit 0
-#define AnmOpcode_SetActiveSprite 1
-#define AnmOpcode_SetScale 2
-#define AnmOpcode_SetAlpha 3
-#define AnmOpcode_SetColor 4
-#define AnmOpcode_Jump 5
-#define AnmOpcode_Nop 6
-#define AnmOpcode_FlipX 7
-#define AnmOpcode_FlipY 8
-#define AnmOpcode_SetRotation 9
-#define AnmOpcode_SetAngleVel 10
-#define AnmOpcode_SetScaleSpeed 11
-#define AnmOpcode_Fade 12
-#define AnmOpcode_SetBlendAdditive 13
-#define AnmOpcode_SetBlendDefault 14
-#define AnmOpcode_ExitHide 15
-#define AnmOpcode_SetRandomSprite 16
-#define AnmOpcode_SetPosition 17
-#define AnmOpcode_PosTimeLinear 18
-#define AnmOpcode_PosTimeDecel 19
-#define AnmOpcode_PosTimeAccel 20
-#define AnmOpcode_Stop 21
-#define AnmOpcode_InterruptLabel 22
-#define AnmOpcode_AnchorTopLeft 23
-#define AnmOpcode_StopHide 24
-#define AnmOpcode_UsePosOffset 25
-#define AnmOpcode_SetAutoRotate 26
-#define AnmOpcode_UVScrollX 27
-#define AnmOpcode_UVScrollY 28
-#define AnmOpcode_SetVisibility 29
-#define AnmOpcode_ScaleTime 30
-#define AnmOpcode_SetZWriteDisable 31
+enum AnmOpcode
+{
+    ANM_OPCODE_ANM_DELETE,
+    ANM_OPCODE_SET_SPRITE,
+    ANM_OPCODE_SCALE,
+    ANM_OPCODE_ALPHA,
+    ANM_OPCODE_COLOR,
+    ANM_OPCODE_JUMP,
+    ANM_OPCODE_NOP,
+    ANM_OPCODE_SCALE_FLIP_X,
+    ANM_OPCODE_SCALE_FLIP_Y,
+    ANM_OPCODE_ROTATION,
+    ANM_OPCODE_ROTATION_SPEED,
+    ANM_OPCODE_SCALE_SPEED,
+    ANM_OPCODE_ALPHA_INTERP_LINEAR,
+    ANM_OPCODE_BLEND_MODE_ADDITIVE,
+    ANM_OPCODE_BLEND_MODE_NORMAL,
+    ANM_OPCODE_ANM_STATIC,
+    ANM_OPCODE_SPRITE_SET_RAND,
+    ANM_OPCODE_MOVE_POSITION,
+    ANM_OPCODE_MOVE_POSITION_INTERP_LINEAR,
+    ANM_OPCODE_MOVE_POSITION_INTERP_DECELERATE_SLOW,
+    ANM_OPCODE_MOVE_POSITION_INTERP_ACCELERATE_SLOW,
+    ANM_OPCODE_ANM_HALT,
+    ANM_OPCODE_INTERRUPT_LABEL,
+    ANM_OPCODE_ANCHOR_TOP_LEFT,
+    ANM_OPCODE_ANM_HALT_INVISIBLE,
+    ANM_OPCODE_POSITION_MODE,
+    ANM_OPCODE_SET_AUTO_ROTATE,
+    ANM_OPCODE_SCROLL_SET_X,
+    ANM_OPCODE_SCROLL_SET_Y,
+    ANM_OPCODE_ANM_FLAG_VISIBLE,
+    ANM_OPCODE_SCALE_INTERP_LINEAR,
+    ANM_OPCODE_FLAG_DISABLE_Z_WRITE
+};
 
 struct AnmRawInstr
 {
     i16 time;
     u8 opcode;
-    u8 argsCount;
-    u32 args[0];
+    u8 argsSize;
+    unsigned char args[];
 };
+ZUN_ASSERT_TYPE(AnmRawInstr, 0x4, 2);
 
 enum AnmVmFlagsEnum
 {
@@ -78,7 +82,7 @@ enum AnmVmFlagsEnum
     AnmVmFlags_FlipY = 1 << 7,
     AnmVmFlags_AnchorLeft = 1 << 8,
     AnmVmFlags_AnchorTop = 1 << 9,
-    /* posTime missing because it is not really a flag */
+    /* moveInterpMode missing because it is not really a flag */
     AnmVmFlags_ZWriteDisable = 1 << 12,
     AnmVmFlags_IsStopped = 1 << 13,
 };
@@ -104,13 +108,11 @@ enum AnmZWriteState
     AnmZWriteState_Off = true,
 };
 
-enum AnmVertexShader
+enum AnmVmMirror
 {
-    AnmVertexShader_NotSet = -1,
-    AnmVertexShader_0,
-    AnmVertexShader_1,
-    AnmVertexShader_2,
-    AnmVertexShader_3,
+    AnmVmMirror_None,
+    AnmVmMirror_X,
+    AnmVmMirror_Y
 };
 
 enum AnmVmAnchor
@@ -121,11 +123,20 @@ enum AnmVmAnchor
     AnmVmAnchor_TopLeft,
 };
 
-enum AnmVmMirror
+enum AnmVmInterpMode
 {
-    AnmVmMirror_None,
-    AnmVmMirror_X,
-    AnmVmMirror_Y
+    AnmVmInterp_Linear,
+    AnmVmInterp_DecelerateSlow,
+    AnmVmInterp_AccelerateSlow,
+};
+
+enum AnmVertexShader
+{
+    AnmVertexShader_NotSet = -1,
+    AnmVertexShader_0,
+    AnmVertexShader_1,
+    AnmVertexShader_2,
+    AnmVertexShader_3,
 };
 
 union AnmVmFlags {
@@ -134,13 +145,13 @@ union AnmVmFlags {
     {
         u32 isVisible : 1;
         u32 isVisibleOverride : 1; // Intended for the engine to override visibility set by scripts
-        u32 blendMode : 1;
-        u32 colorOp : 1;
+        u32 blendMode : 1; // AnmBlendMode
+        u32 colorOp : 1; // AnmColorOp
         unreferenced_bitfields(u32, 1);
         u32 usePosOffset : 1;
-        u32 flip : 2;
-        u32 anchor : 2;
-        u32 posTime : 2;
+        u32 flip : 2; // AnmVmMirror
+        u32 anchor : 2; // AnmVmAnchor
+        u32 moveInterpMode : 2; // AnmVmInterpMode
         u32 zWriteDisable : 1;
         u32 isStopped : 1;
         alignment_bitfields(u32, 18);

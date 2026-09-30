@@ -31,12 +31,17 @@ DIFFABLE_STATIC_SORTED(B5, ChainElem, g_StageCalcChain);
 DIFFABLE_STATIC_SORTED(B2, ChainElem, g_StageOnDrawHighPrioChain);
 DIFFABLE_STATIC_SORTED(B4, ChainElem, g_StageOnDrawLowPrioChain);
 
-#pragma var_order(posInterpRatio, curInsn, pos)
+#define GET_ARG(type, num) ((type *)curInstr->args)[num]
+#define GET_INT_ARG(num) GET_ARG(i32, num)
+#define GET_FLOAT_ARG(num) GET_ARG(float, num)
+#define GET_FLOAT3_ARG() GET_ARG(D3DXVECTOR3, 0)
+
+#pragma var_order(posInterpRatio, curInstr, pos)
 ChainCallbackResult Stage::OnUpdate(Stage *stage)
 {
     f32 posInterpRatio;
     D3DXVECTOR3 pos;
-    RawStageInstr *curInsn;
+    StdRawInstr *curInstr;
 
     if (stage->stdData == NULL)
     {
@@ -55,41 +60,41 @@ ChainCallbackResult Stage::OnUpdate(Stage *stage)
     }
     for (;;)
     {
-        curInsn = stage->beginningOfScript + stage->instructionIndex;
-        switch (curInsn->opcode)
+        curInstr = stage->beginningOfScript + stage->instructionIndex;
+        switch (curInstr->opcode)
         {
-        case STDOP_CAMERA_POSITION_KEY:
-            if (curInsn->frame == -1)
+        case STD_OPCODE_CAMERA_POSITION_KEY:
+            if (curInstr->time == -1)
             {
-                stage->positionInterpInitial = *(D3DXVECTOR3 *)curInsn->args;
+                stage->positionInterpInitial = GET_FLOAT3_ARG();
                 stage->position.x = stage->positionInterpInitial.x;
                 stage->position.y = stage->positionInterpInitial.y;
                 stage->position.z = stage->positionInterpInitial.z;
             }
-            else if (stage->scriptTime >= curInsn->frame)
+            else if (stage->scriptTime >= curInstr->time)
             {
-                pos = *(D3DXVECTOR3 *)curInsn->args;
+                pos = GET_FLOAT3_ARG();
                 stage->position.x = pos.x;
                 stage->position.y = pos.y;
                 stage->position.z = pos.z;
                 stage->positionInterpInitial = pos;
-                stage->positionInterpStartTime = curInsn->frame;
+                stage->positionInterpStartTime = curInstr->time;
                 stage->instructionIndex++;
-                curInsn++;
-                while (curInsn->opcode != 0)
+                curInstr++;
+                while (curInstr->opcode != 0)
                 {
-                    curInsn++;
+                    curInstr++;
                 }
-                stage->positionInterpEndTime = curInsn->frame;
-                stage->positionInterpFinal = *(D3DXVECTOR3 *)curInsn->args;
+                stage->positionInterpEndTime = curInstr->time;
+                stage->positionInterpFinal = GET_FLOAT3_ARG();
             }
             break;
-        case STDOP_FOG:
-            if (stage->scriptTime >= curInsn->frame)
+        case STD_OPCODE_FOG:
+            if (stage->scriptTime >= curInstr->time)
             {
-                stage->skyFog.color = curInsn->args[0];
-                stage->skyFog.nearPlane = ((f32 *)curInsn->args)[1];
-                stage->skyFog.farPlane = ((f32 *)curInsn->args)[2];
+                stage->skyFog.color = GET_INT_ARG(0);
+                stage->skyFog.nearPlane = GET_FLOAT_ARG(1);
+                stage->skyFog.farPlane = GET_FLOAT_ARG(2);
                 if (stage->skyFogInterpDuration == 0)
                 {
                     g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGCOLOR, stage->skyFog.color);
@@ -101,35 +106,35 @@ ChainCallbackResult Stage::OnUpdate(Stage *stage)
                 continue;
             }
             break;
-        case STDOP_FOG_INTERP:
-            if (stage->scriptTime >= curInsn->frame)
+        case STD_OPCODE_FOG_INTERP:
+            if (stage->scriptTime >= curInstr->time)
             {
                 stage->skyFogInterpInitial = stage->skyFog;
-                stage->skyFogInterpDuration = curInsn->args[0];
+                stage->skyFogInterpDuration = GET_INT_ARG(0);
                 stage->skyFogInterpTimer = 0;
                 stage->instructionIndex++;
                 continue;
             }
             break;
-        case STDOP_CAMERA_FACING:
-            if (stage->scriptTime >= curInsn->frame)
+        case STD_OPCODE_CAMERA_FACING:
+            if (stage->scriptTime >= curInstr->time)
             {
                 stage->facingDirInterpInitial = stage->facingDirInterpFinal;
-                stage->facingDirInterpFinal = *(D3DXVECTOR3 *)curInsn->args;
+                stage->facingDirInterpFinal = GET_FLOAT3_ARG();
                 stage->instructionIndex++;
                 continue;
             }
             break;
-        case STDOP_CAMERA_FACING_INTERP_LINEAR:
-            if (stage->scriptTime >= curInsn->frame)
+        case STD_OPCODE_CAMERA_FACING_INTERP_LINEAR:
+            if (stage->scriptTime >= curInstr->time)
             {
-                stage->facingDirInterpDuration = curInsn->args[0];
+                stage->facingDirInterpDuration = GET_INT_ARG(0);
                 stage->facingDirInterpTimer = 0;
                 stage->instructionIndex++;
                 continue;
             }
             break;
-        case STDOP_PAUSE:
+        case STD_OPCODE_STD_PAUSE:
             if (stage->unpauseFlag)
             {
                 stage->instructionIndex++;
@@ -138,7 +143,7 @@ ChainCallbackResult Stage::OnUpdate(Stage *stage)
             }
             break;
         }
-        if (curInsn->frame != -1)
+        if (curInstr->time != -1)
         {
             posInterpRatio = (stage->scriptTime.AsFramesFloat() - stage->positionInterpStartTime) /
                              (stage->positionInterpEndTime - stage->positionInterpStartTime);
@@ -196,7 +201,7 @@ ChainCallbackResult Stage::OnUpdate(Stage *stage)
                 stage->skyFogInterpDuration = 0;
             }
         }
-        if (curInsn->opcode != STDOP_PAUSE)
+        if (curInstr->opcode != STD_OPCODE_STD_PAUSE)
         {
             stage->scriptTime++;
         }
@@ -379,12 +384,12 @@ ZunResult Stage::LoadStageData(const char *anmpath, const char *stdpath)
     }
     this->objectsCount = this->stdData->nbObjects;
     this->quadCount = this->stdData->nbFaces;
-    this->objectInstances = (RawStageObjectInstance *)(this->stdData->facesOffset + (i32)this->stdData);
-    this->beginningOfScript = (RawStageInstr *)(this->stdData->scriptOffset + (i32)this->stdData);
+    this->objectInstances = (RawStageObjectInstance *)(this->stdData->facesOffset + (u32)this->stdData);
+    this->beginningOfScript = (StdRawInstr *)(this->stdData->scriptOffset + (u32)this->stdData);
     this->objects = (RawStageObject **)(this->stdData + 1);
     for (idx = 0; idx < this->objectsCount; idx++)
     {
-        this->objects[idx] = (RawStageObject *)((i32)this->objects[idx] + (i32)this->stdData);
+        this->objects[idx] = (RawStageObject *)((u32)this->objects[idx] + (u32)this->stdData);
     }
     this->quadVms = ZUN_ALLOC_ARRAY(AnmVm, this->quadCount);
     for (idx = 0, vmIdx = 0; idx < this->objectsCount; idx++)

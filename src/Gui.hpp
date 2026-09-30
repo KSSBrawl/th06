@@ -58,6 +58,11 @@ struct Gui
         this->bossHealthBar1 = val;
     }
 
+    void SetBossLives(i32 lives)
+    {
+        this->eclSetLives = lives;
+    }
+
     bool BossPresent()
     {
         return this->bossPresent;
