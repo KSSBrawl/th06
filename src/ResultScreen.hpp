@@ -78,7 +78,7 @@ struct Catk
     u16 idx;
     u8 nameCsum;
     u8 characterShotType[SHOTTYPE_COUNT + 1];
-    char name[34]; // probably 38 since 34 as the ECL spell buffer length is likely a bug
+    char name[34]; // probably 36 since 34 as the ECL spell buffer length is likely a bug
     unreferenced_fields(0x2);
     u16 numAttempts;
     u16 numSuccess;
