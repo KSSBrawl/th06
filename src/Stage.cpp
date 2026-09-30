@@ -31,14 +31,11 @@ DIFFABLE_STATIC_SORTED(B5, ChainElem, g_StageCalcChain);
 DIFFABLE_STATIC_SORTED(B2, ChainElem, g_StageOnDrawHighPrioChain);
 DIFFABLE_STATIC_SORTED(B4, ChainElem, g_StageOnDrawLowPrioChain);
 
-#pragma var_order(posInterpRatio, curInsn, pos, facingDirInterpRatio, skyFogInterpRatio, idx)
+#pragma var_order(posInterpRatio, curInsn, pos)
 ChainCallbackResult Stage::OnUpdate(Stage *stage)
 {
     f32 posInterpRatio;
-    f32 facingDirInterpRatio;
     D3DXVECTOR3 pos;
-    i32 idx;
-    f32 skyFogInterpRatio;
     RawStageInstr *curInsn;
 
     if (stage->stdData == NULL)
@@ -164,7 +161,7 @@ ChainCallbackResult Stage::OnUpdate(Stage *stage)
                 stage->facingDirInterpTimer = stage->facingDirInterpDuration;
             }
             pos = stage->facingDirInterpFinal - stage->facingDirInterpInitial;
-            facingDirInterpRatio = stage->facingDirInterpTimer.AsFramesFloat() / stage->facingDirInterpDuration;
+            f32 facingDirInterpRatio = stage->facingDirInterpTimer.AsFramesFloat() / stage->facingDirInterpDuration;
             g_GameManager.stageCameraFacingDir.x = pos.x * facingDirInterpRatio + stage->facingDirInterpInitial.x;
             g_GameManager.stageCameraFacingDir.y = pos.y * facingDirInterpRatio + stage->facingDirInterpInitial.y;
             g_GameManager.stageCameraFacingDir.z = pos.z * facingDirInterpRatio + stage->facingDirInterpInitial.z;
@@ -172,12 +169,12 @@ ChainCallbackResult Stage::OnUpdate(Stage *stage)
         if (stage->skyFogInterpDuration != 0)
         {
             stage->skyFogInterpTimer++;
-            skyFogInterpRatio = stage->skyFogInterpTimer.AsFramesFloat() / stage->skyFogInterpDuration;
+            f32 skyFogInterpRatio = stage->skyFogInterpTimer.AsFramesFloat() / stage->skyFogInterpDuration;
             if (skyFogInterpRatio >= 1.0f)
             {
                 skyFogInterpRatio = 1.0f;
             }
-            for (idx = 0; idx < 4; idx++)
+            for (i32 idx = 0; idx < 4; idx++)
             {
                 COLOR_SET_COMPONENT(stage->skyFog.color, idx,
                                     (u8)(((f32)COLOR_GET_COMPONENT(stage->skyFogInterpFinal.color, idx) -
@@ -237,21 +234,19 @@ ChainCallbackResult Stage::OnDrawHighPrio(Stage *stage)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-#pragma var_order(val, stageToSpellcardBackgroundAlpha, gameRegion)
 ChainCallbackResult Stage::OnDrawLowPrio(Stage *stage)
 {
-    f32 val;
-    i32 stageToSpellcardBackgroundAlpha;
-    ZunRect gameRegion;
-
     if (stage->spellcardState <= RUNNING)
     {
         if (!g_Gui.IsStageFinished())
         {
             stage->RenderObjects(2);
             stage->RenderObjects(3);
+
+            i32 stageToSpellcardBackgroundAlpha;
             if (stage->spellcardState == RUNNING)
             {
+                ZunRect gameRegion;
                 gameRegion.left = GAME_REGION_LEFT;
                 gameRegion.top = GAME_REGION_TOP;
                 gameRegion.right = GAME_REGION_RIGHT;
@@ -273,6 +268,8 @@ ChainCallbackResult Stage::OnDrawLowPrio(Stage *stage)
     g_Supervisor.viewport.MaxZ = 0.5f;
     GameManager::SetupCameraStageBackground(0);
     g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
+
+    f32 val;
     val = 1000.0f;
     g_Supervisor.d3dDevice->SetRenderState(D3DRS_FOGSTART, *(DWORD *)&val);
     val = 2000.0f;
@@ -405,23 +402,21 @@ ZunResult Stage::LoadStageData(const char *anmpath, const char *stdpath)
     return ZUN_SUCCESS;
 }
 
-#pragma var_order(objQuadType1, vmsNotFinished, objIdx, vm, obj, objQuad)
+#pragma var_order(objQuadType1, vmsNotFinished, objIdx, vm)
 ZunResult Stage::UpdateObjects()
 {
     AnmVm *vm;
-    RawStageQuadBasic *objQuad;
     RawStageQuadBasic *objQuadType1;
     i32 objIdx;
     i32 vmsNotFinished;
-    RawStageObject *obj;
 
     for (objIdx = 0; objIdx < this->objectsCount; objIdx++)
     {
-        obj = this->objects[objIdx];
+        RawStageObject *obj = this->objects[objIdx];
         if (obj->flags & 1)
         {
             vmsNotFinished = 0;
-            objQuad = &obj->firstQuad;
+            RawStageQuadBasic *objQuad = &obj->firstQuad;
             while (objQuad->type >= 0)
             {
                 vm = &this->quadVms[objQuad->vmIdx];
@@ -454,10 +449,9 @@ ZunResult Stage::UpdateObjects()
 }
 
 #pragma var_order(unk8, curQuadVm, instancesDrawn, instance, worldMatrix, obj, quadScaledPos, quadPos, curQuad,        \
-                  didDraw, projectSrc, quadWidth)
+                  didDraw, projectSrc)
 ZunResult Stage::RenderObjects(i32 zLevel)
 {
-    f32 quadWidth;
     D3DXVECTOR3 projectSrc;
     ZunBool didDraw;
     RawStageQuadBasic *curQuad;
@@ -570,7 +564,7 @@ ZunResult Stage::RenderObjects(i32 zLevel)
             }
 
             // Then F
-            worldMatrix.m[3][2] = worldMatrix.m[3][2] - (obj->size).z;
+            worldMatrix.m[3][2] = worldMatrix.m[3][2] - obj->size.z;
             D3DXVec3Project(&quadPos, &projectSrc, &g_Supervisor.viewport, &g_Supervisor.projectionMatrix,
                             &g_Supervisor.viewMatrix, &worldMatrix);
             if (quadPos.y >= g_Supervisor.viewport.Y &&
@@ -580,7 +574,7 @@ ZunResult Stage::RenderObjects(i32 zLevel)
             }
 
             // And finally B
-            worldMatrix.m[3][1] = worldMatrix.m[3][1] + (obj->size).y;
+            worldMatrix.m[3][1] = worldMatrix.m[3][1] + obj->size.y;
             D3DXVec3Project(&quadPos, &projectSrc, &g_Supervisor.viewport, &g_Supervisor.projectionMatrix,
                             &g_Supervisor.viewMatrix, &worldMatrix);
             if (quadPos.y >= g_Supervisor.viewport.Y &&
@@ -614,6 +608,7 @@ ZunResult Stage::RenderObjects(i32 zLevel)
                     }
                     if (curQuadVm->autoRotate == 2)
                     {
+                        float quadWidth;
                         if (curQuad->size.x != 0.0f)
                         {
                             quadWidth = curQuad->size.x;
@@ -650,4 +645,4 @@ ZunResult Stage::RenderObjects(i32 zLevel)
     }
     return ZUN_SUCCESS;
 }
-}; // namespace th06
+} // namespace th06

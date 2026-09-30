@@ -446,11 +446,9 @@ void SoundPlayer::PlaySoundByIdx(SoundIdx idx, i32 unused)
     this->unk408[idx] = SFXToPlay;
 }
 
-#pragma var_order(idx, sndBufIdx)
 void SoundPlayer::PlaySounds()
 {
     i32 idx;
-    i32 sndBufIdx;
 
     if (this->manager == NULL)
     {
@@ -466,7 +464,7 @@ void SoundPlayer::PlaySounds()
         {
             break;
         }
-        sndBufIdx = this->soundBuffersToPlay[idx];
+        i32 sndBufIdx = this->soundBuffersToPlay[idx];
         this->soundBuffersToPlay[idx] = -1;
         if (this->duplicateSoundBuffers[sndBufIdx] == NULL)
         {
@@ -483,8 +481,8 @@ DWORD WINAPI SoundPlayer::BackgroundMusicPlayerThread(LPVOID lpThreadParameter)
 {
     DWORD waitObj;
     MSG msg;
-    u32 stopped;
-    u32 looped;
+    ZunBool stopped;
+    ZunBool looped;
     LPVOID lpThreadParameterCopy;
     HRESULT res;
 
@@ -520,4 +518,4 @@ DWORD WINAPI SoundPlayer::BackgroundMusicPlayerThread(LPVOID lpThreadParameter)
     }
     return 0;
 }
-}; // namespace th06
+} // namespace th06

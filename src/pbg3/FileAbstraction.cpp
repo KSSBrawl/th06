@@ -8,10 +8,10 @@ FileAbstraction::FileAbstraction()
     access = 0;
 }
 
-i32 FileAbstraction::Open(const char *filename, const char *mode)
+BOOL FileAbstraction::Open(const char *filename, const char *mode)
 {
-    int creationDisposition;
-    i32 goToEnd = FALSE;
+    u32 creationDisposition;
+    BOOL isAppendMode = FALSE;
 
     this->Close();
 
@@ -33,7 +33,7 @@ i32 FileAbstraction::Open(const char *filename, const char *mode)
         }
         else if (*curMode == 'a')
         {
-            goToEnd = true;
+            isAppendMode = TRUE;
             this->access = GENERIC_WRITE;
             creationDisposition = OPEN_ALWAYS;
             break;
@@ -42,19 +42,21 @@ i32 FileAbstraction::Open(const char *filename, const char *mode)
 
     if (*curMode == '\0')
     {
-        return 0;
+        return FALSE;
     }
     this->handle = CreateFile(filename, this->access, FILE_SHARE_READ, NULL, creationDisposition,
                               FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
 
     if (this->handle == INVALID_HANDLE_VALUE)
-        return 0;
+    {
+        return FALSE;
+    }
 
-    if (goToEnd)
+    if (isAppendMode)
     {
         SetFilePointer(this->handle, 0, NULL, FILE_END);
     }
-    return 1;
+    return TRUE;
 }
 
 void FileAbstraction::Close()
@@ -67,74 +69,74 @@ void FileAbstraction::Close()
     }
 }
 
-i32 FileAbstraction::Read(u8 *data, u32 dataLen, u32 *numBytesRead)
+BOOL FileAbstraction::Read(void *data, u32 dataLen, DWORD *numBytesRead)
 {
     if (this->access != GENERIC_READ)
     {
         return FALSE;
     }
 
-    return ReadFile(this->handle, data, dataLen, reinterpret_cast<DWORD *>(numBytesRead), NULL);
+    return ReadFile(this->handle, data, dataLen, numBytesRead, NULL);
 }
 
-i32 FileAbstraction::Write(u8 *data, u32 dataLen, u32 *outWritten)
+BOOL FileAbstraction::Write(void *data, u32 dataLen, DWORD *outWritten)
 {
     if (this->access != GENERIC_WRITE)
     {
         return FALSE;
     }
 
-    return WriteFile(this->handle, data, dataLen, reinterpret_cast<DWORD *>(outWritten), NULL);
+    return WriteFile(this->handle, data, dataLen, outWritten, NULL);
 }
 
 i32 FileAbstraction::ReadByte()
 {
     u8 data;
-    u32 outBytesRead;
+    DWORD outBytesRead;
 
     if (this->Read(&data, 1, &outBytesRead) == FALSE)
     {
-        return -1;
+        return PBG_EOF;
+    }
+    if (outBytesRead == 0)
+    {
+        return PBG_EOF;
     }
     else
     {
-        if (outBytesRead == 0)
-        {
-            return -1;
-        }
         return data;
     }
 }
 
-i32 FileAbstraction::WriteByte(u32 b)
+i32 FileAbstraction::WriteByte(i32 b)
 {
     u8 outByte;
-    u32 outBytesWritten;
+    DWORD outBytesWritten;
 
     outByte = b;
     if (this->Write(&outByte, 1, &outBytesWritten) == FALSE)
     {
-        return -1;
+        return PBG_EOF;
+    }
+    if (outBytesWritten == 0)
+    {
+        return PBG_EOF;
     }
     else
     {
-        if (outBytesWritten == 0)
-        {
-            return -1;
-        }
         return b;
     }
 }
 
-i32 FileAbstraction::Seek(u32 amount, u32 seekFrom)
+BOOL FileAbstraction::Seek(u32 amount, u32 seekFrom)
 {
     if (this->handle == INVALID_HANDLE_VALUE)
     {
-        return 0;
+        return FALSE;
     }
 
     SetFilePointer(this->handle, amount, NULL, seekFrom);
-    return 1;
+    return TRUE;
 }
 
 u32 FileAbstraction::Tell()
@@ -157,7 +159,21 @@ u32 FileAbstraction::GetSize()
     return GetFileSize(this->handle, NULL);
 }
 
-u8 *FileAbstraction::ReadWholeFile(u32 maxSize)
+BOOL FileAbstraction::WriteString(void *buffer)
+{
+    DWORD Length;
+    DWORD temp;
+
+    if (this->access != GENERIC_WRITE)
+    {
+        return FALSE;
+    }
+
+    Length = strlen((char *)buffer);
+    return Write(buffer, Length, &temp);
+}
+
+LPVOID FileAbstraction::ReadWholeFile(u32 maxSize)
 {
     if (this->access != GENERIC_READ)
     {
@@ -165,18 +181,18 @@ u8 *FileAbstraction::ReadWholeFile(u32 maxSize)
     }
 
     u32 dataLen = this->GetSize();
-    u32 outDataLen;
+    DWORD outDataLen;
     if (dataLen <= maxSize)
     {
-        u8 *data = reinterpret_cast<u8 *>(LocalAlloc(LPTR, dataLen));
+        LPVOID data = (LPVOID)LocalAlloc(LPTR, dataLen);
         if (data != NULL)
         {
             u32 oldLocation = this->Tell();
             // Pretty sure the plan here was to seek to 0, but woops the code
             // is buggy.
-            if (this->Seek(oldLocation, FILE_BEGIN) != 0)
+            if (this->Seek(oldLocation, FILE_BEGIN) != FALSE)
             {
-                if (this->Read(data, dataLen, &outDataLen) == 0)
+                if (this->Read(data, dataLen, &outDataLen) == FALSE)
                 {
                     LocalFree(data);
                     return NULL;
@@ -194,4 +210,5 @@ FileAbstraction::~FileAbstraction()
 {
     this->Close();
 }
-}; // namespace th06
+
+} // namespace th06

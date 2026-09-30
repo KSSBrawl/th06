@@ -34,7 +34,7 @@ AnmManager::AnmManager()
 
     memset(this, 0, sizeof(AnmManager));
 
-    for (i32 spriteIndex = 0; spriteIndex < ARRAY_SIZE_SIGNED(this->sprites); spriteIndex++)
+    for (i32 spriteIndex = 0; spriteIndex < MAX_ANM_SPRITES; spriteIndex++)
     {
         this->sprites[spriteIndex].sourceFileIndex = -1;
     }
@@ -150,8 +150,7 @@ ZunResult AnmManager::LoadTexture(i32 textureIdx, const char *textureName, i32 t
     return ZUN_SUCCESS;
 }
 
-#pragma var_order(surfaceDesc, data, lockedRectDst, lockedRectSrc, textureSrc, dstData0, srcData0, y0, x0, dstData1,   \
-                  srcData1, y1, x1, dstData2, srcData2, y2, x2)
+#pragma var_order(surfaceDesc, data, lockedRectDst, lockedRectSrc, textureSrc)
 ZunResult AnmManager::LoadTextureAlphaChannel(i32 textureIdx, const char *textureName, i32 textureFormat,
                                               D3DCOLOR colorKey)
 {
@@ -176,19 +175,6 @@ ZunResult AnmManager::LoadTextureAlphaChannel(i32 textureIdx, const char *textur
     D3DLOCKED_RECT lockedRectDst;
     D3DLOCKED_RECT lockedRectSrc;
     u8 *data;
-
-    u8 *dstData0;
-    u8 *srcData0;
-    i32 x0;
-    i32 y0;
-    Argb1555Pixel *dstData1;
-    Argb1555Pixel *srcData1;
-    i32 y1;
-    i32 x1;
-    Argb4444Pixel *dstData2;
-    Argb4444Pixel *srcData2;
-    i32 y2;
-    i32 x2;
 
     textureSrc = NULL;
     data = FileSystem::OpenPath(textureName);
@@ -224,45 +210,54 @@ ZunResult AnmManager::LoadTextureAlphaChannel(i32 textureIdx, const char *textur
     // into account the texture format.
     switch (surfaceDesc.Format)
     {
-    case D3DFMT_A8R8G8B8:
-        for (y0 = 0; y0 < surfaceDesc.Height; y0++)
+#pragma var_order(dstData, srcData, y, x)
+    case D3DFMT_A8R8G8B8: {
+        i32 x, y;
+        u8 *dstData, *srcData;
+        for (y = 0; y < surfaceDesc.Height; y++)
         {
-            dstData0 = (u8 *)lockedRectDst.pBits + y0 * lockedRectDst.Pitch;
-            srcData0 = (u8 *)lockedRectSrc.pBits + y0 * lockedRectSrc.Pitch;
+            dstData = (u8 *)lockedRectDst.pBits + y * lockedRectDst.Pitch;
+            srcData = (u8 *)lockedRectSrc.pBits + y * lockedRectSrc.Pitch;
 
-            for (x0 = 0; x0 < surfaceDesc.Width; x0++, srcData0 += 4, dstData0 += 4)
+            for (x = 0; x < surfaceDesc.Width; x++, srcData += 4, dstData += 4)
             {
-                dstData0[3] = srcData0[0];
+                dstData[3] = srcData[0];
             }
         }
         break;
-
-    case D3DFMT_A1R5G5B5:
-        for (y1 = 0; y1 < surfaceDesc.Height; y1++)
+    }
+#pragma var_order(dstData, srcData, y, x)
+    case D3DFMT_A1R5G5B5: {
+        i32 x, y;
+        Argb1555Pixel *dstData, *srcData;
+        for (y = 0; y < surfaceDesc.Height; y++)
         {
+            dstData = (Argb1555Pixel *)((u8 *)lockedRectDst.pBits + y * lockedRectDst.Pitch);
+            srcData = (Argb1555Pixel *)((u8 *)lockedRectSrc.pBits + y * lockedRectSrc.Pitch);
 
-            dstData1 = (Argb1555Pixel *)((u8 *)lockedRectDst.pBits + y1 * lockedRectDst.Pitch);
-            srcData1 = (Argb1555Pixel *)((u8 *)lockedRectSrc.pBits + y1 * lockedRectSrc.Pitch);
-
-            for (x1 = 0; x1 < surfaceDesc.Width; x1++, srcData1++, dstData1++)
+            for (x = 0; x < surfaceDesc.Width; x++, srcData++, dstData++)
             {
-                dstData1->a = srcData1->b >> 4;
+                dstData->a = srcData->b >> 4;
             }
         }
         break;
-
-    case D3DFMT_A4R4G4B4:
-        for (y2 = 0; y2 < surfaceDesc.Height; y2++)
+    }
+#pragma var_order(dstData, srcData, y, x)
+    case D3DFMT_A4R4G4B4: {
+        i32 x, y;
+        Argb4444Pixel *dstData, *srcData;
+        for (y = 0; y < surfaceDesc.Height; y++)
         {
-            dstData2 = (Argb4444Pixel *)((u8 *)lockedRectDst.pBits + y2 * lockedRectDst.Pitch);
-            srcData2 = (Argb4444Pixel *)((u8 *)lockedRectSrc.pBits + y2 * lockedRectSrc.Pitch);
+            dstData = (Argb4444Pixel *)((u8 *)lockedRectDst.pBits + y * lockedRectDst.Pitch);
+            srcData = (Argb4444Pixel *)((u8 *)lockedRectSrc.pBits + y * lockedRectSrc.Pitch);
 
-            for (x2 = 0; x2 < surfaceDesc.Width; x2++, srcData2++, dstData2++)
+            for (x = 0; x < surfaceDesc.Width; x++, srcData++, dstData++)
             {
-                dstData2->a = srcData2->b;
+                dstData->a = srcData->b;
             }
         }
         break;
+    }
     }
 
     textureSrc->UnlockRect(0);
@@ -288,7 +283,7 @@ ZunResult AnmManager::CreateEmptyTexture(i32 textureIdx, u32 width, u32 height, 
     return ZUN_SUCCESS;
 }
 
-#pragma var_order(anm, anmName, rawSprite, index, curSpriteOffset, loadedSprite)
+#pragma var_order(anm, anmName, rawSprite, index, curSpriteOffset)
 ZunResult AnmManager::LoadAnm(i32 anmIdx, const char *path, i32 spriteIdxOffset)
 {
     this->ReleaseAnm(anmIdx);
@@ -498,7 +493,7 @@ void AnmManager::SetRenderStateForVm(AnmVm *vm)
         g_PrimitivesToDrawUnknown[2].diffuse = vm->color;
         g_PrimitivesToDrawUnknown[3].diffuse = vm->color;
     }
-    if (!g_Supervisor.IsDepthTestDisabled() && (this->currentZWriteDisable != vm->flags.zWriteDisable))
+    if (!g_Supervisor.IsDepthTestDisabled() && this->currentZWriteDisable != vm->flags.zWriteDisable)
     {
         this->currentZWriteDisable = vm->flags.zWriteDisable;
         if (!this->currentZWriteDisable)
@@ -761,14 +756,12 @@ ZunResult AnmManager::DrawFacingCamera(AnmVm *vm)
     return this->DrawInner(vm, RENDER_VERTICES_DEFAULT);
 }
 
-#pragma var_order(textureMatrix, rotationMatrix, worldTransformMatrix, scaledXCenter, scaledYCenter)
+#pragma var_order(textureMatrix, rotationMatrix, worldTransformMatrix)
 ZunResult AnmManager::Draw3(AnmVm *vm)
 {
     D3DXMATRIX worldTransformMatrix;
     D3DXMATRIX rotationMatrix;
     D3DXMATRIX textureMatrix;
-    f32 scaledXCenter;
-    f32 scaledYCenter;
 
     if (!vm->flags.isVisible)
     {
@@ -811,7 +804,7 @@ ZunResult AnmManager::Draw3(AnmVm *vm)
     }
     else
     {
-        scaledXCenter = vm->sprite->widthPx * vm->scaleX / 2.0f;
+        float scaledXCenter = vm->sprite->widthPx * vm->scaleX / 2.0f;
         worldTransformMatrix.m[3][0] = fabsf(scaledXCenter) + vm->pos.x;
     }
 
@@ -821,7 +814,7 @@ ZunResult AnmManager::Draw3(AnmVm *vm)
     }
     else
     {
-        scaledYCenter = vm->sprite->heightPx * vm->scaleY / 2.0f;
+        float scaledYCenter = vm->sprite->heightPx * vm->scaleY / 2.0f;
         worldTransformMatrix.m[3][1] = -vm->pos.y - fabsf(scaledYCenter);
     }
 
@@ -957,25 +950,8 @@ ZunResult AnmManager::Draw2(AnmVm *vm)
     return ZUN_SUCCESS;
 }
 
-#pragma var_order(curInstr, local_c, local_10, local_14, local_18, local_1c, local_20, nextInstr, local_28, local_2c,  \
-                  local_30, local_34, local_38, local_3c)
 i32 AnmManager::ExecuteScript(AnmVm *vm)
 {
-    AnmRawInstr *curInstr;
-    u32 *local_c;
-    f32 *local_10;
-    f32 *local_14;
-    f32 *local_18;
-    f32 *local_1c;
-    u32 *local_20;
-    AnmRawInstr *nextInstr;
-    ZunColor local_28;
-    ZunColor local_2c;
-    f32 local_30;
-    i32 local_34;
-    i32 local_38;
-    f32 local_3c;
-
     if (vm->currentInstruction == NULL)
     {
         return 1;
@@ -986,6 +962,7 @@ i32 AnmManager::ExecuteScript(AnmVm *vm)
         goto run_interrupt;
     }
 
+    AnmRawInstr *curInstr;
     while (curInstr = vm->currentInstruction, curInstr->time <= vm->currentTimeInScript)
     {
         switch (curInstr->opcode)
@@ -1000,13 +977,14 @@ i32 AnmManager::ExecuteScript(AnmVm *vm)
             this->SetActiveSprite(vm, curInstr->args[0] + this->spriteIndices[vm->anmFileIndex]);
             vm->timeOfLastSpriteSet = vm->currentTimeInScript;
             break;
-        case AnmOpcode_SetRandomSprite:
+        case AnmOpcode_SetRandomSprite: {
             vm->flags.isVisible = true;
-            local_c = &curInstr->args[0];
-            this->SetActiveSprite(vm, local_c[0] + g_Rng.GetRandomU16InRange(local_c[1]) +
+            u32* args = &curInstr->args[0];
+            this->SetActiveSprite(vm, args[0] + g_Rng.GetRandomU16InRange(args[1]) +
                                           this->spriteIndices[vm->anmFileIndex]);
             vm->timeOfLastSpriteSet = vm->currentTimeInScript;
             break;
+        }
         case AnmOpcode_SetScale:
             vm->scaleX = *(f32 *)&curInstr->args[0];
             vm->scaleY = *(f32 *)&curInstr->args[1];
@@ -1032,40 +1010,45 @@ i32 AnmManager::ExecuteScript(AnmVm *vm)
             vm->flags.flip ^= AnmVmMirror_Y;
             vm->scaleY *= -1.0f;
             break;
-        case AnmOpcode_SetRotation:
-            local_10 = (f32 *)&curInstr->args[0];
-            vm->rotation.x = *local_10++;
-            vm->rotation.y = *local_10++;
-            vm->rotation.z = *local_10;
+        case AnmOpcode_SetRotation: {
+            f32* rotationVals = (f32 *)&curInstr->args[0];
+            vm->rotation.x = *rotationVals++;
+            vm->rotation.y = *rotationVals++;
+            vm->rotation.z = *rotationVals;
             break;
-        case AnmOpcode_SetAngleVel:
-            local_14 = (f32 *)&curInstr->args[0];
-            vm->angleVel.x = *local_14++;
-            vm->angleVel.y = *local_14++;
-            vm->angleVel.z = *local_14;
+        }
+        case AnmOpcode_SetAngleVel: {
+            f32* angleVelVals = (f32 *)&curInstr->args[0];
+            vm->angleVel.x = *angleVelVals++;
+            vm->angleVel.y = *angleVelVals++;
+            vm->angleVel.z = *angleVelVals;
             break;
-        case AnmOpcode_SetScaleSpeed:
-            local_18 = (f32 *)&curInstr->args[0];
-            vm->scaleInterpFinalX = *local_18++;
-            vm->scaleInterpFinalY = *local_18;
+        }
+        case AnmOpcode_SetScaleSpeed: {
+            f32* scaleInterpVals = (f32 *)&curInstr->args[0];
+            vm->scaleInterpFinalX = *scaleInterpVals++;
+            vm->scaleInterpFinalY = *scaleInterpVals;
             vm->scaleInterpEndTime = 0;
             break;
-        case AnmOpcode_ScaleTime:
-            local_1c = (f32 *)&curInstr->args[0];
-            vm->scaleInterpFinalX = *local_1c++;
-            vm->scaleInterpFinalY = *local_1c++;
-            vm->scaleInterpEndTime = *(u16 *)local_1c;
+        }
+        case AnmOpcode_ScaleTime: {
+            f32* scaleInterpVals = (f32 *)&curInstr->args[0];
+            vm->scaleInterpFinalX = *scaleInterpVals++;
+            vm->scaleInterpFinalY = *scaleInterpVals++;
+            vm->scaleInterpEndTime = *(u16 *)scaleInterpVals;
             vm->scaleInterpTime = 0;
             vm->scaleInterpInitialX = vm->scaleX;
             vm->scaleInterpInitialY = vm->scaleY;
             break;
-        case AnmOpcode_Fade:
-            local_20 = (u32 *)&curInstr->args[0];
+        }
+        case AnmOpcode_Fade: {
+            u32* alphaInterpVals = (u32 *)&curInstr->args[0];
             vm->alphaInterpInitial = vm->color;
-            vm->alphaInterpFinal = COLOR_SET_ALPHA2(vm->color, local_20[0]);
-            vm->alphaInterpEndTime = local_20[1];
+            vm->alphaInterpFinal = COLOR_SET_ALPHA2(vm->color, alphaInterpVals[0]);
+            vm->alphaInterpEndTime = alphaInterpVals[1];
             vm->alphaInterpTime = 0;
             break;
+        }
         case AnmOpcode_SetBlendAdditive:
             vm->flags.blendMode = AnmBlendMode_Additive;
             break;
@@ -1108,7 +1091,7 @@ i32 AnmManager::ExecuteScript(AnmVm *vm)
             break;
         case AnmOpcode_StopHide:
             vm->flags.isVisible = false;
-        case AnmOpcode_Stop:
+        case AnmOpcode_Stop: {
             if (vm->pendingInterrupt == 0)
             {
                 vm->flags.isStopped = true;
@@ -1116,7 +1099,7 @@ i32 AnmManager::ExecuteScript(AnmVm *vm)
                 goto stop;
             }
         run_interrupt:
-            nextInstr = NULL;
+            AnmRawInstr *nextInstr = NULL;
             curInstr = vm->beginingOfScript;
             while ((curInstr->opcode != AnmOpcode_InterruptLabel || vm->pendingInterrupt != curInstr->args[0]) &&
                    curInstr->opcode != AnmOpcode_Exit && curInstr->opcode != AnmOpcode_ExitHide)
@@ -1145,6 +1128,7 @@ i32 AnmManager::ExecuteScript(AnmVm *vm)
             vm->currentTimeInScript = vm->currentInstruction->time;
             vm->flags.isVisible = true;
             continue;
+        }
         case AnmOpcode_SetVisibility:
             vm->flags.isVisible = curInstr->args[0];
             break;
@@ -1237,64 +1221,68 @@ stop:
         vm->scaleY = g_Supervisor.effectiveFramerateMultiplier * vm->scaleInterpFinalY + vm->scaleY;
         vm->scaleX = g_Supervisor.effectiveFramerateMultiplier * vm->scaleInterpFinalX + vm->scaleX;
     }
+
+#pragma var_order(colorFinal, color, alphaInterpVal, colorInterp, colorIdx)
     if (vm->alphaInterpEndTime > 0)
     {
         vm->alphaInterpTime++;
-        local_2c = vm->alphaInterpInitial;
-        local_28 = vm->alphaInterpFinal;
-        local_30 = vm->alphaInterpTime.AsFramesFloat() / (f32)vm->alphaInterpEndTime;
-        if (local_30 >= 1.0f)
+        ZunColor color = vm->alphaInterpInitial;
+        ZunColor colorFinal = vm->alphaInterpFinal;
+        float alphaInterpVal = vm->alphaInterpTime.AsFramesFloat() / (f32)vm->alphaInterpEndTime;
+        if (alphaInterpVal >= 1.0f)
         {
-            local_30 = 1.0f;
+            alphaInterpVal = 1.0f;
         }
-        for (local_38 = 0; local_38 < 4; local_38++)
+        i32 colorIdx;
+        i32 colorInterp;
+        for (colorIdx = 0; colorIdx < 4; colorIdx++)
         {
-            local_34 = ((f32)COLOR_GET_COMPONENT(local_28, local_38) - (f32)COLOR_GET_COMPONENT(local_2c, local_38)) *
-                           local_30 +
-                       COLOR_GET_COMPONENT(local_2c, local_38);
-            if (local_34 < 0)
+            colorInterp = ((f32)COLOR_GET_COMPONENT(colorFinal, colorIdx) - (f32)COLOR_GET_COMPONENT(color, colorIdx)) *
+                           alphaInterpVal + COLOR_GET_COMPONENT(color, colorIdx);
+            if (colorInterp < 0)
             {
-                local_34 = 0;
+                colorInterp = 0;
             }
-            COLOR_SET_COMPONENT(local_2c, local_38, local_34 >= 256 ? 255 : local_34);
+            COLOR_SET_COMPONENT(color, colorIdx, colorInterp >= 256 ? 255 : colorInterp);
         }
-        vm->color = local_2c;
+        vm->color = color;
         if ((i32)vm->alphaInterpTime >= vm->alphaInterpEndTime)
         {
             vm->alphaInterpEndTime = 0;
         }
     }
+
     if (vm->posInterpEndTime != 0)
     {
-        local_3c = vm->posInterpTime.AsFramesFloat() / (f32)vm->posInterpEndTime;
-        if (local_3c >= 1.0f)
+        float interpVal = vm->posInterpTime.AsFramesFloat() / (f32)vm->posInterpEndTime;
+        if (interpVal >= 1.0f)
         {
-            local_3c = 1.0f;
+            interpVal = 1.0f;
         }
         switch (vm->flags.posTime)
         {
         case 1:
-            local_3c = 1.0f - local_3c;
-            local_3c *= local_3c;
-            local_3c = 1.0f - local_3c;
+            interpVal = 1.0f - interpVal;
+            interpVal *= interpVal;
+            interpVal = 1.0f - interpVal;
             break;
         case 2:
-            local_3c = 1.0f - local_3c;
-            local_3c = local_3c * local_3c * local_3c * local_3c;
-            local_3c = 1.0f - local_3c;
+            interpVal = 1.0f - interpVal;
+            interpVal = interpVal * interpVal * interpVal * interpVal;
+            interpVal = 1.0f - interpVal;
             break;
         }
         if (!vm->flags.usePosOffset)
         {
-            vm->pos.x = local_3c * vm->posInterpFinal.x + (1.0f - local_3c) * vm->posInterpInitial.x;
-            vm->pos.y = local_3c * vm->posInterpFinal.y + (1.0f - local_3c) * vm->posInterpInitial.y;
-            vm->pos.z = local_3c * vm->posInterpFinal.z + (1.0f - local_3c) * vm->posInterpInitial.z;
+            vm->pos.x = interpVal * vm->posInterpFinal.x + (1.0f - interpVal) * vm->posInterpInitial.x;
+            vm->pos.y = interpVal * vm->posInterpFinal.y + (1.0f - interpVal) * vm->posInterpInitial.y;
+            vm->pos.z = interpVal * vm->posInterpFinal.z + (1.0f - interpVal) * vm->posInterpInitial.z;
         }
         else
         {
-            vm->posOffset.x = local_3c * vm->posInterpFinal.x + (1.0f - local_3c) * vm->posInterpInitial.x;
-            vm->posOffset.y = local_3c * vm->posInterpFinal.y + (1.0f - local_3c) * vm->posInterpInitial.y;
-            vm->posOffset.z = local_3c * vm->posInterpFinal.z + (1.0f - local_3c) * vm->posInterpInitial.z;
+            vm->posOffset.x = interpVal * vm->posInterpFinal.x + (1.0f - interpVal) * vm->posInterpInitial.x;
+            vm->posOffset.y = interpVal * vm->posInterpFinal.y + (1.0f - interpVal) * vm->posInterpInitial.y;
+            vm->posOffset.z = interpVal * vm->posInterpFinal.z + (1.0f - interpVal) * vm->posInterpInitial.z;
         }
 
         if ((i32)vm->posInterpTime >= vm->posInterpEndTime)
@@ -1585,7 +1573,8 @@ void AnmManager::TakeScreenshot(i32 textureId, i32 left, i32 top, i32 width, i32
     destSurface->Release();
     sourceSurface->Release();
 }
+
 AnmManager::~AnmManager()
 {
 }
-}; // namespace th06
+} // namespace th06

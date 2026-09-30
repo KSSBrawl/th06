@@ -136,15 +136,11 @@ DWORD GetDXVersion()
     return dwDXVersion;
 }
 
-#pragma var_order(renderResult, testCoopLevelRes, msg, testResetRes)
 extern "C" int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
     using namespace th06;
 
-    i32 renderResult = 0;
-    HRESULT testCoopLevelRes;
-    HRESULT testResetRes;
-    MSG msg;
+    RenderResult renderResult = RENDER_RESULT_KEEP_RUNNING;
 
     if (utils::CheckForRunningGameInstance())
     {
@@ -201,8 +197,11 @@ restart:
 
         g_GameWindow.curFrame = 0;
 
+        HRESULT testCoopLevelRes;
+
         while (!g_GameWindow.isAppClosing)
         {
+            MSG msg;
             if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
             {
                 TranslateMessage(&msg);
@@ -214,7 +213,7 @@ restart:
                 if (testCoopLevelRes == D3D_OK)
                 {
                     renderResult = g_GameWindow.Render();
-                    if (renderResult != 0)
+                    if (renderResult != RENDER_RESULT_KEEP_RUNNING)
                     {
                         break;
                     }
@@ -222,7 +221,7 @@ restart:
                 else if (testCoopLevelRes == D3DERR_DEVICENOTRESET)
                 {
                     g_AnmManager->ReleaseSurfaces();
-                    testResetRes = g_Supervisor.d3dDevice->Reset(&g_Supervisor.presentParameters);
+                    HRESULT testResetRes = g_Supervisor.d3dDevice->Reset(&g_Supervisor.presentParameters);
                     if (testResetRes != D3D_OK)
                     {
                         break;
@@ -244,7 +243,7 @@ restart:
     MoveWindow(g_GameWindow.window, 0, 0, 0, 0, FALSE);
     DestroyWindow(g_GameWindow.window);
 
-    if (renderResult == 2)
+    if (renderResult == RENDER_RESULT_EXIT_ERROR)
     {
         g_GameErrorContext.ResetContext();
 
@@ -273,15 +272,9 @@ namespace th06
 {
 #define FRAME_TIME (1000.0 / 60.0)
 
-#pragma var_order(res, viewport, slowdown, local_34, delta, curtime)
 RenderResult GameWindow::Render()
 {
     i32 res;
-    f64 slowdown;
-    D3DVIEWPORT8 viewport;
-    f64 delta;
-    u32 curtime;
-    f64 local_34;
 
     if (!this->isAppActive)
     {
@@ -295,6 +288,7 @@ RenderResult GameWindow::Render()
         {
             if (g_Supervisor.ShouldForceBackbufferClear())
             {
+                D3DVIEWPORT8 viewport;
                 viewport.X = 0;
                 viewport.Y = 0;
                 viewport.Width = GAME_WINDOW_WIDTH;
@@ -332,24 +326,25 @@ RenderResult GameWindow::Render()
 
     if (g_Supervisor.IsWindowed() || g_Supervisor.ShouldRunAt60Fps())
     {
+#pragma var_order(curtime, delta)
         if (this->curFrame != 0)
         {
             g_Supervisor.framerateMultiplier = 1.0f;
             timeBeginPeriod(1);
-            slowdown = timeGetTime();
-            if (slowdown < g_LastFrameTime)
+            f64 curtime = timeGetTime();
+            if (curtime < g_LastFrameTime)
             {
-                g_LastFrameTime = slowdown;
+                g_LastFrameTime = curtime;
             }
-            local_34 = fabs(slowdown - g_LastFrameTime);
+            f64 delta = fabs(curtime - g_LastFrameTime);
             timeEndPeriod(1);
-            if (local_34 >= FRAME_TIME)
+            if (delta >= FRAME_TIME)
             {
                 do
                 {
                     g_LastFrameTime += FRAME_TIME;
-                    local_34 -= FRAME_TIME;
-                } while (local_34 >= FRAME_TIME);
+                    delta -= FRAME_TIME;
+                } while (delta >= FRAME_TIME);
 
                 if (g_Supervisor.cfg.frameskipConfig < this->curFrame)
                     goto I_HAVE_NO_CLUE_WHY_BUT_I_MUST_JUMP_HERE;
@@ -360,7 +355,6 @@ RenderResult GameWindow::Render()
 
     if (!g_Supervisor.IsWindowed() && !g_Supervisor.ShouldRunAt60Fps())
     {
-
         if (g_Supervisor.cfg.frameskipConfig >= this->curFrame)
         {
             Present();
@@ -371,15 +365,16 @@ RenderResult GameWindow::Render()
         Present();
         if (g_Supervisor.framerateMultiplier == 0.0f)
         {
+#pragma var_order(delta, curtime)
             if (g_TickCountToEffectiveFramerate >= 2)
             {
                 timeBeginPeriod(1);
-                curtime = timeGetTime();
+                u32 curtime = timeGetTime();
                 if (curtime < g_Supervisor.lastFrameTime)
                 {
                     g_Supervisor.lastFrameTime = curtime;
                 }
-                delta = curtime - g_Supervisor.lastFrameTime;
+                f64 delta = curtime - g_Supervisor.lastFrameTime;
                 delta = (delta * 60.0) / 2.0 / 1000.0;
                 delta /= g_Supervisor.cfg.frameskipConfig + 1;
                 if (delta >= 0.865)
@@ -521,7 +516,7 @@ LRESULT CALLBACK GameWindow::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 }
 
 #pragma var_order(using_d3d_hal, display_mode, present_params, camera_distance, half_height, half_width, aspect_ratio, \
-                  field_of_view_y, up, at, eye, should_run_at_60_fps)
+                  field_of_view_y, up, at, eye)
 i32 GameWindow::InitD3dRendering(void)
 {
     u8 using_d3d_hal;
@@ -548,7 +543,7 @@ i32 GameWindow::InitD3dRendering(void)
         }
         else if (g_Supervisor.cfg.colorMode16bit == 0xff)
         {
-            if ((display_mode.Format == D3DFMT_X8R8G8B8) || (display_mode.Format == D3DFMT_A8R8G8B8))
+            if (display_mode.Format == D3DFMT_X8R8G8B8 || display_mode.Format == D3DFMT_A8R8G8B8)
             {
                 present_params.BackBufferFormat = D3DFMT_X8R8G8B8;
                 g_Supervisor.cfg.colorMode16bit = false;
@@ -847,5 +842,5 @@ ZunResult CheckForRunningGameInstance(void)
 
     return ZUN_SUCCESS;
 }
-}; // namespace utils
-}; // namespace th06
+} // namespace utils
+} // namespace th06

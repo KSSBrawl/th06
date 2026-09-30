@@ -38,5 +38,5 @@ void ExInsStageXFunc13(Enemy *enemy, EclRawInstr *instr);
 void ExInsStageXFunc14(Enemy *enemy, EclRawInstr *instr);
 void ExInsStageXFunc15(Enemy *enemy, EclRawInstr *instr);
 void ExInsFlandreFinalContextUpdate(Enemy *enemy, EclRawInstr *instr);
-}; // namespace EnemyEclInstr
-}; // namespace th06
+} // namespace EnemyEclInstr
+} // namespace th06

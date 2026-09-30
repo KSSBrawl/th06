@@ -94,6 +94,14 @@ struct EnemyEclContext
 };
 ZUN_ASSERT_SIZE(EnemyEclContext, 0x4c);
 
+enum EnemyDeathMode
+{
+    DESPAWN_NO_CALLBACK,
+    DISABLE_INTERACTION,
+    DROP_ITEMS_ONLY,
+    SET_HP_TO_1
+};
+
 struct EnemyFlags
 {
     // First byte
@@ -128,6 +136,18 @@ enum EclValueType
     ECL_VALUE_TYPE_READONLY,
     ECL_VALUE_TYPE_UNDEFINED,
 };
+
+enum EnemyPose
+{
+    EnemyPose_Default = 0xFF,
+    EnemyPose_Neutral = 0,
+    EnemyPose_Left = 1,
+    EnemyPose_Right = 2
+};
+
+#define ENEMY_ANM_SLOTS 8
+#define MAX_ECL_STACK_DEPTH 7
+#define MAX_LASERS_PER_ENEMY 32
 
 struct Enemy
 {
@@ -199,9 +219,9 @@ struct Enemy
     }
 
     AnmVm primaryVm;
-    AnmVm vms[8];
+    AnmVm vms[ENEMY_ANM_SLOTS];
     EnemyEclContext currentContext;
-    EnemyEclContext savedContextStack[8];
+    EnemyEclContext savedContextStack[MAX_ECL_STACK_DEPTH + 1]; // +1 dummy slot for overflow
     i32 stackDepth;
     i32 unk_c40;
     i32 deathCallbackSub;
@@ -234,22 +254,22 @@ struct Enemy
     i32 shootInterval;
     ZunTimer shootIntervalTimer;
     EnemyLaserShooter laserProps;
-    Laser *lasers[32]; // This looks like a structure
+    Laser *lasers[MAX_LASERS_PER_ENEMY]; // This looks like a structure
     i32 laserStore;
-    u8 deathAnm1;
-    u8 deathAnm2;
+    u8 deathParticle1;
+    u8 deathParticle2;
     u8 deathAnm3;
     i8 itemDrop;
     u8 bossId;
     u8 unk_e41;
     ZunTimer exInsFunc10Timer;
     EnemyFlags flags;
-    u8 anmExFlags;
-    i16 anmExDefaults;
-    i16 anmExFarLeft;
-    i16 anmExFarRight;
-    i16 anmExLeft;
-    i16 anmExRight;
+    u8 anmPoseCurrent;
+    i16 anmPoseDefault;
+    i16 anmPoseNeutralFromLeft;
+    i16 anmPoseNeutralFromRight;
+    i16 anmPoseLeft;
+    i16 anmPoseRight;
     D3DXVECTOR2 lowerMoveLimit;
     D3DXVECTOR2 upperMoveLimit;
     Effect *effectArray[12];
@@ -263,4 +283,4 @@ struct Enemy
     ZunTimer exInsFunc6Timer;
 };
 ZUN_ASSERT_SIZE(Enemy, 0xec8);
-}; // namespace th06
+} // namespace th06

@@ -19,6 +19,8 @@ struct RunningSpellcardInfo
 };
 ZUN_ASSERT_SIZE(RunningSpellcardInfo, 0x14);
 
+#define MAX_ENEMY_COUNT 256
+
 struct EnemyManager
 {
     void Initialize();
@@ -36,7 +38,7 @@ struct EnemyManager
     const char *stgEnmAnmFilename;
     const char *stgEnm2AnmFilename;
     Enemy enemyTemplate;
-    Enemy enemies[257];
+    Enemy enemies[MAX_ENEMY_COUNT + 1]; // +1 dummy slot to avoid null checks for failed spawns
     Enemy *bosses[8];
     u16 randomItemSpawnIndex;
     u16 randomItemTableIndex;
@@ -50,4 +52,4 @@ struct EnemyManager
 ZUN_ASSERT_SIZE(EnemyManager, 0xee5ec);
 
 DIFFABLE_EXTERN(EnemyManager, g_EnemyManager);
-}; // namespace th06
+} // namespace th06

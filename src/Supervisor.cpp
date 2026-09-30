@@ -30,7 +30,6 @@ __declspec(allocate(".data$M1Supervisor")) DIFFABLE_STATIC(Supervisor, g_Supervi
 
 ChainCallbackResult Supervisor::OnUpdate(Supervisor *s)
 {
-
     if (g_SoundPlayer.backgroundMusic != NULL)
     {
         g_SoundPlayer.backgroundMusic->UpdateFadeOut();
@@ -489,4 +488,4 @@ void Supervisor::DrawFpsCounter()
         g_AsciiManager.AddString(&D3DXVECTOR3(512.0f, 464.0f, 0.0f), g_FpsCounterBuffer);
     }
 }
-}; // namespace th06
+} // namespace th06

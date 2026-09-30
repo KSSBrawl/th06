@@ -68,17 +68,15 @@ enum OrbState
 
 enum PlayerBulletState
 {
-    PLAYER_BULLET_STATE_UNUSED,
+    PLAYER_BULLET_STATE_INACTIVE,
     PLAYER_BULLET_STATE_FIRED,
     PLAYER_BULLET_STATE_COLLIDED,
 };
 
 struct PlayerRect
 {
-    f32 posX;
-    f32 posY;
-    f32 sizeX;
-    f32 sizeY;
+    ZunVec2 pos;
+    ZunVec2 size;
 };
 ZUN_ASSERT_SIZE(PlayerRect, 0x10);
 
@@ -166,6 +164,8 @@ struct CharacterPowerData
 };
 ZUN_ASSERT_SIZE(CharacterPowerData, 0xc);
 
+#define MAX_PLAYER_BULLETS 80
+
 struct Player
 {
     static ZunResult RegisterChain(u8 unk);
@@ -188,9 +188,9 @@ struct Player
     i32 CheckGraze(D3DXVECTOR3 *center, D3DXVECTOR3 *size);
     i32 CalcKillBoxCollision(D3DXVECTOR3 *bulletCenter, D3DXVECTOR3 *bulletSize);
     i32 CalcLaserHitbox(D3DXVECTOR3 *laserCenter, D3DXVECTOR3 *laserSize, D3DXVECTOR3 *rotation, f32 angle,
-                        i32 canGraze);
-    i32 CalcDamageToEnemy(D3DXVECTOR3 *enemyPos, D3DXVECTOR3 *enemySize, i32 *unk);
-    i32 CalcItemBoxCollision(D3DXVECTOR3 *center, D3DXVECTOR3 *size);
+                        ZunBool canGraze);
+    i32 CalcDamageToEnemy(D3DXVECTOR3 *enemyPos, D3DXVECTOR3 *enemySize, ZunBool *hitByBomb);
+    ZunBool CalcItemBoxCollision(D3DXVECTOR3 *center, D3DXVECTOR3 *size);
     void ScoreGraze(D3DXVECTOR3 *center);
     void Die();
 
@@ -211,8 +211,7 @@ struct Player
     i32 unk_838[32];
     PlayerRect bombProjectiles[16];
     ZunTimer laserTimer[2];
-    f32 horizontalMovementSpeedMultiplierDuringBomb;
-    f32 verticalMovementSpeedMultiplierDuringBomb;
+    ZunVec2 speedMultiplierDuringBomb;
     i32 respawnTimer;
     i32 bulletGracePeriod;
     i8 playerState;
@@ -223,11 +222,10 @@ struct Player
     ZunTimer focusMovementTimer;
     CharacterData characterData;
     PlayerDirection playerDirection;
-    f32 previousHorizontalSpeed;
-    f32 previousVerticalSpeed;
+    ZunVec2 previousSpeed;
     i16 previousFrameInput;
     D3DXVECTOR3 positionOfLastEnemyHit;
-    PlayerBullet bullets[80];
+    PlayerBullet bullets[MAX_PLAYER_BULLETS];
     ZunTimer fireBulletTimer;
     ZunTimer invulnerabilityTimer;
     FireBulletCallback fireBulletCallback;
@@ -236,15 +234,16 @@ struct Player
     ChainElem *chainCalc;
     ChainElem *chainDraw1;
     ChainElem *chainDraw2;
-#pragma var_order(x, y)
-    void inline SetToTopLeftPos(AnmVm *sprite)
+
+    // TODO: This really looks like a hack
+    inline void SetToTopLeftPos(AnmVm *sprite)
     {
         sprite->pos[0] += g_GameManager.arcadeRegionTopLeftPos.x;
         sprite->pos[1] += g_GameManager.arcadeRegionTopLeftPos.y;
         sprite->pos[2] = 0.0f;
-    };
+    }
 };
 ZUN_ASSERT_SIZE(Player, 0x98f0);
 
 DIFFABLE_EXTERN(Player, g_Player);
-}; // namespace th06
+} // namespace th06

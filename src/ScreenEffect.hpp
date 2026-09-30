@@ -59,4 +59,4 @@ struct ScreenEffect
     i32 unusedParam;
     ZunTimer timer;
 };
-}; // namespace th06
+} // namespace th06

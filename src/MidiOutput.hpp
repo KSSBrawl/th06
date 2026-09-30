@@ -176,4 +176,4 @@ struct MidiOutput : MidiTimer
     ULONGLONG unk2f8;
 };
 ZUN_ASSERT_SIZE(MidiOutput, 0x300);
-}; // namespace th06
+} // namespace th06

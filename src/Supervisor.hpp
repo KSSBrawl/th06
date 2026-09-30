@@ -248,4 +248,4 @@ ZUN_ASSERT_SIZE(Supervisor, 0x4d8);
 
 DIFFABLE_EXTERN(Supervisor, g_Supervisor);
 
-}; // namespace th06
+} // namespace th06

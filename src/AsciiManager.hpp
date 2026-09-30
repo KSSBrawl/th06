@@ -21,6 +21,8 @@ namespace th06
 #define ASCII_SCORE_POPUPS_START 0
 #define ASCII_PLAYER_POPUPS_START ASCII_SCORE_POPUPS_COUNT
 
+#define ASCII_STRING_COUNT 256
+
 struct AsciiManagerString
 {
     char text[64];
@@ -81,7 +83,7 @@ struct AsciiManager
 
     AnmVm vm0;
     AnmVm vm1;
-    AsciiManagerString strings[256];
+    AsciiManagerString strings[ASCII_STRING_COUNT];
     i32 numStrings;
     D3DCOLOR color;
     D3DXVECTOR2 scale;
@@ -102,4 +104,4 @@ struct AsciiManager
 };
 ZUN_ASSERT_SIZE(AsciiManager, 0xc1ac);
 DIFFABLE_EXTERN(AsciiManager, g_AsciiManager);
-}; // namespace th06
+} // namespace th06

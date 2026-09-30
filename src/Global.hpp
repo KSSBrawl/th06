@@ -26,7 +26,7 @@
 
 #define IS_PRESSED(key) (g_CurFrameInput & (key))
 #define WAS_PRESSED(key) (IS_PRESSED(key) && (g_CurFrameInput & (key)) != (g_LastFrameInput & (key)))
-#define WAS_PRESSED_WEIRD(key) (WAS_PRESSED(key) || (IS_PRESSED(key) && g_IsEigthFrameOfHeldInput))
+#define WAS_PRESSED_REPEATING(key) (WAS_PRESSED(key) || (IS_PRESSED(key) && g_IsEigthFrameOfHeldInput))
 
 #define ZUN_ALLOC(size) (u8 *)g_ZunMemory.Alloc(size)
 #define ZUN_ALLOC_TYPE(type) (type *)ZUN_ALLOC(sizeof(type))
@@ -65,7 +65,7 @@ void DebugPrint2(const char *fmt, ...);
 
 f32 AddNormalizeAngle(f32 a, f32 b);
 void Rotate(D3DXVECTOR3 *outVector, D3DXVECTOR3 *point, f32 angle);
-}; // namespace utils
+} // namespace utils
 
 enum TouhouButton
 {
@@ -109,7 +109,7 @@ u16 GetControllerInput(u16 buttons);
 u8 *GetControllerState();
 u16 GetInput(void);
 void ResetKeyboard(void);
-}; // namespace Controller
+} // namespace Controller
 
 struct ControllerMapping
 {
@@ -258,4 +258,4 @@ class GameErrorContext
 DIFFABLE_EXTERN(GameErrorContext, g_GameErrorContext);
 DIFFABLE_EXTERN(Pbg3Archive **, g_Pbg3Archives);
 DIFFABLE_EXTERN(LPDIRECT3DSURFACE8, g_TextBufferSurface);
-}; // namespace th06
+} // namespace th06

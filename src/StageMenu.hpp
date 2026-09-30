@@ -22,4 +22,4 @@ struct StageMenu
     AnmVm menuBackground;
 };
 ZUN_ASSERT_SIZE(StageMenu, 0x778);
-}; // namespace th06
+} // namespace th06

@@ -67,7 +67,7 @@ ZunBool GameManager::IsInBounds(f32 x, f32 y, f32 width, f32 height)
     return true;
 }
 
-#pragma var_order(score_increment, is_in_menu)
+#pragma var_order(scoreIncrement, isInMenu)
 ChainCallbackResult GameManager::OnUpdate(GameManager *gameManager)
 {
     ZunBool isInMenu;
@@ -220,7 +220,7 @@ ZunResult GameManager::RegisterChain()
     return ZUN_SUCCESS;
 }
 
-#pragma var_order(failedToLoadReplay, catk, i, catkCursor, scoredat, clrdIdx, unk1, unk2, padding)
+#pragma var_order(failedToLoadReplay, catk, i, catkCursor, scoredat, clrdIdx, padding)
 ZunResult GameManager::AddedCallback(GameManager *mgr)
 {
     static const char *g_EclFiles[] = {"dummy",
@@ -303,7 +303,7 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
         mgr->rank = 8;
         mgr->grazeInTotal = 0;
         mgr->pointItemsCollected = 0;
-        for (catk = mgr->catk, i = 0; i < ARRAY_SIZE_SIGNED(mgr->catk); i++, catk++)
+        for (catk = mgr->catk, i = 0; i < CATK_NUM_CAPTURES; i++, catk++)
         {
             // Randomize catk content.
             for (catkCursor = 0; catkCursor < sizeof(Catk) / sizeof(u16); catkCursor++)
@@ -599,4 +599,4 @@ GameManager::GameManager()
     this->arcadeRegionSize.x = GAME_REGION_WIDTH;
     this->arcadeRegionSize.y = GAME_REGION_HEIGHT;
 }
-}; // namespace th06
+} // namespace th06

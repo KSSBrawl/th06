@@ -32,11 +32,14 @@ enum ParticleEffects
     PARTICLE_EFFECT_UNK_18,
     PARTICLE_EFFECT_UNK_19,
 };
+
+#define MAX_EFFECT_COUNT 512
+
 struct EffectManager
 {
     i32 nextIndex;
     i32 activeEffects;
-    Effect effects[513];
+    Effect effects[MAX_EFFECT_COUNT + 1]; // +1 dummy slot to avoid null checks for failed spawns
 
     EffectManager()
     {
@@ -63,4 +66,4 @@ struct EffectManager
 ZUN_ASSERT_SIZE(EffectManager, 0x2f984);
 
 DIFFABLE_EXTERN(EffectManager, g_EffectManager);
-}; // namespace th06
+} // namespace th06

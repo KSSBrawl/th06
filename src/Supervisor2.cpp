@@ -49,7 +49,7 @@ i32 Supervisor::LoadPbg3(i32 pbg3FileIdx, const char *filename)
         this->ReleasePbg3(pbg3FileIdx);
         this->pbg3Archives[pbg3FileIdx] = ZUN_NEW(Pbg3Archive);
         utils::DebugPrint("%s open ...\n", filename);
-        if (this->pbg3Archives[pbg3FileIdx]->Load(filename) != 0)
+        if (this->pbg3Archives[pbg3FileIdx]->Load(filename))
         {
             strcpy(this->pbg3ArchiveNames[pbg3FileIdx], filename);
 
@@ -75,16 +75,11 @@ i32 Supervisor::LoadPbg3(i32 pbg3FileIdx, const char *filename)
     return 0;
 }
 
-#pragma var_order(data, wavFile, wavFile2)
 ZunResult Supervisor::LoadConfig(const char *path)
 {
-    GameConfiguration *data;
-    FILE *wavFile;
-    FILE *wavFile2;
-
     memset(&g_Supervisor.cfg, 0, sizeof(GameConfiguration));
     g_Supervisor.cfg.opts.useSwTextureBlending = true;
-    data = (GameConfiguration *)FileSystem::OpenPath(path, EXTERNAL_FILE);
+    GameConfiguration *data = (GameConfiguration *)FileSystem::OpenPath(path, EXTERNAL_FILE);
     if (data == NULL)
     {
         g_Supervisor.cfg.lifeCount = 2;
@@ -93,7 +88,7 @@ ZunResult Supervisor::LoadConfig(const char *path)
         g_Supervisor.cfg.version = GAME_VERSION;
         g_Supervisor.cfg.padXAxis = 600;
         g_Supervisor.cfg.padYAxis = 600;
-        wavFile = fopen("bgm/th06_01.wav", "rb");
+        FILE *wavFile = fopen("bgm/th06_01.wav", "rb");
         if (wavFile != NULL)
         {
             g_Supervisor.cfg.musicMode = WAV;
@@ -114,11 +109,11 @@ ZunResult Supervisor::LoadConfig(const char *path)
     else
     {
         g_Supervisor.cfg = *data;
-        if ((g_Supervisor.cfg.lifeCount >= 5) || (g_Supervisor.cfg.bombCount >= 4) ||
-            (g_Supervisor.cfg.colorMode16bit >= 2) || (g_Supervisor.cfg.musicMode >= 3) ||
-            (g_Supervisor.cfg.defaultDifficulty >= 5) || (g_Supervisor.cfg.playSounds >= 2) ||
-            (g_Supervisor.cfg.windowed >= 2) || (g_Supervisor.cfg.frameskipConfig >= 3) ||
-            (g_Supervisor.cfg.version != GAME_VERSION) || (g_LastFileSize != sizeof(GameConfiguration)))
+        if (g_Supervisor.cfg.lifeCount >= 5 || g_Supervisor.cfg.bombCount >= 4 ||
+            g_Supervisor.cfg.colorMode16bit >= 2 || g_Supervisor.cfg.musicMode >= 3 ||
+            g_Supervisor.cfg.defaultDifficulty >= 5 || g_Supervisor.cfg.playSounds >= 2 ||
+            g_Supervisor.cfg.windowed >= 2 || g_Supervisor.cfg.frameskipConfig >= 3 ||
+            g_Supervisor.cfg.version != GAME_VERSION || g_LastFileSize != sizeof(GameConfiguration))
         {
             g_Supervisor.cfg.lifeCount = 2;
             g_Supervisor.cfg.bombCount = 3;
@@ -126,11 +121,11 @@ ZunResult Supervisor::LoadConfig(const char *path)
             g_Supervisor.cfg.version = GAME_VERSION;
             g_Supervisor.cfg.padXAxis = 600;
             g_Supervisor.cfg.padYAxis = 600;
-            wavFile2 = fopen("bgm/th06_01.wav", "rb");
-            if (wavFile2 != NULL)
+            FILE* wavFile = fopen("bgm/th06_01.wav", "rb");
+            if (wavFile != NULL)
             {
                 g_Supervisor.cfg.musicMode = WAV;
-                fclose(wavFile2);
+                fclose(wavFile);
             }
             else
             {
@@ -365,4 +360,4 @@ ZunResult Supervisor::FadeOutMusic(f32 fadeOutSeconds)
 
     return ZUN_SUCCESS;
 }
-}; // namespace th06
+} // namespace th06

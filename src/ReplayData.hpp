@@ -46,4 +46,4 @@ struct ReplayData
     StageReplayData *stageReplayData[7];
 };
 ZUN_ASSERT_SIZE(ReplayData, 0x50);
-}; // namespace th06
+} // namespace th06

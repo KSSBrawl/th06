@@ -177,8 +177,8 @@ class CWaveFile
     WAVEFORMATEX *GetFormat()
     {
         return m_pwfx;
-    };
+    }
 };
-}; // namespace th06
+} // namespace th06
 
 #endif // DSUTIL_H

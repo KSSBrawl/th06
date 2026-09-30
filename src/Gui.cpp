@@ -581,7 +581,7 @@ ZunResult Gui::LoadMsg(const char *path)
 
 void Gui::FreeMsgFile()
 {
-    ZUN_SAFE_FREE((this->impl->msg).msgFile);
+    ZUN_SAFE_FREE(this->impl->msg.msgFile);
 }
 
 void Gui::MsgRead(i32 msgIdx)
@@ -661,7 +661,7 @@ ZunResult GuiImpl::RunMsg()
             break;
         case MSG_OPCODE_TEXTDIALOGUE:
             args = &this->msg.currentInstr->args;
-            if (args->text.textLine == 0 && 0 <= this->msg.dialogueLines[1].anmFileIndex)
+            if (args->text.textLine == 0 && this->msg.dialogueLines[1].anmFileIndex >= 0)
             {
                 g_AnmManager->DrawVmTextFmt(&this->msg.dialogueLines[1], this->msg.textColorsA[args->text.textColor],
                                             this->msg.textColorsB[args->text.textColor], " ");
@@ -882,13 +882,9 @@ ZunBool Gui::HasCurrentMsgIdx()
     return this->impl->msg.currentMsgIdx >= 0;
 }
 
-#pragma var_order(idx, stageScore)
 void Gui::UpdateStageElements()
 {
-    i32 stageScore;
-    i32 idx;
-
-    for (idx = 0; idx < ARRAY_SIZE_SIGNED(this->impl->vms); idx++)
+    for (i32 idx = 0; idx < ARRAY_SIZE_SIGNED(this->impl->vms); idx++)
     {
         if (idx == 19 && this->impl->msg.currentMsgIdx < 0)
         {
@@ -969,7 +965,7 @@ void Gui::UpdateStageElements()
     g_AnmManager->ExecuteScript(&this->impl->bombSpellcardName);
     g_AnmManager->ExecuteScript(&this->impl->enemySpellcardPortrait);
     g_AnmManager->ExecuteScript(&this->impl->enemySpellcardName);
-    if (0 <= this->impl->loadingScreenSprite.activeSpriteIndex &&
+    if (this->impl->loadingScreenSprite.activeSpriteIndex >= 0 &&
         g_AnmManager->ExecuteScript(&this->impl->loadingScreenSprite) != 0)
     {
         this->impl->loadingScreenSprite.activeSpriteIndex = -1;
@@ -1018,7 +1014,7 @@ void Gui::UpdateStageElements()
     }
     if (this->impl->finishedStage == TRUE)
     {
-        stageScore = 0;
+        i32 stageScore = 0;
         stageScore += g_GameManager.currentStage * 1000;
         stageScore += g_GameManager.grazeInStage * 10;
         stageScore += g_GameManager.currentPower * 100;
@@ -1322,16 +1318,12 @@ void Gui::DrawGameScene()
     }
 }
 
-#pragma var_order(stageTextPos, stageTextColor, demoTextColor)
 void Gui::DrawStageElements()
 {
     D3DXVECTOR3 stageTextPos;
-    ZunColor stageTextColor;
-    ZunColor demoTextColor;
 
     if (this->impl->stageNameSprite.flags.isVisible)
     {
-
         stageTextPos.x = 168.0f;
         stageTextPos.y = 198.0f;
         stageTextPos.z = 0.0f;
@@ -1340,7 +1332,7 @@ void Gui::DrawStageElements()
             g_AnmManager->Draw2(&this->impl->stageNameSprite);
 
             // this looks like an inline function, maybe ZunColor is a struct?
-            stageTextColor = COLOR_COMBINE_ALPHA(COLOR_SUNSHINEYELLOW, this->impl->stageNameSprite.color);
+            ZunColor stageTextColor = COLOR_COMBINE_ALPHA(COLOR_SUNSHINEYELLOW, this->impl->stageNameSprite.color);
             g_AsciiManager.color = stageTextColor;
 
             if (g_GameManager.currentStage < EXTRA_STAGE)
@@ -1361,7 +1353,7 @@ void Gui::DrawStageElements()
         }
         else
         {
-            demoTextColor = COLOR_COMBINE_ALPHA(COLOR_SUNSHINEYELLOW, this->impl->stageNameSprite.color);
+            ZunColor demoTextColor = COLOR_COMBINE_ALPHA(COLOR_SUNSHINEYELLOW, this->impl->stageNameSprite.color);
             g_AsciiManager.color = demoTextColor;
 
             stageTextPos.x = 136.0f;
@@ -1395,7 +1387,6 @@ void Gui::DrawStageElements()
     }
     if (this->impl->enemySpellcardName.flags.isVisible)
     {
-
         this->impl->enemySpellcardBackground.pos = this->impl->enemySpellcardName.pos;
         this->impl->enemySpellcardBackground.pos.x += 128.0f - this->blueSpellcardBarLength * 16.0f / 15.0f / 2.0f;
         this->impl->enemySpellcardBackground.scaleX = this->blueSpellcardBarLength / 14.0f;
@@ -1469,4 +1460,4 @@ void Gui::CutChain()
     g_Chain.Cut(&g_GuiCalcChain);
     g_Chain.Cut(&g_GuiDrawChain);
 }
-}; // namespace th06
+} // namespace th06

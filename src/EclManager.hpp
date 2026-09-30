@@ -138,8 +138,8 @@ struct EclRawInstrAnmSetSlotArgs
 
 struct EclRawInstrAnmSetDeathArgs
 {
-    i8 deathAnm1;
-    i8 deathAnm2;
+    i8 deathParticle1;
+    i8 deathParticle2;
     i8 deathAnm3;
 };
 
@@ -212,11 +212,11 @@ struct EclRawInstrMoveBoundSetArgs
 
 struct EclRawInstrAnmSetPosesArgs
 {
-    i16 anmExDefault;
-    i16 anmExFarLeft;
-    i16 anmExFarRight;
-    i16 anmExLeft;
-    i16 anmExRight;
+    i16 anmPoseDefault;
+    i16 anmPoseNeutralFromLeft;
+    i16 anmPoseNeutralFromRight;
+    i16 anmPoseLeft;
+    i16 anmPoseRight;
 };
 
 struct EclRawInstrSetInterruptArgs
@@ -526,4 +526,4 @@ struct EclManager
 ZUN_ASSERT_SIZE(EclManager, 0x16c);
 
 DIFFABLE_EXTERN(EclManager, g_EclManager);
-}; // namespace th06
+} // namespace th06
