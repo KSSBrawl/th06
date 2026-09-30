@@ -376,9 +376,11 @@ ZunBool Player::CalcItemBoxCollision(D3DXVECTOR3 *itemCenter, D3DXVECTOR3 *itemS
         return false;
     }
     
-    // ZUN KNOWS WHAT A COPY CONSTRUCTOR IS :O
-    D3DXVECTOR3 itemTopLeft = D3DXVECTOR3(*itemCenter - *itemSize / 2.0f);
-    D3DXVECTOR3 itemBottomRight = D3DXVECTOR3(*itemCenter + *itemSize / 2.0f);
+    D3DXVECTOR3 itemTopLeft;
+    D3DXVECTOR3 itemBottomRight;
+
+    itemTopLeft = *itemCenter - *itemSize / 2.0f;
+    itemBottomRight = *itemCenter + *itemSize / 2.0f;
 
     if (this->grabItemTopLeft.x > itemBottomRight.x || this->grabItemBottomRight.x < itemTopLeft.x ||
         this->grabItemTopLeft.y > itemBottomRight.y || this->grabItemBottomRight.y < itemTopLeft.y)
