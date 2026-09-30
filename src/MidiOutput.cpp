@@ -128,7 +128,6 @@ u32 MidiTimer::StartTimer(u32 delay, LPTIMECALLBACK cb, DWORD_PTR data)
         this->timerId = timeSetEvent(delay, this->timeCaps.wPeriodMin, (LPTIMECALLBACK)MidiTimer::DefaultTimerCallback,
                                      (DWORD_PTR)this, TIME_PERIODIC);
     }
-
     return this->timerId;
 }
 
@@ -138,10 +137,8 @@ i32 MidiTimer::StopTimer()
     {
         timeKillEvent(this->timerId);
     }
-
     timeEndPeriod(this->timeCaps.wPeriodMin);
     this->timerId = 0;
-
     return 1;
 }
 
@@ -714,9 +711,4 @@ void MidiOutput::FadeOutSetVolume(i32 volume)
     }
 }
 
-// TODO: HORRIBLE FAKE LINKER HACK
-// Figure out comdat folding to fix
-AnmManager::~AnmManager()
-{
-}
 }; // namespace th06
