@@ -145,12 +145,12 @@ union AnmVmFlags {
     {
         u32 isVisible : 1;
         u32 isVisibleOverride : 1; // Intended for the engine to override visibility set by scripts
-        u32 blendMode : 1; // AnmBlendMode
-        u32 colorOp : 1; // AnmColorOp
+        u32 blendMode : 1;         // AnmBlendMode
+        u32 colorOp : 1;           // AnmColorOp
         unreferenced_bitfields(u32, 1);
         u32 usePosOffset : 1;
-        u32 flip : 2; // AnmVmMirror
-        u32 anchor : 2; // AnmVmAnchor
+        u32 flip : 2;           // AnmVmMirror
+        u32 anchor : 2;         // AnmVmAnchor
         u32 moveInterpMode : 2; // AnmVmInterpMode
         u32 zWriteDisable : 1;
         u32 isStopped : 1;

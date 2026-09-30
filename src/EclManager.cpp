@@ -51,8 +51,7 @@ ZunResult EclManager::Load(const char *eclPath)
         g_GameErrorContext.Log(TH_ERR_ECLMANAGER_ENEMY_DATA_CORRUPT);
         return ZUN_ERROR;
     }
-    this->eclFile->timelineOffsets[0] =
-        (TimelineInstr *)((u32)this->eclFile->timelineOffsets[0] + (u32)this->eclFile);
+    this->eclFile->timelineOffsets[0] = (TimelineInstr *)((u32)this->eclFile->timelineOffsets[0] + (u32)this->eclFile);
     this->subTable = &this->eclFile->subOffsets[0];
     for (i32 idx = 0; idx < this->eclFile->subCount; idx++)
     {
@@ -199,7 +198,7 @@ restart_sub_changed:
             break;
         case ECL_OPCODE_MATH_LINE_ANGLE:
             EnemyEclInstr::MathAtan2(enemy, curInstr->args.alu.res, &args->alu.arg1.f32, &args->alu.arg2.f32,
-                                        &args->alu.arg3.f32, &args->alu.arg4.f32);
+                                     &args->alu.arg3.f32, &args->alu.arg4.f32);
             break;
 #pragma var_order(rhs, lhs)
         case ECL_OPCODE_CMP_INT: {
@@ -294,7 +293,8 @@ restart_sub_changed:
                 goto handle_call;
             break;
         case ECL_OPCODE_ANM_SET_MAIN:
-            g_AnmManager->SetAndExecuteScriptIdx(&enemy->primaryVm, curInstr->args.anmMainScriptIdx + ANM_SCRIPT_ENEMY_START);
+            g_AnmManager->SetAndExecuteScriptIdx(&enemy->primaryVm,
+                                                 curInstr->args.anmMainScriptIdx + ANM_SCRIPT_ENEMY_START);
             break;
         case ECL_OPCODE_ANM_SET_SLOT:
             if (curInstr->args.anmSetSlot.vmIdx >= ENEMY_ANM_SLOTS)
@@ -808,8 +808,8 @@ restart_sub_changed:
             break;
         case ECL_OPCODE_EFFECT_PARTICLE:
             g_EffectManager.SpawnParticles(curInstr->args.effectParticle.effectId, &enemy->position,
-                                            curInstr->args.effectParticle.numParticles,
-                                            curInstr->args.effectParticle.particleColor);
+                                           curInstr->args.effectParticle.numParticles,
+                                           curInstr->args.effectParticle.particleColor);
             break;
         case ECL_OPCODE_DROP_ITEMS: {
             for (i32 idx = 0; idx < curInstr->args.setInt; idx++)
@@ -938,8 +938,8 @@ restart_sub_changed:
     switch (enemy->flags.movementMode)
     {
     case EnemyMove_Velocity:
-        enemy->angle = utils::AddNormalizeAngle(enemy->angle, g_Supervisor.effectiveFramerateMultiplier *
-                                                                    enemy->angularVelocity);
+        enemy->angle =
+            utils::AddNormalizeAngle(enemy->angle, g_Supervisor.effectiveFramerateMultiplier * enemy->angularVelocity);
         enemy->speed = g_Supervisor.effectiveFramerateMultiplier * enemy->acceleration + enemy->speed;
         sincosmul(&enemy->axisSpeed, enemy->angle, enemy->speed);
         enemy->axisSpeed.z = 0.0f;
@@ -1012,26 +1012,24 @@ restart_sub_changed:
                     if (enemy->anmPoseCurrent == EnemyPose_Default)
                     {
                         g_AnmManager->SetAndExecuteScriptIdx(&enemy->primaryVm,
-                                                                enemy->anmPoseDefault + ANM_OFFSET_ENEMY);
+                                                             enemy->anmPoseDefault + ANM_OFFSET_ENEMY);
                     }
                     else if (enemy->anmPoseCurrent == EnemyPose_Left)
                     {
                         g_AnmManager->SetAndExecuteScriptIdx(&enemy->primaryVm,
-                                                                enemy->anmPoseNeutralFromLeft + ANM_OFFSET_ENEMY);
+                                                             enemy->anmPoseNeutralFromLeft + ANM_OFFSET_ENEMY);
                     }
                     else // EnemyPose_Right
                     {
                         g_AnmManager->SetAndExecuteScriptIdx(&enemy->primaryVm,
-                                                                enemy->anmPoseNeutralFromRight + ANM_OFFSET_ENEMY);
+                                                             enemy->anmPoseNeutralFromRight + ANM_OFFSET_ENEMY);
                     }
                     break;
                 case EnemyPose_Left:
-                    g_AnmManager->SetAndExecuteScriptIdx(&enemy->primaryVm,
-                                                            enemy->anmPoseLeft + ANM_OFFSET_ENEMY);
+                    g_AnmManager->SetAndExecuteScriptIdx(&enemy->primaryVm, enemy->anmPoseLeft + ANM_OFFSET_ENEMY);
                     break;
                 case EnemyPose_Right:
-                    g_AnmManager->SetAndExecuteScriptIdx(&enemy->primaryVm,
-                                                            enemy->anmPoseRight + ANM_OFFSET_ENEMY);
+                    g_AnmManager->SetAndExecuteScriptIdx(&enemy->primaryVm, enemy->anmPoseRight + ANM_OFFSET_ENEMY);
                     break;
                 }
                 enemy->anmPoseCurrent = newPose;

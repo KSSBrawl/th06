@@ -708,7 +708,8 @@ ZunResult GuiImpl::RunMsg()
             this->songNameSprite.fontWidth = DEFAULT_ANM_FONT_SIZE + 1;
             this->songNameSprite.fontHeight = DEFAULT_ANM_FONT_SIZE + 1;
             g_AnmManager->DrawStringFormat(&this->songNameSprite, COLOR_RGB(COLOR_LIGHTCYAN), COLOR_RGB(COLOR_BLACK),
-                                           TH_SONG_NAME, g_Stage.stdData->songNames[this->msg.currentInstr->args.music]);
+                                           TH_SONG_NAME,
+                                           g_Stage.stdData->songNames[this->msg.currentInstr->args.music]);
             if (g_Supervisor.PlayMidiFile(this->msg.currentInstr->args.music))
             {
                 g_Supervisor.PlayAudio(g_Stage.stdData->songPaths[this->msg.currentInstr->args.music]);
@@ -776,7 +777,7 @@ ZunResult GuiImpl::RunMsg()
             break;
         }
         this->msg.currentInstr =
-            (MsgRawInstr *)((u32)&this->msg.currentInstr->args + this->msg.currentInstr->argSize);
+            (MsgRawInstr *)((u32) & this->msg.currentInstr->args + this->msg.currentInstr->argSize);
     }
     this->msg.scriptTimer++;
 break_skip_time:

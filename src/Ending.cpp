@@ -352,7 +352,7 @@ ZunResult Ending::ParseEndFile()
 
             case END_OPCODE_WAIT: // wait(maxFrames, minFrames)
                 this->endFileDataPtr++;
-                this->pauseTimer = this->ReadEndFileParameter();        // maxFrames
+                this->pauseTimer = this->ReadEndFileParameter();         // maxFrames
                 this->minWaitPauseFrames = this->ReadEndFileParameter(); // minFrames
                 // Skip to end of line
                 while (*this->endFileDataPtr != '\n' && *this->endFileDataPtr != '\r')
@@ -419,12 +419,12 @@ ZunResult Ending::ParseEndFile()
                 g_AnmManager->SetAndExecuteScriptIdx(
                     &this->sprites[firstLineDisplayed + this->textLine * SPRITES_PER_LINE_GROUP],
                     ANM_SCRIPT_TEXT_ENDING_TEXT + firstLineDisplayed + this->textLine * SPRITES_PER_LINE_GROUP);
-                g_AnmManager->DrawVmTextFmt(&this->sprites[firstLineDisplayed + this->textLine * SPRITES_PER_LINE_GROUP],
-                                            this->textColor, COLOR_END_TEXT_SHADOW, textBuffer);
+                g_AnmManager->DrawVmTextFmt(
+                    &this->sprites[firstLineDisplayed + this->textLine * SPRITES_PER_LINE_GROUP], this->textColor,
+                    COLOR_END_TEXT_SHADOW, textBuffer);
             }
             // Skip to start of next line
-            while (*this->endFileDataPtr == '\n' || *this->endFileDataPtr == '\0' ||
-                   *this->endFileDataPtr == '\r')
+            while (*this->endFileDataPtr == '\n' || *this->endFileDataPtr == '\0' || *this->endFileDataPtr == '\r')
             {
                 this->endFileDataPtr++;
             }
@@ -452,10 +452,12 @@ ZunResult Ending::ParseEndFile()
             // When reached the character limit, display the text now
             if (charactersRead >= 32)
             {
-                g_AnmManager->SetAndExecuteScriptIdx(&this->sprites[firstLineDisplayed + this->textLine * SPRITES_PER_LINE_GROUP],
-                                                     ANM_SCRIPT_TEXT_ENDING_TEXT + firstLineDisplayed + this->textLine * SPRITES_PER_LINE_GROUP);
-                g_AnmManager->DrawVmTextFmt(&this->sprites[firstLineDisplayed + this->textLine * SPRITES_PER_LINE_GROUP],
-                                            this->textColor, COLOR_END_TEXT_SHADOW, textBuffer);
+                g_AnmManager->SetAndExecuteScriptIdx(
+                    &this->sprites[firstLineDisplayed + this->textLine * SPRITES_PER_LINE_GROUP],
+                    ANM_SCRIPT_TEXT_ENDING_TEXT + firstLineDisplayed + this->textLine * SPRITES_PER_LINE_GROUP);
+                g_AnmManager->DrawVmTextFmt(
+                    &this->sprites[firstLineDisplayed + this->textLine * SPRITES_PER_LINE_GROUP], this->textColor,
+                    COLOR_END_TEXT_SHADOW, textBuffer);
                 if (firstLineDisplayed)
                 {
                     goto break_parser;

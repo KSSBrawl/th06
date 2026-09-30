@@ -939,7 +939,7 @@ ZunResult AnmManager::Draw2(AnmVm *vm)
     return ZUN_SUCCESS;
 }
 
-#define GET_ARG(type, num) ((type*)curInstr->args)[num]
+#define GET_ARG(type, num) ((type *)curInstr->args)[num]
 #define GET_INT_ARG(num) GET_ARG(i32, num)
 #define GET_FLOAT_ARG(num) GET_ARG(float, num)
 
@@ -973,8 +973,9 @@ i32 AnmManager::ExecuteScript(AnmVm *vm)
             break;
         case ANM_OPCODE_SPRITE_SET_RAND: {
             vm->flags.isVisible = true;
-            u32 *args = (u32*)curInstr->args;
-            this->SetActiveSprite(vm, args[0] + g_Rng.GetRandomU16InRange(args[1]) + this->spriteIndices[vm->anmFileIndex]);
+            u32 *args = (u32 *)curInstr->args;
+            this->SetActiveSprite(vm,
+                                  args[0] + g_Rng.GetRandomU16InRange(args[1]) + this->spriteIndices[vm->anmFileIndex]);
             vm->timeOfLastSpriteSet = vm->currentTimeInScript;
             break;
         }

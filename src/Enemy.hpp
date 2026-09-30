@@ -120,7 +120,7 @@ enum EnemyDeathMode
 struct EnemyFlags
 {
     // First byte
-    u8 movementMode : 2; // EnemyMoveMode
+    u8 movementMode : 2;   // EnemyMoveMode
     u8 moveInterpMode : 3; // EnemyInterpMode
     u8 shootingDisabled : 1;
     u8 mirrored : 1;
