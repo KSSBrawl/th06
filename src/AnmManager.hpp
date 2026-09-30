@@ -80,7 +80,7 @@ struct AnmRawEntry
     unreferenced_fields(0x4);
     u32 spriteOffsets[0];
 };
-ZUN_ASSERT_SIZE(AnmRawEntry, 0x40);
+ZUN_ASSERT_TYPE(AnmRawEntry, 0x40, 4);
 
 struct RenderVertexInfo
 {
