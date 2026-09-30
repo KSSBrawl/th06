@@ -152,16 +152,31 @@ void ExInsShootStarPattern(Enemy *enemy, EclRawInstr *instr)
 #define EARTH_METAL_SIGN_EMERALD_MEGALITH 4
 
 DIFFABLE_STATIC_ASSIGN(i32, g_PatchouliShottypeVars[CHARACTER_COUNT][SHOTTYPES_PER_CHARACTER][3]) = {
-    // Reimu
-    {{// A
-      FIRE_EARTH_SIGN_LAVA_CROMLECH, METAL_WATER_SIGN_MERCURY_POISON, WOOD_FIRE_SIGN_FOREST_BLAZE},
-     {// B
-      WATER_WOOD_SIGN_WATER_ELF, METAL_WATER_SIGN_MERCURY_POISON, EARTH_METAL_SIGN_EMERALD_MEGALITH}},
-    // Marisa
-    {{// A
-      WOOD_FIRE_SIGN_FOREST_BLAZE, EARTH_METAL_SIGN_EMERALD_MEGALITH, FIRE_EARTH_SIGN_LAVA_CROMLECH},
-     {// B
-      EARTH_METAL_SIGN_EMERALD_MEGALITH, WATER_WOOD_SIGN_WATER_ELF, METAL_WATER_SIGN_MERCURY_POISON}}};
+    {// Reimu
+        {// A
+            FIRE_EARTH_SIGN_LAVA_CROMLECH,//
+            METAL_WATER_SIGN_MERCURY_POISON,//
+            WOOD_FIRE_SIGN_FOREST_BLAZE//
+        },
+        {// B
+            WATER_WOOD_SIGN_WATER_ELF,//
+            METAL_WATER_SIGN_MERCURY_POISON,//
+            EARTH_METAL_SIGN_EMERALD_MEGALITH//
+        }//
+    },//
+    {// Marisa
+        {// A
+            WOOD_FIRE_SIGN_FOREST_BLAZE,//
+            EARTH_METAL_SIGN_EMERALD_MEGALITH,//
+            FIRE_EARTH_SIGN_LAVA_CROMLECH//
+        },
+        {// B
+            EARTH_METAL_SIGN_EMERALD_MEGALITH,//
+            WATER_WOOD_SIGN_WATER_ELF,//
+            METAL_WATER_SIGN_MERCURY_POISON//
+        }//
+    }//
+};
 
 void ExInsPatchouliShottypeSetVars(Enemy *enemy, EclRawInstr *instr)
 {
