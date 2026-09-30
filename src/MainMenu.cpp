@@ -1309,7 +1309,7 @@ ZunResult MainMenu::DrawStartMenu(void)
     return ZUN_SUCCESS;
 }
 
-#pragma var_order(anmVm, cur, replayFileHandle, replayFileIdx, replayData, padding, replayFilePath, replayFileInfo)
+#pragma var_order(anmVm, cur, replayFileHandle, replayFileIdx, replayData, replayFilePath, replayFileInfo)
 i32 MainMenu::ReplayHandling()
 {
     AnmVm *anmVm;
@@ -1317,9 +1317,8 @@ i32 MainMenu::ReplayHandling()
     HANDLE replayFileHandle;
     u32 replayFileIdx;
     ReplayData *replayData;
-    char replayFilePath[32];
+    char replayFilePath[64];
     WIN32_FIND_DATA replayFileInfo;
-    u8 padding[0x20]; // idk
 
     switch (this->gameState)
     {

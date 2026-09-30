@@ -220,7 +220,7 @@ ZunResult GameManager::RegisterChain()
     return ZUN_SUCCESS;
 }
 
-#pragma var_order(failedToLoadReplay, catk, i, catkCursor, scoredat, clrdIdx, padding)
+#pragma var_order(failedToLoadReplay, catk, i, catkCursor, scoredat, clrdIdx)
 ZunResult GameManager::AddedCallback(GameManager *mgr)
 {
     static const char *g_EclFiles[] = {"dummy",
@@ -264,7 +264,6 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
     i32 i;
     Catk *catk;
     ZunBool failedToLoadReplay;
-    i32 padding[3];
 
     failedToLoadReplay = false;
     g_Supervisor.d3dDevice->ResourceManagerDiscardBytes(0);
@@ -460,8 +459,6 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
 
 ZunResult GameManager::DeletedCallback(GameManager *mgr)
 {
-    i32 padding1, padding2, padding3;
-
     g_Supervisor.d3dDevice->ResourceManagerDiscardBytes(0);
     if (!g_GameManager.demoMode)
     {
