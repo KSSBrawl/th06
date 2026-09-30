@@ -84,7 +84,7 @@ struct Ending
     i32 minWaitFrames;
     i32 line2Delay;
     i32 topLineDelay;
-    i32 unk_1150;
+    unreferenced_fields(0x4);
     i32 timesFileParsed;
     ZunColor textColor;
     ZunColor endingFadeColor;
@@ -93,13 +93,11 @@ struct Ending
     EndingFadeType fadeType;
     const char *endFileDataPtr;
 };
-ZUN_ASSERT_SIZE(Ending, 0x1170);
+ZUN_ASSERT_TYPE(Ending, 0x1170, 4);
 
 i32 Ending::ReadEndFileParameter()
 {
-    i32 readResult;
-
-    readResult = atoi(this->endFileDataPtr);
+    i32 readResult = atoi(this->endFileDataPtr);
     while (*this->endFileDataPtr != '\0')
     {
         this->endFileDataPtr++;
@@ -128,7 +126,7 @@ void Ending::FadingEffect()
         if (this->timeFading >= this->fadeFrames)
         {
             this->fadeType = ENDING_FADE_TYPE_NO_FADE;
-            this->endingFadeColor = 0x00000000;
+            this->endingFadeColor = COLOR_TRANSPARENT;
             break;
         }
         else
@@ -155,7 +153,7 @@ void Ending::FadingEffect()
         if (this->timeFading >= this->fadeFrames)
         {
             this->fadeType = ENDING_FADE_TYPE_NO_FADE;
-            this->endingFadeColor = 0x00000000;
+            this->endingFadeColor = COLOR_TRANSPARENT;
             break;
         }
         else
@@ -179,10 +177,10 @@ void Ending::FadingEffect()
             break;
         }
     case ENDING_FADE_TYPE_NO_FADE:
-        this->endingFadeColor = 0x00000000;
+        this->endingFadeColor = COLOR_TRANSPARENT;
         break;
     }
-    if ((this->endingFadeColor & COLOR_ALPHA_MASK) != 0)
+    if ((this->endingFadeColor & COLOR_ALPHA_MASK) != COLOR_TRANSPARENT)
     {
         ScreenEffect::DrawSquare(&endingRect, this->endingFadeColor);
     }
@@ -191,13 +189,10 @@ void Ending::FadingEffect()
 #pragma var_order(lineDisplayed, textBuffer, charactersRead)
 ZunResult Ending::ParseEndFile()
 {
-    i32 charactersRead;
-    ZunBool lineDisplayed;
-
     char textBuffer[39];
 
-    lineDisplayed = false;
-    charactersRead = 0;
+    ZunBool lineDisplayed = false;
+    i32 charactersRead = 0;
 
     memset(textBuffer, 0, sizeof(textBuffer) - 1);
 
@@ -253,8 +248,7 @@ ZunResult Ending::ParseEndFile()
             this->endFileDataPtr++;
             switch (*this->endFileDataPtr)
             {
-            case END_OPCODE_BACKGROUND:
-                /* background(jpg_file) */
+            case END_OPCODE_BACKGROUND: // background(jpg_file)
 
                 if (g_AnmManager->LoadSurface(0, this->endFileDataPtr + 1) != ZUN_SUCCESS)
                 {
@@ -262,36 +256,30 @@ ZunResult Ending::ParseEndFile()
                 }
                 break;
 
-#pragma var_order(anmScriptIdx, vmIndex, anmSpriteIdx)
-            case END_OPCODE_EXECUTE_ANM: {
-                /* anm(vm_index, script_index, sprite_index) */
+#pragma var_order(scriptIdx, vmIndex, spriteIdx)
+            case END_OPCODE_EXECUTE_ANM: { // anm(vmIndex, scriptIdx, spriteIdx)
                 this->endFileDataPtr++;
-                i32 vmIndex = this->ReadEndFileParameter();      // vm_index
-                i32 anmScriptIdx = this->ReadEndFileParameter(); // script_index
-                i32 anmSpriteIdx = this->ReadEndFileParameter(); // sprite_index
-                g_AnmManager->ExecuteAnmIdx(&this->sprites[vmIndex], ANM_OFFSET_STAFF01 + anmScriptIdx);
-                g_AnmManager->SetActiveSprite(&this->sprites[vmIndex], ANM_OFFSET_STAFF01 + anmSpriteIdx);
+                i32 vmIndex = this->ReadEndFileParameter();
+                i32 scriptIdx = this->ReadEndFileParameter();
+                i32 spriteIdx = this->ReadEndFileParameter();
+                g_AnmManager->ExecuteAnmIdx(&this->sprites[vmIndex], ANM_OFFSET_STAFF01 + scriptIdx);
+                g_AnmManager->SetActiveSprite(&this->sprites[vmIndex], ANM_OFFSET_STAFF01 + spriteIdx);
                 break;
             }
-
 #pragma var_order(scrollBGDistance, scrollBGDuration)
-            case END_OPCODE_SCROLL_BACKGROUND: {
-                /* scrollbg(distance, duration) */
+            case END_OPCODE_SCROLL_BACKGROUND: { // scrollbg(scrollBGDistance, scrollBGDuration)
                 this->endFileDataPtr++;
-                i32 scrollBGDistance = this->ReadEndFileParameter(); // distance
-                i32 scrollBGDuration = this->ReadEndFileParameter(); // duration
+                i32 scrollBGDistance = this->ReadEndFileParameter();
+                i32 scrollBGDuration = this->ReadEndFileParameter();
                 this->backgroundScrollSpeed = scrollBGDistance / (f32)scrollBGDuration;
                 break;
             }
-            case END_OPCODE_SET_VERTICAL_SCROLL_POS:
-                /* setscroll(newVertCoordinate) */
+            case END_OPCODE_SET_VERTICAL_SCROLL_POS: // setscroll(newVertCoordinate)
                 this->endFileDataPtr++;
-
                 this->backgroundPos.y = this->ReadEndFileParameter(); // newVertCoordinate
                 break;
 
-            case END_OPCODE_EXEC_END_FILE: {
-                /* exec(endfile) */
+            case END_OPCODE_EXEC_END_FILE: { // exec(endfile)
 
                 if (this->LoadEnding(this->endFileDataPtr + 1) != ZUN_SUCCESS)
                 {
@@ -299,12 +287,12 @@ ZunResult Ending::ParseEndFile()
                 }
                 charactersRead = 0;
                 lineDisplayed = false;
-                for (i32 characterIdx = 0; characterIdx < SHOTTYPE_COUNT; characterIdx++)
+                for (i32 shottype = 0; shottype < SHOTTYPE_COUNT; shottype++)
                 {
-                    for (i32 diffIdx = 0; diffIdx < EXTRA; diffIdx++)
+                    for (i32 difficulty = 0; difficulty < EXTRA; difficulty++)
                     {
-                        if (g_GameManager.clrd[characterIdx].difficultyClearedWithRetries[diffIdx] == 99 ||
-                            g_GameManager.clrd[characterIdx].difficultyClearedWithoutRetries[diffIdx] == 99)
+                        if (g_GameManager.clrd[shottype].difficultyClearedWithRetries[difficulty] == 99 ||
+                            g_GameManager.clrd[shottype].difficultyClearedWithoutRetries[difficulty] == 99)
                         {
                             this->hasSeenEnding = true;
                             break;
@@ -313,9 +301,8 @@ ZunResult Ending::ParseEndFile()
                 }
                 // no break
             }
-            case END_OPCODE_ROLL_STAFF: {
-                /* staffroll()
-                   Assumingly this clears the entire anm stack allocated for Ending. */
+            case END_OPCODE_ROLL_STAFF: { // staffroll()
+                // Assumingly this clears the entire anm stack allocated for Ending.
 
                 for (i32 spriteIdx = 0; spriteIdx < ARRAY_SIZE_SIGNED(this->sprites); spriteIdx++)
                 {
@@ -323,34 +310,28 @@ ZunResult Ending::ParseEndFile()
                 }
                 break;
             }
-            case END_OPCODE_PLAY_MUSIC:
-                /* musicplay(file) */
+            case END_OPCODE_PLAY_MUSIC: // musicplay(file)
                 g_Supervisor.PlayAudio(this->endFileDataPtr + 1);
                 break;
 
-            case END_OPCODE_FADE_MUSIC: {
-                /* musicfade(duration) */
+            case END_OPCODE_FADE_MUSIC: { // musicfade(duration)
                 this->endFileDataPtr++;
                 float musicFadeFrames = this->ReadEndFileParameter();
                 g_Supervisor.FadeOutMusic(musicFadeFrames);
                 break;
             }
-            case END_OPCODE_SET_DELAY:
-                /* setdelay(line2Delay, topLineDelay) */
+            case END_OPCODE_SET_DELAY: // setdelay(line2Delay, topLineDelay)
                 this->endFileDataPtr++;
-
                 this->line2Delay = this->ReadEndFileParameter();   // line2Delay
                 this->topLineDelay = this->ReadEndFileParameter(); // topLineDelay
                 break;
 
-            case END_OPCODE_COLOR:
-                /* color(bgr_color) */
+            case END_OPCODE_COLOR: // color(bgr_color)
                 this->endFileDataPtr++;
                 this->textColor = this->ReadEndFileParameter(); // newcolor
                 break;
 
-            case END_OPCODE_WAIT_RESET:
-                /* waitreset(maxframes, minframes) */
+            case END_OPCODE_WAIT_RESET: // waitreset(maxframes, minframes)
                 this->endFileDataPtr++;
                 this->timer3 = this->ReadEndFileParameter();             // maxFrames
                 this->minWaitResetFrames = this->ReadEndFileParameter(); // minframes
@@ -364,8 +345,7 @@ ZunResult Ending::ParseEndFile()
                 }
                 goto endParsing;
 
-            case END_OPCODE_WAIT:
-                /* wait(maxFrames, minFrames) */
+            case END_OPCODE_WAIT: // wait(maxFrames, minFrames)
                 this->endFileDataPtr++;
                 this->timer2 = this->ReadEndFileParameter();        // maxFrames
                 this->minWaitFrames = this->ReadEndFileParameter(); // minFrames
@@ -379,32 +359,28 @@ ZunResult Ending::ParseEndFile()
                 }
                 goto endParsing;
 
-            case END_OPCODE_FADE_IN_BLACK:
-                /* fadeinblack(frames). UNUSED */
+            case END_OPCODE_FADE_IN_BLACK: // fadeinblack(frames). UNUSED
                 this->endFileDataPtr++;
                 this->fadeType = ENDING_FADE_TYPE_FADE_IN_BLACK;
                 this->timeFading = 0;
                 this->fadeFrames = this->ReadEndFileParameter(); // fadeInBlackFrames
                 break;
 
-            case END_OPCODE_FADE_OUT_BLACK:
-                /* fadeoutblack(frames). UNUSED */
+            case END_OPCODE_FADE_OUT_BLACK: // fadeoutblack(frames). UNUSED
                 this->endFileDataPtr++;
                 this->fadeType = ENDING_FADE_TYPE_FADE_OUT_BLACK;
                 this->timeFading = 0;
                 this->fadeFrames = this->ReadEndFileParameter(); // fadeOutBlackFrames
                 break;
 
-            case END_OPCODE_FADE_IN:
-                /* fadein(frames) */
+            case END_OPCODE_FADE_IN: // fadein(frames)
                 this->endFileDataPtr++;
                 this->fadeType = ENDING_FADE_TYPE_FADE_IN_WHITE;
                 this->timeFading = 0;
                 this->fadeFrames = this->ReadEndFileParameter(); // fadeInFrames
                 break;
 
-            case END_OPCODE_FADE_OUT:
-                /* fadeout(frames) */
+            case END_OPCODE_FADE_OUT: // fadeout(frames)
                 this->endFileDataPtr++;
                 this->fadeType = ENDING_FADE_TYPE_FADE_OUT_WHITE;
                 this->timeFading = 0;
@@ -502,9 +478,7 @@ endParsing:
 
 ZunResult Ending::LoadEnding(const char *endFilePath)
 {
-    u8 *endFileDat;
-
-    endFileDat = this->endFileData;
+    u8 *endFileDat = this->endFileData;
     this->endFileData = FileSystem::OpenPath(endFilePath);
     if (this->endFileData == NULL)
     {
@@ -527,9 +501,7 @@ ZunResult Ending::LoadEnding(const char *endFilePath)
 
 ZunResult Ending_RegisterChain()
 {
-    Ending *ending;
-
-    ending = ZUN_NEW(Ending);
+    Ending *ending = ZUN_NEW(Ending);
     ending->calcChain = g_Chain.CreateElem((ChainCallback)Ending::OnUpdate);
     ending->calcChain->arg = ending;
     ending->calcChain->addedCallback = (ChainAddedCallback)Ending::AddedCallback;
@@ -549,39 +521,32 @@ ZunResult Ending_RegisterChain()
 #pragma var_order(framesPressed, idx)
 ChainCallbackResult Ending::OnUpdate(Ending *ending)
 {
-    i32 idx;
-    i32 framesPressed;
-
-    for (framesPressed = 0;;)
+    i32 framesSkipped = 0;
+skipping:
+    if (ending->ParseEndFile() != ZUN_SUCCESS)
     {
-        if (ending->ParseEndFile() != ZUN_SUCCESS)
+        return CHAIN_CALLBACK_RESULT_CONTINUE_AND_REMOVE_JOB;
+    }
+    for (i32 idx = 0; idx < ARRAY_SIZE_SIGNED(ending->sprites); idx++)
+    {
+        if (ending->sprites[idx].anmFileIndex != 0)
         {
-            return CHAIN_CALLBACK_RESULT_CONTINUE_AND_REMOVE_JOB;
+            g_AnmManager->ExecuteScript(&ending->sprites[idx]);
         }
-        for (idx = 0; idx < ARRAY_SIZE_SIGNED(ending->sprites); idx++)
-        {
-            if (ending->sprites[idx].anmFileIndex != 0)
-            {
-                g_AnmManager->ExecuteScript(&ending->sprites[idx]);
-            }
-        }
-        if (ending->hasSeenEnding && IS_PRESSED(TH_BUTTON_SKIP) && framesPressed < 4)
-        {
-            framesPressed++;
-            continue;
-        }
-        break;
+    }
+    if (ending->hasSeenEnding && IS_PRESSED(TH_BUTTON_SKIP) && framesSkipped < 4)
+    {
+        framesSkipped++;
+        goto skipping;
     }
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
 ChainCallbackResult Ending::OnDraw(Ending *ending)
 {
-    i32 idx;
-
     g_AnmManager->DrawEndingRect(0, 0, 0, ending->backgroundPos.x, ending->backgroundPos.y, GAME_WINDOW_WIDTH,
                                  GAME_WINDOW_HEIGHT);
-    for (idx = 0; idx < ARRAY_SIZE_SIGNED(ending->sprites); idx++)
+    for (i32 idx = 0; idx < ARRAY_SIZE_SIGNED(ending->sprites); idx++)
     {
         if (ending->sprites[idx].anmFileIndex != 0)
         {

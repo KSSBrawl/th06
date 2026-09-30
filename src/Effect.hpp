@@ -1,7 +1,6 @@
 #pragma once
-
 #include "AnmVm.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 
 namespace th06
 {
@@ -13,7 +12,7 @@ enum EffectCallbackResult
 
 struct Effect;
 
-typedef i32 (*EffectUpdateCallback)(Effect *);
+typedef EffectCallbackResult (*EffectUpdateCallback)(Effect *);
 struct Effect
 {
     AnmVm vm;
@@ -23,22 +22,22 @@ struct Effect
     D3DXVECTOR3 position;
     D3DXVECTOR3 pos2;
     D3DXQUATERNION quaternion;
-    f32 unk_15c;
+    f32 distance;
     f32 angleRelated;
     ZunTimer timer;
-    i32 unk_170;
+    unreferenced_fields(0x4);
     EffectUpdateCallback updateCallback;
     i8 inUseFlag;
     i8 effectId;
-    i8 unk_17a;
+    i8 flag_17a;
     i8 unk_17b;
 };
-ZUN_ASSERT_SIZE(Effect, 0x17c);
+ZUN_ASSERT_TYPE(Effect, 0x17c, 4);
 
 struct EffectInfo
 {
     i32 anmIdx;
     EffectUpdateCallback updateCallback;
 };
-ZUN_ASSERT_SIZE(EffectInfo, 0x8);
+ZUN_ASSERT_TYPE(EffectInfo, 0x8, 4);
 } // namespace th06

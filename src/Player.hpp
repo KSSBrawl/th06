@@ -1,5 +1,4 @@
 #pragma once
-
 #include <d3dx8math.h>
 #include <math.h>
 
@@ -10,7 +9,7 @@
 #include "GameManager.hpp"
 #include "ZunBool.hpp"
 #include "ZunResult.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 
 namespace th06
 {
@@ -78,7 +77,7 @@ struct PlayerRect
     ZunVec2 pos;
     ZunVec2 size;
 };
-ZUN_ASSERT_SIZE(PlayerRect, 0x10);
+ZUN_ASSERT_TYPE(PlayerRect, 0x10, 4);
 
 struct PlayerBullet
 {
@@ -86,14 +85,16 @@ struct PlayerBullet
     D3DXVECTOR3 position;
     D3DXVECTOR3 size;
     ZunVec2 velocity;
-    f32 sidewaysMotion;
-    D3DXVECTOR3 unk_134;
-    ZunTimer unk_140;
+    ZunVec2 motion;
+    f32 speed;
+    f32 angle;
+    ZunTimer lifetime;
     i16 damage;
     i16 bulletState;
     i16 bulletType;
-    i16 unk_152;
+    i16 bulletFrame;
     i16 spawnPositionIdx;
+    alignment_padding(0x2);
 
     void MoveHorizontal(f32 *position)
     {
@@ -107,7 +108,7 @@ struct PlayerBullet
         this->sprite.pos.y = *position;
     }
 };
-ZUN_ASSERT_SIZE(PlayerBullet, 0x158);
+ZUN_ASSERT_TYPE(PlayerBullet, 0x158, 4);
 
 struct PlayerBombInfo
 {
@@ -122,7 +123,7 @@ struct PlayerBombInfo
     D3DXVECTOR3 bombRegionVelocities[8];
     AnmVm sprites[8][4];
 };
-ZUN_ASSERT_SIZE(PlayerBombInfo, 0x231c);
+ZUN_ASSERT_TYPE(PlayerBombInfo, 0x231c, 4);
 
 typedef i32 FireBulletResult;
 #define FBR_STOP_SPAWNING (-2)
@@ -138,7 +139,7 @@ struct CharacterData
     FireBulletCallback fireBulletCallback;
     FireBulletCallback fireBulletFocusCallback;
 };
-ZUN_ASSERT_SIZE(CharacterData, 0x18);
+ZUN_ASSERT_TYPE(CharacterData, 0x18, 4);
 
 struct CharacterPowerBulletData
 {
@@ -154,7 +155,7 @@ struct CharacterPowerBulletData
     i16 anmFileIdx;
     i16 bulletSoundIdx;
 };
-ZUN_ASSERT_SIZE(CharacterPowerBulletData, 0x24);
+ZUN_ASSERT_TYPE(CharacterPowerBulletData, 0x24, 4);
 
 struct CharacterPowerData
 {
@@ -162,9 +163,11 @@ struct CharacterPowerData
     i32 power;
     CharacterPowerBulletData *bullets;
 };
-ZUN_ASSERT_SIZE(CharacterPowerData, 0xc);
+ZUN_ASSERT_TYPE(CharacterPowerData, 0xc, 4);
 
 #define MAX_PLAYER_BULLETS 80
+#define PLAYER_BOMB_REGION_COUNT 32
+#define PLAYER_BOMB_PROJECTILE_COUNT 16
 
 struct Player
 {
@@ -195,9 +198,9 @@ struct Player
     void Die();
 
     AnmVm playerSprite;
-    AnmVm orbsSprite[3];
+    AnmVm orbsSprite[3]; // why is this 3?
     D3DXVECTOR3 positionCenter;
-    D3DXVECTOR3 unk_44c;
+    unused_field(D3DXVECTOR3);
     D3DXVECTOR3 hitboxTopLeft;
     D3DXVECTOR3 hitboxBottomRight;
     D3DXVECTOR3 grabItemTopLeft;
@@ -205,11 +208,11 @@ struct Player
     D3DXVECTOR3 hitboxSize;
     D3DXVECTOR3 grabItemSize;
     D3DXVECTOR3 orbsPosition[2];
-    D3DXVECTOR3 bombRegionPositions[32];
-    D3DXVECTOR3 bombRegionSizes[32];
-    i32 bombRegionDamages[32];
-    i32 unk_838[32];
-    PlayerRect bombProjectiles[16];
+    D3DXVECTOR3 bombRegionPositions[PLAYER_BOMB_REGION_COUNT];
+    D3DXVECTOR3 bombRegionSizes[PLAYER_BOMB_REGION_COUNT];
+    i32 bombRegionDamages[PLAYER_BOMB_REGION_COUNT];
+    i32 bombRegionTotalDamages[PLAYER_BOMB_REGION_COUNT];
+    PlayerRect bombProjectiles[PLAYER_BOMB_PROJECTILE_COUNT];
     ZunTimer laserTimer[2];
     ZunVec2 speedMultiplierDuringBomb;
     i32 respawnTimer;
@@ -218,12 +221,14 @@ struct Player
     u8 unk_9e1;
     i8 orbState;
     i8 isFocus;
-    u8 unk_9e4;
+    u8 particleTimer;
+    alignment_padding(0x3);
     ZunTimer focusMovementTimer;
     CharacterData characterData;
     PlayerDirection playerDirection;
     ZunVec2 previousSpeed;
     i16 previousFrameInput;
+    alignment_padding(0x2);
     D3DXVECTOR3 positionOfLastEnemyHit;
     PlayerBullet bullets[MAX_PLAYER_BULLETS];
     ZunTimer fireBulletTimer;
@@ -243,7 +248,7 @@ struct Player
         sprite->pos[2] = 0.0f;
     }
 };
-ZUN_ASSERT_SIZE(Player, 0x98f0);
+ZUN_ASSERT_TYPE(Player, 0x98f0, 4);
 
 DIFFABLE_EXTERN(Player, g_Player);
 } // namespace th06

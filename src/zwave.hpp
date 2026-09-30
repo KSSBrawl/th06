@@ -8,7 +8,7 @@
 #ifndef DSUTIL_H
 #define DSUTIL_H
 
-#include "inttypes.hpp"
+#include "decomp.hpp"
 #include <dsound.h>
 #include <mmreg.h>
 #include <mmsystem.h>

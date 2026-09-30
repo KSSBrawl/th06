@@ -1,10 +1,9 @@
 #pragma once
-
 #include "Chain.hpp"
 #include "EclManager.hpp"
 #include "Enemy.hpp"
 #include "ZunResult.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 #include <Windows.h>
 
 namespace th06
@@ -17,7 +16,7 @@ struct RunningSpellcardInfo
     u32 idx;
     ZunBool usedBomb;
 };
-ZUN_ASSERT_SIZE(RunningSpellcardInfo, 0x14);
+ZUN_ASSERT_TYPE(RunningSpellcardInfo, 0x14, 4);
 
 #define MAX_ENEMY_COUNT 256
 
@@ -43,13 +42,13 @@ struct EnemyManager
     u16 randomItemSpawnIndex;
     u16 randomItemTableIndex;
     i32 enemyCount;
-    i8 unk_ee5c0[4];
+    unreferenced_fields(0x4);
     RunningSpellcardInfo spellcardInfo;
-    i32 unk_ee5d8;
+    unreferenced_fields(0x4);
     EclTimelineInstr *timelineInstr;
     ZunTimer timelineTime;
 };
-ZUN_ASSERT_SIZE(EnemyManager, 0xee5ec);
+ZUN_ASSERT_TYPE(EnemyManager, 0xee5ec, 4);
 
 DIFFABLE_EXTERN(EnemyManager, g_EnemyManager);
 } // namespace th06

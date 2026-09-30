@@ -1,10 +1,8 @@
 #pragma once
-
 #include "AnmVm.hpp"
 #include "Chain.hpp"
 #include "Enemy.hpp"
-#include "diffbuild.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 #include <Windows.h>
 
 namespace th06
@@ -17,7 +15,9 @@ struct GuiFlags
     u32 flag2 : 2;
     u32 flag3 : 2;
     u32 flag4 : 2;
+    alignment_bitfields(u32, 22);
 };
+ZUN_ASSERT_TYPE(GuiFlags, 0x4, 4);
 
 struct Gui
 {
@@ -82,10 +82,11 @@ struct Gui
     i32 spellcardSecondsRemaining;
     i32 lastSpellcardSecondsRemaining;
     bool bossPresent;
+    alignment_padding(0x3);
     f32 bossHealthBar1;
     f32 bossHealthBar2;
 };
-ZUN_ASSERT_SIZE(Gui, 0x2c);
+ZUN_ASSERT_TYPE(Gui, 0x2c, 4);
 
 DIFFABLE_EXTERN(Gui, g_Gui);
 } // namespace th06

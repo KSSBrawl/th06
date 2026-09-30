@@ -1,6 +1,4 @@
 #pragma once
-
-#include "dxutil.hpp"
 #include <d3d8.h>
 #include <d3dx8.h>
 #include <stdarg.h>
@@ -11,18 +9,9 @@
 #include "ZunColor.hpp"
 #include "ZunMath.hpp"
 #include "ZunResult.hpp"
-#include "diffbuild.hpp"
+#include "decomp.hpp"
 #include "i18n.hpp"
-#include "inttypes.hpp"
 #include "pbg3/Pbg3Archive.hpp"
-
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
-#define ARRAY_SIZE_SIGNED(x) ((i32)sizeof(x) / (i32)sizeof(x[0]))
-
-#define ZUN_BIT(a) (1 << (a))
-#define ZUN_MASK(a) (ZUN_BIT(a) - 1)
-#define ZUN_RANGE(a, count) (ZUN_MASK((a) + (count)) & ~ZUN_MASK(a))
-#define ZUN_CLEAR_BITS(a, keep_mask) (a & ~keep_mask)
 
 #define IS_PRESSED(key) (g_CurFrameInput & (key))
 #define WAS_PRESSED(key) (IS_PRESSED(key) && (g_CurFrameInput & (key)) != (g_LastFrameInput & (key)))
@@ -123,6 +112,7 @@ struct ControllerMapping
     i16 rightButton;
     i16 skipButton;
 };
+ZUN_ASSERT_TYPE(ControllerMapping, 0x12, 2);
 
 DIFFABLE_EXTERN(ControllerMapping, g_ControllerMapping);
 DIFFABLE_EXTERN(u16, g_LastFrameInput);
@@ -175,6 +165,7 @@ DIFFABLE_EXTERN(u32, g_LastFileSize);
 struct Rng
 {
     u16 seed;
+    alignment_padding(0x2);
     u32 generationCount;
 
     u16 GetRandomU16();
@@ -207,12 +198,12 @@ DIFFABLE_EXTERN(Rng, g_Rng);
 DIFFABLE_EXTERN(HANDLE, g_ExclusiveMutex);
 
 // From GameErrorContext.hpp
-class GameErrorContext
+struct GameErrorContext
 {
-  public:
     char m_Buffer[0x800];
     char *m_BufferEnd;
     i8 m_ShowMessageBox;
+    alignment_padding(0x3);
 
     GameErrorContext()
     {
@@ -254,6 +245,7 @@ class GameErrorContext
         }
     }
 };
+ZUN_ASSERT_TYPE(GameErrorContext, 0x808, 4);
 
 DIFFABLE_EXTERN(GameErrorContext, g_GameErrorContext);
 DIFFABLE_EXTERN(Pbg3Archive **, g_Pbg3Archives);

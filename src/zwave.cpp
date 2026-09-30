@@ -10,7 +10,6 @@
 #define STRICT
 #include "zwave.hpp"
 #include "Global.hpp"
-#include "dxutil.hpp"
 #include <dsound.h>
 #include <dxerr8.h>
 #include <mmsystem.h>

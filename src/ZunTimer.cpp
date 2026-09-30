@@ -14,8 +14,8 @@
 #include "SoundPlayer.hpp"
 #include "Supervisor.hpp"
 #include "TextHelper.hpp"
+#include "decomp.hpp"
 #include "i18n.hpp"
-#include "inttypes.hpp"
 
 #include <stdio.h>
 #include <string.h>

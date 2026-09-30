@@ -1,11 +1,9 @@
 #pragma once
-
 #include <Windows.h>
 
 #include "Global.hpp"
 #include "ZunResult.hpp"
-#include "diffbuild.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 #include "zwave.hpp"
 
 namespace th06
@@ -47,20 +45,23 @@ enum SoundIdx
     SOUND_POWERUP = 31,
 };
 
-struct SoundBufferIdxVolume
+struct SoundEffectData
 {
     i32 bufferIdx;
     i16 volume;
     i16 unk;
 };
-ZUN_ASSERT_SIZE(SoundBufferIdxVolume, 0x8);
+ZUN_ASSERT_TYPE(SoundEffectData, 0x8, 4);
+
+// This is more than the actual number of sound effects
+#define SOUND_EFFECT_COUNT 128
 
 struct SoundPlayer
 {
     SoundPlayer()
     {
         memset(this, 0, sizeof(SoundPlayer));
-        for (i32 i = 0; i < ARRAY_SIZE_SIGNED(this->unk408); i++)
+        for (i32 i = 0; i < SOUND_EFFECT_COUNT; i++)
         {
             this->unk408[i] = -1;
         }
@@ -94,24 +95,24 @@ struct SoundPlayer
     ZunResult LoadPos(const char *path);
 
     LPDIRECTSOUND dsoundHdl;
-    i32 unk4;
-    LPDIRECTSOUNDBUFFER soundBuffers[128];
-    LPDIRECTSOUNDBUFFER duplicateSoundBuffers[128];
-    i32 unk408[128];
+    unreferenced_fields(0x4); // possibly LPDIRECTSOUNDBUFFER primarySoundBuffer based on PBG code and later games
+    LPDIRECTSOUNDBUFFER soundBuffers[SOUND_EFFECT_COUNT];
+    LPDIRECTSOUNDBUFFER duplicateSoundBuffers[SOUND_EFFECT_COUNT];
+    i32 unk408[SOUND_EFFECT_COUNT];
     LPDIRECTSOUNDBUFFER initSoundBuffer;
     HWND gameWindow;
     CSoundManager *manager;
     DWORD backgroundMusicThreadId;
     HANDLE backgroundMusicThreadHandle;
-    i32 unk61c;
+    unreferenced_fields(0x4);
     i32 soundBuffersToPlay[3];
     CStreamingSound *backgroundMusic;
     HANDLE backgroundMusicUpdateEvent;
     BOOL isLooping;
 };
-ZUN_ASSERT_SIZE(SoundPlayer, 0x638);
+ZUN_ASSERT_TYPE(SoundPlayer, 0x638, 4);
 
-DIFFABLE_EXTERN(SoundBufferIdxVolume, g_SoundBufferIdxVol[32]);
+DIFFABLE_EXTERN(SoundEffectData, g_SoundBufferIdxVol[32]);
 DIFFABLE_EXTERN(const char *, g_SFXList[26]);
 DIFFABLE_EXTERN(SoundPlayer, g_SoundPlayer);
 } // namespace th06

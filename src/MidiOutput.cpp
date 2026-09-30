@@ -1,4 +1,4 @@
-#include "inttypes.hpp"
+#include "decomp.hpp"
 #include <Windows.h>
 #include <mmreg.h>
 #include <mmsystem.h>
@@ -63,7 +63,7 @@ union MidiShortMsg {
         u8 midiStatus;
         i8 firstByte;
         i8 secondByte;
-        i8 unused;
+        alignment_padding(0x1);
     } msg;
     u32 dwMsg;
 };

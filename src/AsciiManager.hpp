@@ -1,5 +1,4 @@
 #pragma once
-
 #include <d3dx8math.h>
 
 #include "AnmManager.hpp"
@@ -8,7 +7,7 @@
 #include "Supervisor.hpp"
 #include "ZunResult.hpp"
 #include "ZunTimer.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 
 namespace th06
 {
@@ -35,7 +34,7 @@ struct AsciiManagerString
     // If true, we are drawing an element of the Gui class.
     ZunBool isGui;
 };
-ZUN_ASSERT_SIZE(AsciiManagerString, 0x60);
+ZUN_ASSERT_TYPE(AsciiManagerString, 0x60, 4);
 
 struct AsciiManagerPopup
 {
@@ -45,8 +44,9 @@ struct AsciiManagerPopup
     ZunTimer timer;
     u8 inUse;
     u8 characterCount;
+    alignment_padding(0x2);
 };
-ZUN_ASSERT_SIZE(AsciiManagerPopup, 0x28);
+ZUN_ASSERT_TYPE(AsciiManagerPopup, 0x28, 4);
 
 // The AsciiManager is responsible for drawing various textual elements on the
 // screen:
@@ -94,14 +94,14 @@ struct AsciiManager
     ZunBool isSelected;
     i32 nextPopupIndex1;
     i32 nextPopupIndex2;
-    // Seems unused
-    u32 unk3;
+    unreferenced_fields(0x4);
     // Menu that shows up when the player presses the menu button while in-game.
     StageMenu gameMenu;
     // Menu that shows up when the player dies after losing their last life.
     StageMenu retryMenu;
     AsciiManagerPopup popups[ASCII_TOTAL_POPUPS_COUNT];
 };
-ZUN_ASSERT_SIZE(AsciiManager, 0xc1ac);
+ZUN_ASSERT_TYPE(AsciiManager, 0xc1ac, 4);
+
 DIFFABLE_EXTERN(AsciiManager, g_AsciiManager);
 } // namespace th06

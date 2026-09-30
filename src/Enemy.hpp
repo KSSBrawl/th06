@@ -1,5 +1,4 @@
 #pragma once
-
 #include "AnmVm.hpp"
 #include "BulletManager.hpp"
 #include "EclManager.hpp"
@@ -8,7 +7,7 @@
 #include "SoundPlayer.hpp"
 #include "ZunBool.hpp"
 #include "ZunResult.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 #include <Windows.h>
 #include <d3d8.h>
 #include <d3dx8math.h>
@@ -33,7 +32,7 @@ struct EnemyBulletShooter
     f32 speed2;
     f32 exFloats[4];
     i32 exInts[4];
-    i32 unk_40;
+    unreferenced_fields(0x4);
     i16 count1;
     i16 count2;
     u16 aimMode;
@@ -41,7 +40,7 @@ struct EnemyBulletShooter
     u32 flags;
     SoundIdx sfx;
 };
-ZUN_ASSERT_SIZE(EnemyBulletShooter, 0x54);
+ZUN_ASSERT_TYPE(EnemyBulletShooter, 0x54, 4);
 
 struct EnemyLaserShooter
 {
@@ -53,9 +52,9 @@ struct EnemyLaserShooter
     i16 spriteOffset;
     D3DXVECTOR3 position;
     f32 angle;
-    u32 unk_14;
+    unreferenced_fields(0x4);
     f32 speed;
-    u32 unk_1c;
+    unreferenced_fields(0x4);
     f32 startOffset;
     f32 endOffset;
     f32 startLength;
@@ -65,12 +64,12 @@ struct EnemyLaserShooter
     i32 despawnDuration;
     i32 hitboxStartTime;
     i32 hitboxEndDelay;
-    u32 unk_44;
+    unreferenced_fields(0x4);
     u16 type;
     u32 flags;
-    u32 unk_50;
+    unreferenced_fields(0x4);
 };
-ZUN_ASSERT_SIZE(EnemyLaserShooter, 0x54);
+ZUN_ASSERT_TYPE(EnemyLaserShooter, 0x54, 4);
 
 struct EnemyEclContext
 {
@@ -92,7 +91,7 @@ struct EnemyEclContext
     i32 compareRegister;
     u16 subId;
 };
-ZUN_ASSERT_SIZE(EnemyEclContext, 0x4c);
+ZUN_ASSERT_TYPE(EnemyEclContext, 0x4c, 4);
 
 enum EnemyDeathMode
 {
@@ -125,9 +124,9 @@ struct EnemyFlags
     u8 disableCallStack : 1;
     u8 isInvisible : 1;
     u8 isTimeoutSpell : 1;
-
-    // Rest is padding.
+    alignment_bitfields(u8, 3);
 };
+ZUN_ASSERT_TYPE(EnemyFlags, 0x3, 1);
 
 enum EclValueType
 {
@@ -178,9 +177,9 @@ struct Enemy
         return (f32)this->life / (f32)this->maxLife;
     }
 
-    ZunBool HasBossTimerFinished()
+    ZunBool HasPhaseTimerFinished()
     {
-        return this->bossTimer.current >= this->timerCallbackThreshold;
+        return this->phaseTimer.current >= this->timerCallbackThreshold;
     }
 
     static i32 BulletRankAmountInner(i32 low, i32 high, i32 scaleFactor)
@@ -223,7 +222,7 @@ struct Enemy
     EnemyEclContext currentContext;
     EnemyEclContext savedContextStack[MAX_ECL_STACK_DEPTH + 1]; // +1 dummy slot for overflow
     i32 stackDepth;
-    i32 unk_c40;
+    unreferenced_fields(0x4);
     i32 deathCallbackSub;
     i32 interrupts[8];
     i32 runInterrupt;
@@ -248,13 +247,13 @@ struct Enemy
     i32 life;
     i32 maxLife;
     i32 score;
-    ZunTimer bossTimer;
+    ZunTimer phaseTimer;
     ZunColor color;
     EnemyBulletShooter bulletProps;
     i32 shootInterval;
     ZunTimer shootIntervalTimer;
     EnemyLaserShooter laserProps;
-    Laser *lasers[MAX_LASERS_PER_ENEMY]; // This looks like a structure
+    Laser *lasers[MAX_LASERS_PER_ENEMY];
     i32 laserStore;
     u8 deathParticle1;
     u8 deathParticle2;
@@ -262,6 +261,7 @@ struct Enemy
     i8 itemDrop;
     u8 bossId;
     u8 unk_e41;
+    alignment_padding(0x2);
     ZunTimer exInsFunc10Timer;
     EnemyFlags flags;
     u8 anmPoseCurrent;
@@ -282,5 +282,5 @@ struct Enemy
     f32 exInsFunc6Angle;
     ZunTimer exInsFunc6Timer;
 };
-ZUN_ASSERT_SIZE(Enemy, 0xec8);
+ZUN_ASSERT_TYPE(Enemy, 0xec8, 4);
 } // namespace th06

@@ -14,8 +14,8 @@
 #include "Supervisor.hpp"
 #include "TextHelper.hpp"
 #include "ZunTimer.hpp"
+#include "decomp.hpp"
 #include "i18n.hpp"
-#include "inttypes.hpp"
 
 #include <stdio.h>
 #include <string.h>
@@ -219,7 +219,7 @@ ZunBool Supervisor::ReadMidiFile(u32 midiFileIdx, const char *path)
     return TRUE;
 }
 
-i32 Supervisor::PlayMidiFile(i32 midiFileIdx)
+ZunBool Supervisor::PlayMidiFile(i32 midiFileIdx)
 {
     MidiOutput *globalMidiController;
 

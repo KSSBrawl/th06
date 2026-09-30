@@ -1,14 +1,12 @@
 #pragma once
-
 #include "AnmVm.hpp"
 #include "Global.hpp"
 #include "ReplayData.hpp"
 #include "ZunResult.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 
 namespace th06
 {
-
 #define DEFAULT_MAGIC "DMYS"
 #define TH6K_MAGIC 'K6HT'
 #define HSCR_MAGIC 'RCSH'
@@ -68,9 +66,10 @@ struct Th6k
     u16 th6kLen;
     u16 unkLen;
     u8 version;
-    u8 unk_9;
+    u8 flag_9;
+    alignment_padding(0x2);
 };
-ZUN_ASSERT_SIZE(Th6k, 0xc);
+ZUN_ASSERT_TYPE(Th6k, 0xc, 4);
 
 struct Catk
 {
@@ -78,13 +77,13 @@ struct Catk
     i32 captureScore;
     u16 idx;
     u8 nameCsum;
-    u8 characterShotType[5];
-    char name[32];
-    u32 unk_38;
+    u8 characterShotType[SHOTTYPE_COUNT + 1];
+    char name[34]; // probably 36 since 34 as the ECL spell buffer length is likely a bug
+    unreferenced_fields(0x2);
     u16 numAttempts;
     u16 numSuccess;
 };
-ZUN_ASSERT_SIZE(Catk, 0x40);
+ZUN_ASSERT_TYPE(Catk, 0x40, 4);
 
 struct Clrd
 {
@@ -92,8 +91,9 @@ struct Clrd
     u8 difficultyClearedWithRetries[5];
     u8 difficultyClearedWithoutRetries[5];
     u8 characterShotType;
+    alignment_padding(0x1);
 };
-ZUN_ASSERT_SIZE(Clrd, 0x18);
+ZUN_ASSERT_TYPE(Clrd, 0x18, 4);
 
 struct Pscr
 {
@@ -102,8 +102,9 @@ struct Pscr
     u8 character;
     u8 difficulty;
     u8 stage;
+    alignment_padding(0x1);
 };
-ZUN_ASSERT_SIZE(Pscr, 0x14);
+ZUN_ASSERT_TYPE(Pscr, 0x14, 4);
 
 struct Hscr
 {
@@ -114,7 +115,7 @@ struct Hscr
     u8 stage;
     char name[9];
 };
-ZUN_ASSERT_SIZE(Hscr, 0x1c);
+ZUN_ASSERT_TYPE(Hscr, 0x1c, 4);
 
 struct ScoreListNode
 {
@@ -129,19 +130,20 @@ struct ScoreListNode
     ScoreListNode *next;
     Hscr *data;
 };
-ZUN_ASSERT_SIZE(ScoreListNode, 0xc);
+ZUN_ASSERT_TYPE(ScoreListNode, 0xc, 4);
 
 struct ScoreDat
 {
     u8 xorseed[2];
     u16 csum;
     u16 unk_8;
-    u8 unk[2];
+    u8 unk_9;
+    alignment_padding(0x1);
     u32 dataOffset;
     ScoreListNode *scores;
     u32 fileLen;
 };
-ZUN_ASSERT_SIZE(ScoreDat, 0x14);
+ZUN_ASSERT_TYPE(ScoreDat, 0x14, 4);
 
 ScoreDat *OpenScore(const char *path);
 void ReleaseScoreDat(ScoreDat *s);

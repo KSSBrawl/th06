@@ -1,5 +1,4 @@
 #pragma once
-
 #include <d3d8.h>
 #include <d3dx8math.h>
 
@@ -7,8 +6,7 @@
 #include "ZunMath.hpp"
 #include "ZunResult.hpp"
 #include "ZunTimer.hpp"
-#include "diffbuild.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 
 namespace th06
 {
@@ -25,7 +23,7 @@ struct AnmLoadedSprite
     f32 widthPx;
     i32 spriteId;
 };
-ZUN_ASSERT_SIZE(AnmLoadedSprite, 0x38);
+ZUN_ASSERT_TYPE(AnmLoadedSprite, 0x38, 4);
 
 #define AnmOpcode_Exit 0
 #define AnmOpcode_SetActiveSprite 1
@@ -138,15 +136,17 @@ union AnmVmFlags {
         u32 isVisibleOverride : 1; // Intended for the engine to override visibility set by scripts
         u32 blendMode : 1;
         u32 colorOp : 1;
-        u32 flag4 : 1;
+        unreferenced_bitfields(u32, 1);
         u32 usePosOffset : 1;
         u32 flip : 2;
         u32 anchor : 2;
         u32 posTime : 2;
         u32 zWriteDisable : 1;
         u32 isStopped : 1;
+        alignment_bitfields(u32, 18);
     };
 };
+ZUN_ASSERT_TYPE(AnmVmFlags, 0x4, 4);
 
 struct AnmVmBase
 {
@@ -166,28 +166,24 @@ struct AnmVmBase
     i16 autoRotate;
     i16 pendingInterrupt;
     i16 posInterpEndTime;
-    // Two padding bytes
+    alignment_padding(0x2);
 };
+ZUN_ASSERT_TYPE(AnmVmBase, 0x90, 4);
+
+#define DEFAULT_ANM_FONT_SIZE 15
 
 struct AnmVm : AnmVmBase
 {
     void Initialize()
     {
-        this->uvScrollPos.y = 0.0f;
-        this->uvScrollPos.x = 0.0f;
-        this->scaleInterpFinalX = 0.0f;
-        this->scaleInterpFinalY = 0.0f;
-        this->angleVel.z = 0.0f;
-        this->angleVel.y = 0.0f;
-        this->angleVel.x = 0.0f;
-        this->rotation.z = 0.0f;
-        this->rotation.y = 0.0f;
-        this->rotation.x = 0.0f;
-        this->scaleX = 1.0f;
-        this->scaleY = 1.0f;
+        this->uvScrollPos.x = this->uvScrollPos.y = 0.0f;
+        this->scaleInterpFinalY = this->scaleInterpFinalX = 0.0f;
+        this->angleVel.x = this->angleVel.y = this->angleVel.z = 0.0f;
+        this->rotation.x = this->rotation.y = this->rotation.z = 0.0f;
+        this->scaleY = this->scaleX = 1.0f;
         this->scaleInterpEndTime = 0;
         this->alphaInterpEndTime = 0;
-        this->color = D3DCOLOR_RGBA(0xff, 0xff, 0xff, 0xff);
+        this->color = COLOR_WHITE;
         D3DXMatrixIdentity(&this->matrix);
         this->flags.flags = AnmVmFlags_Visible | AnmVmFlags_VisibleOverride;
         this->autoRotate = 0;
@@ -213,7 +209,7 @@ struct AnmVm : AnmVmBase
     i16 activeSpriteIndex;
     i16 baseSpriteIndex;
     i16 anmFileIndex;
-    // Two padding bytes
+    alignment_padding(0x2);
     AnmRawInstr *beginingOfScript;
     AnmRawInstr *currentInstruction;
     AnmLoadedSprite *sprite;
@@ -227,7 +223,7 @@ struct AnmVm : AnmVmBase
     ZunTimer alphaInterpTime;
     u8 fontWidth;
     u8 fontHeight;
-    // Two final padding bytes
+    alignment_padding(0x2);
 };
-ZUN_ASSERT_SIZE(AnmVm, 0x110);
+ZUN_ASSERT_TYPE(AnmVm, 0x110, 4);
 } // namespace th06

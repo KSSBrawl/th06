@@ -1,6 +1,5 @@
 #include <stddef.h>
 
-#include "dxutil.hpp"
 #include "pbg3/Pbg3Archive.hpp"
 
 namespace th06

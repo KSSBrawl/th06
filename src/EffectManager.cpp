@@ -41,7 +41,7 @@ void EffectManager::Reset()
     memset(this, 0, sizeof(*this));
 }
 
-i32 EffectManager::EffectCallbackRandomSplash(Effect *effect)
+EffectCallbackResult EffectManager::EffectCallbackRandomSplash(Effect *effect)
 {
     if (effect->timer == 0 && effect->timer.HasTicked())
     {
@@ -58,7 +58,7 @@ i32 EffectManager::EffectCallbackRandomSplash(Effect *effect)
     return EFFECT_CALLBACK_RESULT_DONE;
 }
 
-i32 EffectManager::EffectCallbackRandomSplashBig(Effect *effect)
+EffectCallbackResult EffectManager::EffectCallbackRandomSplashBig(Effect *effect)
 {
     if (effect->timer == 0 && effect->timer.HasTicked())
     {
@@ -75,7 +75,7 @@ i32 EffectManager::EffectCallbackRandomSplashBig(Effect *effect)
     return EFFECT_CALLBACK_RESULT_DONE;
 }
 
-i32 EffectManager::EffectCallbackStill(Effect *effect)
+EffectCallbackResult EffectManager::EffectCallbackStill(Effect *effect)
 {
     effect->pos1 += effect->unk_11c * g_Supervisor.effectiveFramerateMultiplier;
     effect->unk_11c += effect->unk_128 * g_Supervisor.effectiveFramerateMultiplier;
@@ -84,7 +84,7 @@ i32 EffectManager::EffectCallbackStill(Effect *effect)
 }
 
 #pragma var_order(posOffset, verticalAngle, matrix, horizontalAngle, normalizedPos)
-i32 EffectManager::EffectUpdateCallback4(Effect *effect)
+EffectCallbackResult EffectManager::EffectUpdateCallback4(Effect *effect)
 {
     D3DXVECTOR3 posOffset;
     f32 verticalAngle;
@@ -116,13 +116,13 @@ i32 EffectManager::EffectUpdateCallback4(Effect *effect)
         D3DXVec3Normalize(&posOffset, &posOffset);
     }
 
-    posOffset *= effect->unk_15c;
+    posOffset *= effect->distance;
     D3DXVec3TransformCoord(&posOffset, &posOffset, &matrix);
     posOffset.z *= 6.0f;
 
     effect->pos1 = posOffset + effect->position;
 
-    if (effect->unk_17a)
+    if (effect->flag_17a)
     {
         effect->unk_17b++;
 
@@ -141,7 +141,7 @@ i32 EffectManager::EffectUpdateCallback4(Effect *effect)
     return EFFECT_CALLBACK_RESULT_DONE;
 }
 
-i32 EffectManager::EffectCallbackAttract(Effect *effect)
+EffectCallbackResult EffectManager::EffectCallbackAttract(Effect *effect)
 {
     f32 angle;
 
@@ -162,7 +162,7 @@ i32 EffectManager::EffectCallbackAttract(Effect *effect)
     return EFFECT_CALLBACK_RESULT_DONE;
 }
 
-i32 EffectManager::EffectCallbackAttractSlow(Effect *effect)
+EffectCallbackResult EffectManager::EffectCallbackAttractSlow(Effect *effect)
 {
     f32 angle;
 
@@ -219,7 +219,7 @@ Effect *EffectManager::SpawnParticles(i32 effectIdx, D3DXVECTOR3 *pos, i32 count
         effect->vm.color = color;
         effect->updateCallback = g_Effects[effectIdx].updateCallback;
         effect->timer = 0;
-        effect->unk_17a = 0;
+        effect->flag_17a = false;
         effect->unk_17b = 0;
         count--;
 

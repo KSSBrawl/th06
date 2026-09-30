@@ -7,7 +7,7 @@
 #include "Stage.hpp"
 #include "Supervisor.hpp"
 #include "ZunTimer.hpp"
-#include "diffbuild.hpp"
+#include "decomp.hpp"
 #include "i18n.hpp"
 #include <stdio.h>
 

@@ -1,5 +1,4 @@
 #pragma once
-
 #include <Windows.h>
 #include <d3d8.h>
 #include <d3dx8math.h>
@@ -8,8 +7,7 @@
 #include "Global.hpp"
 #include "ResultScreen.hpp"
 #include "ZunResult.hpp"
-#include "diffbuild.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 
 namespace th06
 {
@@ -63,15 +61,16 @@ struct GameManager
     static ChainCallbackResult OnDraw(GameManager *gameManager);
     static ZunResult AddedCallback(GameManager *gameManager);
     static ZunResult DeletedCallback(GameManager *gameManager);
-    static void SetupCamera(f32);
-    static void SetupCameraStageBackground(f32);
+    static void SetupCamera(f32 extraRenderDistance);
+    static void SetupCameraStageBackground(f32 extraRenderDistance);
 
     ZunBool HasReachedMaxClears(i32 character, i32 shottype)
     {
-        return (
-            this->clrd[shottype + character * SHOTTYPES_PER_CHARACTER].difficultyClearedWithRetries[1] == MAX_CLEARS ||
-            this->clrd[shottype + character * SHOTTYPES_PER_CHARACTER].difficultyClearedWithRetries[2] == MAX_CLEARS ||
-            this->clrd[shottype + character * SHOTTYPES_PER_CHARACTER].difficultyClearedWithRetries[3] == MAX_CLEARS);
+        return this->clrd[shottype + character * SHOTTYPES_PER_CHARACTER].difficultyClearedWithRetries[1] ==
+                   MAX_CLEARS ||
+               this->clrd[shottype + character * SHOTTYPES_PER_CHARACTER].difficultyClearedWithRetries[2] ==
+                   MAX_CLEARS ||
+               this->clrd[shottype + character * SHOTTYPES_PER_CHARACTER].difficultyClearedWithRetries[3] == MAX_CLEARS;
     }
     void IncreaseSubrank(i32 amount);
     void DecreaseSubrank(i32 amount);
@@ -94,7 +93,7 @@ struct GameManager
     Difficulty difficulty;
     i32 grazeInStage;
     i32 grazeInTotal;
-    u32 isInReplay;
+    ZunBool isInReplay;
     i32 deaths;
     i32 bombsUsed;
     i32 spellcardsCaptured;
@@ -103,8 +102,7 @@ struct GameManager
     Clrd clrd[SHOTTYPE_COUNT];
     Pscr pscr[SHOTTYPE_COUNT][PSCR_NUM_STAGES][PSCR_NUM_DIFFICULTIES];
     u16 currentPower;
-    i8 unk_1812;
-    i8 unk_1813;
+    unreferenced_fields(0x2);
     u16 pointItemsCollectedInStage;
     u16 pointItemsCollected;
     u8 numRetries;
@@ -120,12 +118,10 @@ struct GameManager
     u8 isGameCompleted;
     u8 isInPracticeMode;
     u8 demoMode;
-    i8 unk_1825;
-    i8 unk_1826;
-    i8 unk_1827;
+    alignment_padding(0x3);
     i32 demoFrames;
     char replayFile[256];
-    char unk_192c[256];
+    unused_array_field(char, 256);
     u16 randomSeed;
     u32 gameFrames;
     i32 currentStage;
@@ -142,5 +138,5 @@ struct GameManager
     i32 minRank;
     i32 subRank;
 };
-ZUN_ASSERT_SIZE(GameManager, 0x1a80);
+ZUN_ASSERT_TYPE(GameManager, 0x1a80, 4);
 } // namespace th06

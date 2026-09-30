@@ -1,13 +1,11 @@
 #pragma once
-
 #include "ItemManager.hpp"
 #include "SoundPlayer.hpp"
 #include "ZunBool.hpp"
 #include "ZunColor.hpp"
 #include "ZunMath.hpp"
 #include "ZunResult.hpp"
-#include "diffbuild.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 #include <Windows.h>
 #include <d3dx8math.h>
 
@@ -229,7 +227,7 @@ struct EclRawInstrSpellcardStartArgs
 {
     i16 spellcardSprite;
     i16 spellcardId;
-    char spellcardName[1];
+    char spellcardName[34]; // BUG(?): All other instructions are DWORD aligned, this feels like a mistake
 };
 
 struct EclRawInstrEffectParticleArgs
@@ -328,12 +326,11 @@ struct EclRawInstr
     i32 time;
     i16 opCode;
     i16 offsetToNext;
-    u8 unk_8;
+    unreferenced_fields(0x1);
     // Bitfield where each bit tells us whether we should skip this instruction
     // on that difficulty (1) or run it (0).
     u8 skipForDifficulty;
-    u8 unk_a;
-    u8 unk_b;
+    unreferenced_fields(0x2);
     EclRawInstrArgs args;
 };
 
@@ -342,9 +339,9 @@ struct EclRawHeader
     i16 subCount;
     i16 mainCount;
     EclTimelineInstr *timelineOffsets[3];
-    EclRawInstr *subOffsets[0];
+    EclRawInstr *subOffsets[];
 };
-ZUN_ASSERT_SIZE(EclRawHeader, 0x10);
+ZUN_ASSERT_TYPE(EclRawHeader, 0x10, 4);
 
 enum EclRawInstrOpcode
 {
@@ -460,7 +457,7 @@ enum EclRawInstrOpcode
     ECL_OPCODE_ENEMYINTERRUPTSET,      // 0x6d / 109
     ECL_OPCODE_ENEMYINTERRUPT,         // 0x6e / 110
     ECL_OPCODE_ENEMYLIFESET,           // 0x6f / 111
-    ECL_OPCODE_BOSSTIMERSET,           // 0x70 / 112
+    ECL_OPCODE_PHASETIMERSET,          // 0x70 / 112
     ECL_OPCODE_LIFECALLBACKTHRESHOLD,
     ECL_OPCODE_LIFECALLBACKSUB,
     ECL_OPCODE_TIMERCALLBACKTHRESHOLD,
@@ -481,7 +478,7 @@ enum EclRawInstrOpcode
     ECL_OPCODE_ENEMYFLAGDISABLECALLSTACK,
     ECL_OPCODE_BULLETRANKINFLUENCE,
     ECL_OPCODE_ENEMYFLAGINVISIBLE,
-    ECL_OPCODE_BOSSTIMERCLEAR,
+    ECL_OPCODE_PHASETIMERCLEAR,
     ECL_OPCODE_LASERCLEARALL,
     ECL_OPCODE_SPELLCARDFLAGTIMEOUT,
 };
@@ -505,11 +502,12 @@ enum TimelineOpcode
 
 struct EclManagerExtraData
 {
-    u8 unknownA[0x80];
+    unreferenced_fields(0x80);
     f32 starAngleTable[6];
-    u8 unknownB[0x68];
+    unreferenced_fields(0x68);
     D3DXVECTOR3 coords[8];
 };
+ZUN_ASSERT_TYPE(EclManagerExtraData, 0x160, 4);
 
 struct EclManager
 {
@@ -523,7 +521,7 @@ struct EclManager
     EclTimelineInstr *timeline;
     EclManagerExtraData extra;
 };
-ZUN_ASSERT_SIZE(EclManager, 0x16c);
+ZUN_ASSERT_TYPE(EclManager, 0x16c, 4);
 
 DIFFABLE_EXTERN(EclManager, g_EclManager);
 } // namespace th06
