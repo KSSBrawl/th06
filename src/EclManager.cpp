@@ -175,12 +175,12 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                 EnemyEclInstr::MathAdd(enemy, instruction->args.alu.res, &args->alu.arg1.id, &args->alu.arg2.id);
                 break;
             case ECL_OPCODE_MATHINC: {
-                i32* var = EnemyEclInstr::GetVar(enemy, &instruction->args.alu.res, NULL);
+                i32 *var = EnemyEclInstr::GetVar(enemy, &instruction->args.alu.res, NULL);
                 *var += 1;
                 break;
             }
             case ECL_OPCODE_MATHDEC: {
-                i32* var = EnemyEclInstr::GetVar(enemy, &instruction->args.alu.res, NULL);
+                i32 *var = EnemyEclInstr::GetVar(enemy, &instruction->args.alu.res, NULL);
                 *var -= 1;
                 break;
             }
@@ -251,8 +251,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                     enemy->savedContextStack[enemy->stackDepth] = enemy->currentContext;
                 }
                 g_EclManager.CallEclSub(&enemy->currentContext, genericInt);
-                if (!enemy->flags.disableCallStack &&
-                    enemy->stackDepth < MAX_ECL_STACK_DEPTH)
+                if (!enemy->flags.disableCallStack && enemy->stackDepth < MAX_ECL_STACK_DEPTH)
                 {
                     enemy->stackDepth++;
                 }
@@ -554,7 +553,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                 }
                 break;
             case ECL_OPCODE_SPELLCARDEFFECT: {
-                EclRawInstrSpellcardEffectArgs* args = &instruction->args.spellcardEffect;
+                EclRawInstrSpellcardEffectArgs *args = &instruction->args.spellcardEffect;
                 enemy->effectArray[enemy->effectIdx] = g_EffectManager.SpawnParticles(
                     PARTICLE_EFFECT_UNK_13, &enemy->position, 1, (ZunColor)g_EffectsColor[args->effectColorId]);
                 enemy->effectArray[enemy->effectIdx]->pos2 = *args->pos.AsD3dXVec();
@@ -728,7 +727,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                 enemy->bulletRankAmount1High = 0;
                 enemy->bulletRankAmount2Low = 0;
                 enemy->bulletRankAmount2High = 0;
-                Catk* catk = &g_GameManager.catk[g_EnemyManager.spellcardInfo.idx];
+                Catk *catk = &g_GameManager.catk[g_EnemyManager.spellcardInfo.idx];
                 i32 csum = 0;
                 i32 length;
                 if (!g_GameManager.isInReplay)
@@ -764,10 +763,10 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                         if (g_EnemyManager.spellcardInfo.isCapturing)
                         {
                             i32 idx;
-                            Catk* catk = &g_GameManager.catk[g_EnemyManager.spellcardInfo.idx];
+                            Catk *catk = &g_GameManager.catk[g_EnemyManager.spellcardInfo.idx];
                             i32 score = g_EnemyManager.spellcardInfo.captureScore >= 500000
-                                           ? 500000 / 10
-                                           : g_EnemyManager.spellcardInfo.captureScore / 10;
+                                            ? 500000 / 10
+                                            : g_EnemyManager.spellcardInfo.captureScore / 10;
                             scoreIncrease =
                                 g_EnemyManager.spellcardInfo.captureScore +
                                 g_EnemyManager.spellcardInfo.captureScore * g_Gui.SpellcardSecondsRemaining() / 10;

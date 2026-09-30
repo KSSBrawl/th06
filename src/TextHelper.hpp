@@ -65,7 +65,7 @@ struct TextHelper
 
     u8 *GetBuffer()
     {
-        return (u8*)this->buffer;
+        return (u8 *)this->buffer;
     }
 
     D3DFORMAT format;

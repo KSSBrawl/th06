@@ -251,7 +251,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
         }
         for (i = 0; i < 9; i++, vmList++)
         {
-            if (((i16*)&menu->controlMapping)[i] < 0)
+            if (((i16 *)&menu->controlMapping)[i] < 0)
             {
                 vmList->flags.isVisibleOverride = false;
                 continue;
@@ -283,7 +283,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
 #pragma var_order(idx, controllerData)
         {
             i16 idx;
-            u8* controllerData = Controller::GetControllerState();
+            u8 *controllerData = Controller::GetControllerState();
             for (idx = 0; idx < 32; idx++)
             {
                 if (controllerData[idx] & 0x80)
@@ -852,10 +852,10 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
             }
             menu->cursor = g_GameManager.menuCursorBackup;
             i32 local_4c = g_GameManager.clrd[g_GameManager.CharacterShotType()]
-                                   .difficultyClearedWithoutRetries[g_GameManager.difficulty] > 6
-                           ? 6
-                           : g_GameManager.clrd[g_GameManager.CharacterShotType()]
-                                 .difficultyClearedWithoutRetries[g_GameManager.difficulty];
+                                       .difficultyClearedWithoutRetries[g_GameManager.difficulty] > 6
+                               ? 6
+                               : g_GameManager.clrd[g_GameManager.CharacterShotType()]
+                                     .difficultyClearedWithoutRetries[g_GameManager.difficulty];
             if (g_GameManager.difficulty == EASY && local_4c == 6)
             {
                 local_4c = 5;
@@ -868,10 +868,10 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
         break;
     case STATE_PRACTICE_LVL_SELECT: {
         u32 chosenStage = g_GameManager.clrd[g_GameManager.CharacterShotType()]
-                                  .difficultyClearedWithoutRetries[g_GameManager.difficulty] > 6
-                          ? 6
-                          : g_GameManager.clrd[g_GameManager.CharacterShotType()]
-                                .difficultyClearedWithoutRetries[g_GameManager.difficulty];
+                                      .difficultyClearedWithoutRetries[g_GameManager.difficulty] > 6
+                              ? 6
+                              : g_GameManager.clrd[g_GameManager.CharacterShotType()]
+                                    .difficultyClearedWithoutRetries[g_GameManager.difficulty];
         if (g_GameManager.difficulty == EASY && chosenStage == 6)
         {
             chosenStage = 5;

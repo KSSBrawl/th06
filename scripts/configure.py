@@ -105,12 +105,8 @@ def configure(build_type):
             "MainMenu",
             "zwave",
         ]
-        
-        no_pch_sources = set(
-            [
-                "EffectManager"
-            ]
-        )
+
+        no_pch_sources = set(["EffectManager"])
 
         small_codegen_sources = set(
             [
@@ -125,7 +121,7 @@ def configure(build_type):
                 "ResultScreen",
             ]
         )
-        
+
         no_intrin_sources = set(
             [
                 "MainMenu",
@@ -160,7 +156,7 @@ def configure(build_type):
         writer.build("objdiff", "phony", [], objdiff_deps)
 
         for rule in cxx_sources:
-            variables = {"cl_flags":"$cl_flags"}
+            variables = {"cl_flags": "$cl_flags"}
             if rule in small_codegen_sources:
                 variables["cl_flags"] += " /Os"
             if rule in no_intrin_sources:

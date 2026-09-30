@@ -121,7 +121,7 @@ ZunResult Supervisor::LoadConfig(const char *path)
             g_Supervisor.cfg.version = GAME_VERSION;
             g_Supervisor.cfg.padXAxis = 600;
             g_Supervisor.cfg.padYAxis = 600;
-            FILE* wavFile = fopen("bgm/th06_01.wav", "rb");
+            FILE *wavFile = fopen("bgm/th06_01.wav", "rb");
             if (wavFile != NULL)
             {
                 g_Supervisor.cfg.musicMode = WAV;

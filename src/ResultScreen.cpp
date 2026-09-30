@@ -412,8 +412,8 @@ void ReleaseScoreDat(ScoreDat *scoreDat)
     ZUN_FREE(scoreDat);
 }
 
-#pragma var_order(difficulty, highScoreSlot, fileBuffer, sizeOfFile, scoreNode, shottype, clrd, catk, pscr,    \
-                  stage, shotType, originalByte, remainingSize, xorValue, bytes, sd)
+#pragma var_order(difficulty, highScoreSlot, fileBuffer, sizeOfFile, scoreNode, shottype, clrd, catk, pscr, stage,     \
+                  shotType, originalByte, remainingSize, xorValue, bytes, sd)
 void ResultScreen::WriteScore(ResultScreen *resultScreen)
 {
     u8 *fileBuffer;
@@ -1752,9 +1752,13 @@ ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
             spritePos[1] += 18.0f;
 
             ShootScoreListNodeA =
-                resultScreen->scores[resultScreen->diffSelected][resultScreen->charUsed * SHOTTYPES_PER_CHARACTER + SHOT_TYPE_A].next;
+                resultScreen
+                    ->scores[resultScreen->diffSelected][resultScreen->charUsed * SHOTTYPES_PER_CHARACTER + SHOT_TYPE_A]
+                    .next;
             ShootScoreListNodeB =
-                resultScreen->scores[resultScreen->diffSelected][resultScreen->charUsed * SHOTTYPES_PER_CHARACTER + SHOT_TYPE_B].next;
+                resultScreen
+                    ->scores[resultScreen->diffSelected][resultScreen->charUsed * SHOTTYPES_PER_CHARACTER + SHOT_TYPE_B]
+                    .next;
             for (row = 0; row < HSCR_NUM_SCORES_SLOTS; row++)
             {
                 if (resultScreen->resultScreenState == RESULT_SCREEN_STATE_WRITING_HIGHSCORE_NAME)
@@ -1766,8 +1770,8 @@ ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
                             g_AsciiManager.color = 0xfff0f0ff;
 
                             // Yes, this seems to be required to match. No, I don't like it either
-                            *(u32*)&name[0] = *(u32*)"    ";
-                            *(u32*)&name[4] = *(u32*)"    ";
+                            *(u32 *)&name[0] = *(u32 *)"    ";
+                            *(u32 *)&name[4] = *(u32 *)"    ";
                             name[8] = '\0';
 
                             name[resultScreen->cursor >= 8 ? 7 : resultScreen->cursor] = '_';
@@ -1814,8 +1818,8 @@ ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
                         {
                             g_AsciiManager.color = 0xfffff0f0;
 
-                            *(u32*)&name[0] = *(u32*)"    ";
-                            *(u32*)&name[4] = *(u32*)"    ";
+                            *(u32 *)&name[0] = *(u32 *)"    ";
+                            *(u32 *)&name[4] = *(u32 *)"    ";
                             name[8] = '\0';
 
                             name[resultScreen->cursor >= 8 ? 7 : resultScreen->cursor] = '_';
@@ -1990,8 +1994,8 @@ ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
                                              resultScreen->defaultReplay.score);
                 g_AsciiManager.color = 0xfff0f0ff;
 
-                *(u32*)&name[0] = *(u32*)"    ";
-                *(u32*)&name[4] = *(u32*)"    ";
+                *(u32 *)&name[0] = *(u32 *)"    ";
+                *(u32 *)&name[4] = *(u32 *)"    ";
                 name[8] = '\0';
 
                 name[resultScreen->cursor >= 8 ? 7 : resultScreen->cursor] = '_';

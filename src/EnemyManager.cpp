@@ -169,7 +169,8 @@ void EnemyManager::RunEclTimeline()
                 if (!g_Gui.BossPresent())
                 {
                     EclTimelineInstrArgs *args = &this->timelineInstr->args;
-                    this->SpawnEnemy(this->timelineInstr->arg0, args->Var1AsVec(), args->ushortVar1, args->ushortVar2, args->uintVar4);
+                    this->SpawnEnemy(this->timelineInstr->arg0, args->Var1AsVec(), args->ushortVar1, args->ushortVar2,
+                                     args->uintVar4);
                 }
                 break;
             case TIMELINE_OPCODE_DUMMY_CREATE:
@@ -183,7 +184,8 @@ void EnemyManager::RunEclTimeline()
                 if (!g_Gui.BossPresent())
                 {
                     EclTimelineInstrArgs *args = &this->timelineInstr->args;
-                    spawnedEnemy = this->SpawnEnemy(this->timelineInstr->arg0, args->Var1AsVec(), args->ushortVar1, args->ushortVar2, args->uintVar4);
+                    spawnedEnemy = this->SpawnEnemy(this->timelineInstr->arg0, args->Var1AsVec(), args->ushortVar1,
+                                                    args->ushortVar2, args->uintVar4);
                     spawnedEnemy->flags.invertX = true;
                 }
                 break;
@@ -213,7 +215,8 @@ void EnemyManager::RunEclTimeline()
                     {
                         pos.z = g_Rng.GetRandomF32InRange(800.0f);
                     }
-                    this->SpawnEnemy(this->timelineInstr->arg0, &pos, args->ushortVar1, args->ushortVar2, args->uintVar4);
+                    this->SpawnEnemy(this->timelineInstr->arg0, &pos, args->ushortVar1, args->ushortVar2,
+                                     args->uintVar4);
                 }
                 break;
             }
@@ -254,7 +257,8 @@ void EnemyManager::RunEclTimeline()
                     {
                         pos.z = g_Rng.GetRandomF32InRange(800.0f);
                     }
-                    spawnedEnemy = this->SpawnEnemy(this->timelineInstr->arg0, &pos, args->ushortVar1, args->ushortVar2, args->uintVar4);
+                    spawnedEnemy = this->SpawnEnemy(this->timelineInstr->arg0, &pos, args->ushortVar1, args->ushortVar2,
+                                                    args->uintVar4);
                     spawnedEnemy->flags.invertX = true;
                 }
                 break;
@@ -655,7 +659,8 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
                 case DROP_ITEMS_ONLY:
                     if (curEnemy->itemDrop >= 0)
                     {
-                        g_EffectManager.SpawnParticles(curEnemy->deathParticle2 + 4, &curEnemy->position, 3, COLOR_WHITE);
+                        g_EffectManager.SpawnParticles(curEnemy->deathParticle2 + 4, &curEnemy->position, 3,
+                                                       COLOR_WHITE);
                         g_ItemManager.SpawnItem(&curEnemy->position, (ItemType)curEnemy->itemDrop, hitByBomb);
                     }
                     else if (curEnemy->itemDrop == ITEM_RANDOM_ITEM)
@@ -759,8 +764,7 @@ ChainCallbackResult EnemyManager::OnDraw(EnemyManager *mgr)
     i32 curEnemyVmIdx;
     i32 curEnemyIdx;
 
-    for (curEnemy = &mgr->enemies[0], curEnemyIdx = 0; curEnemyIdx < MAX_ENEMY_COUNT;
-         curEnemyIdx++, curEnemy++)
+    for (curEnemy = &mgr->enemies[0], curEnemyIdx = 0; curEnemyIdx < MAX_ENEMY_COUNT; curEnemyIdx++, curEnemy++)
     {
         if (!curEnemy->flags.isSlotOccupied)
         {

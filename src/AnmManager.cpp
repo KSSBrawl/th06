@@ -979,9 +979,9 @@ i32 AnmManager::ExecuteScript(AnmVm *vm)
             break;
         case AnmOpcode_SetRandomSprite: {
             vm->flags.isVisible = true;
-            u32* args = &curInstr->args[0];
-            this->SetActiveSprite(vm, args[0] + g_Rng.GetRandomU16InRange(args[1]) +
-                                          this->spriteIndices[vm->anmFileIndex]);
+            u32 *args = &curInstr->args[0];
+            this->SetActiveSprite(vm,
+                                  args[0] + g_Rng.GetRandomU16InRange(args[1]) + this->spriteIndices[vm->anmFileIndex]);
             vm->timeOfLastSpriteSet = vm->currentTimeInScript;
             break;
         }
@@ -1011,28 +1011,28 @@ i32 AnmManager::ExecuteScript(AnmVm *vm)
             vm->scaleY *= -1.0f;
             break;
         case AnmOpcode_SetRotation: {
-            f32* rotationVals = (f32 *)&curInstr->args[0];
+            f32 *rotationVals = (f32 *)&curInstr->args[0];
             vm->rotation.x = *rotationVals++;
             vm->rotation.y = *rotationVals++;
             vm->rotation.z = *rotationVals;
             break;
         }
         case AnmOpcode_SetAngleVel: {
-            f32* angleVelVals = (f32 *)&curInstr->args[0];
+            f32 *angleVelVals = (f32 *)&curInstr->args[0];
             vm->angleVel.x = *angleVelVals++;
             vm->angleVel.y = *angleVelVals++;
             vm->angleVel.z = *angleVelVals;
             break;
         }
         case AnmOpcode_SetScaleSpeed: {
-            f32* scaleInterpVals = (f32 *)&curInstr->args[0];
+            f32 *scaleInterpVals = (f32 *)&curInstr->args[0];
             vm->scaleInterpFinalX = *scaleInterpVals++;
             vm->scaleInterpFinalY = *scaleInterpVals;
             vm->scaleInterpEndTime = 0;
             break;
         }
         case AnmOpcode_ScaleTime: {
-            f32* scaleInterpVals = (f32 *)&curInstr->args[0];
+            f32 *scaleInterpVals = (f32 *)&curInstr->args[0];
             vm->scaleInterpFinalX = *scaleInterpVals++;
             vm->scaleInterpFinalY = *scaleInterpVals++;
             vm->scaleInterpEndTime = *(u16 *)scaleInterpVals;
@@ -1042,7 +1042,7 @@ i32 AnmManager::ExecuteScript(AnmVm *vm)
             break;
         }
         case AnmOpcode_Fade: {
-            u32* alphaInterpVals = (u32 *)&curInstr->args[0];
+            u32 *alphaInterpVals = (u32 *)&curInstr->args[0];
             vm->alphaInterpInitial = vm->color;
             vm->alphaInterpFinal = COLOR_SET_ALPHA2(vm->color, alphaInterpVals[0]);
             vm->alphaInterpEndTime = alphaInterpVals[1];
@@ -1238,7 +1238,8 @@ stop:
         for (colorIdx = 0; colorIdx < 4; colorIdx++)
         {
             colorInterp = ((f32)COLOR_GET_COMPONENT(colorFinal, colorIdx) - (f32)COLOR_GET_COMPONENT(color, colorIdx)) *
-                           alphaInterpVal + COLOR_GET_COMPONENT(color, colorIdx);
+                              alphaInterpVal +
+                          COLOR_GET_COMPONENT(color, colorIdx);
             if (colorInterp < 0)
             {
                 colorInterp = 0;

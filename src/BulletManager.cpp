@@ -1057,7 +1057,7 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
                 if (curLaser->despawnDuration > 0)
                 {
                     length = curLaser->width -
-                               (curLaser->timer.AsFramesFloat() * curLaser->width) / curLaser->despawnDuration;
+                             (curLaser->timer.AsFramesFloat() * curLaser->width) / curLaser->despawnDuration;
                     curLaser->vm0.scaleX = length / 16.0f;
                     // Bug: ZUN intended to set laserSize.y instead of laserSize.x
                     // This way, for hitboxEndDelay ticks after the laser starts despawning,
