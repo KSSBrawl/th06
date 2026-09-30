@@ -32,8 +32,7 @@ ZunResult ReplayManager::ValidateReplayData(ReplayData *data, i32 fileSize)
         return ZUN_ERROR;
     }
 
-    /* "T6RP" magic bytes */
-    if (*(i32 *)decryptedData->magic != *(i32 *)"T6RP")
+    if (*(u32 *)decryptedData->magic != *(u32 *)REPLAY_MAGIC)
     {
         return ZUN_ERROR;
     }
@@ -209,30 +208,25 @@ ChainCallbackResult ReplayManager::OnDraw(ReplayManager *mgr)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-#pragma var_order(stageReplayData, idx, oldStageReplayData)
 ZunResult ReplayManager::AddedCallback(ReplayManager *mgr)
 {
-    StageReplayData *stageReplayData;
-    StageReplayData *oldStageReplayData;
-    i32 idx;
-
     mgr->frameId = 0;
     if (mgr->replayData == NULL)
     {
         mgr->replayData = ZUN_NEW(ReplayData); // BUG: allocated with new, cleaned up with free
-        memcpy(&mgr->replayData->magic[0], "T6RP", 4);
+        memcpy(mgr->replayData->magic, REPLAY_MAGIC, 4);
         mgr->replayData->shottypeChara = g_GameManager.character * SHOTTYPES_PER_CHARACTER + g_GameManager.shotType;
         mgr->replayData->version = GAME_VERSION;
         mgr->replayData->difficulty = g_GameManager.difficulty;
-        memcpy(&mgr->replayData->name, "NO NAME", 4); // why is this 4
-        for (idx = 0; idx < ARRAY_SIZE_SIGNED(mgr->replayData->stageReplayData); idx++)
+        memcpy(mgr->replayData->name, "NO NAME", 4); // why is this 4
+        for (i32 idx = 0; idx < ARRAY_SIZE_SIGNED(mgr->replayData->stageReplayData); idx++)
         {
             mgr->replayData->stageReplayData[idx] = NULL;
         }
     }
     else
     {
-        oldStageReplayData = mgr->replayData->stageReplayData[g_GameManager.currentStage - 2];
+        StageReplayData *oldStageReplayData = mgr->replayData->stageReplayData[g_GameManager.currentStage - 2];
         if (oldStageReplayData == NULL)
         {
             return ZUN_ERROR;
@@ -244,7 +238,7 @@ ZunResult ReplayManager::AddedCallback(ReplayManager *mgr)
         utils::DebugPrint2("error : replay.cpp");
     }
     mgr->replayData->stageReplayData[g_GameManager.currentStage - 1] = ZUN_ALLOC_TYPE(StageReplayData);
-    stageReplayData = mgr->replayData->stageReplayData[g_GameManager.currentStage - 1];
+    StageReplayData *stageReplayData = mgr->replayData->stageReplayData[g_GameManager.currentStage - 1];
     stageReplayData->bombsRemaining = g_GameManager.bombsRemaining;
     stageReplayData->livesRemaining = g_GameManager.livesRemaining;
     stageReplayData->power = g_GameManager.currentPower;
@@ -469,4 +463,4 @@ void ReplayManager::SaveReplay(const char *replayPath, const char *replayName)
         g_Chain.Cut(g_ReplayManager->calcChain);
     }
 }
-}; // namespace th06
+} // namespace th06

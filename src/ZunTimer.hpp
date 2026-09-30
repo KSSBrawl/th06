@@ -101,4 +101,4 @@ struct ZunTimer
     }
 };
 ZUN_ASSERT_SIZE(ZunTimer, 0xc);
-}; // namespace th06
+} // namespace th06

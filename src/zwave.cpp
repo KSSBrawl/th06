@@ -1080,4 +1080,4 @@ HRESULT CWaveFile::Close()
     }
     return S_OK;
 }
-}; // namespace th06
+} // namespace th06

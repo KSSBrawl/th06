@@ -7,19 +7,24 @@
 namespace th06
 {
 
+#define PBG_EOF (-1)
+
 class FileAbstraction
 {
   public:
-    virtual i32 Open(const char *filename, const char *mode);
+    virtual BOOL Open(const char *filename, const char *mode);
     virtual void Close();
-    virtual i32 Read(u8 *data, u32 dataLen, u32 *numBytesRead);
-    virtual i32 Write(u8 *data, u32 dataLen, u32 *outWritten);
+    virtual BOOL Read(void *data, u32 dataLen, DWORD *numBytesRead);
+    virtual BOOL Write(void *data, u32 dataLen, DWORD *outWritten);
     virtual i32 ReadByte();
-    virtual i32 WriteByte(u32 b);
-    virtual i32 Seek(u32 amount, u32 seekFrom);
+    virtual i32 WriteByte(i32 b);
+    virtual BOOL Seek(u32 amount, u32 seekFrom);
     virtual u32 Tell();
     virtual u32 GetSize();
-    virtual u8 *ReadWholeFile(u32 maxSize);
+
+    BOOL WriteString(void *Buffer);
+
+    virtual LPVOID ReadWholeFile(u32 maxSize);
 
     FileAbstraction();
     ~FileAbstraction();
@@ -28,6 +33,8 @@ class FileAbstraction
     {
         return this->handle != NULL;
     }
+    // Yes, this is comparing against INVALID_HANDLE_VALUE instead of NULL. Why?
+    // Unclear.
     BOOL HasValidHandle()
     {
         return this->handle != INVALID_HANDLE_VALUE;
@@ -40,4 +47,4 @@ class FileAbstraction
     DWORD access;
 };
 ZUN_ASSERT_SIZE(FileAbstraction, 0xc);
-}; // namespace th06
+} // namespace th06

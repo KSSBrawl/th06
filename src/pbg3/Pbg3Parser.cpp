@@ -12,7 +12,7 @@ Pbg3Parser::~Pbg3Parser()
     this->Close();
 }
 
-i32 Pbg3Parser::OpenArchive(const char *path)
+BOOL Pbg3Parser::OpenArchive(const char *path)
 {
     this->Close();
     this->Reset();
@@ -40,7 +40,7 @@ i32 Pbg3Parser::ReadBit()
     if (this->bitIdxInCurByte == 0x80)
     {
         this->curByte = FileAbstraction::ReadByte();
-        if (this->curByte == -1)
+        if (this->curByte == PBG_EOF)
         {
             return FALSE;
         }
@@ -72,9 +72,9 @@ u32 Pbg3Parser::ReadInt(u32 numBitsAsPowersOf2)
         if (this->bitIdxInCurByte == 0x80)
         {
             this->curByte = FileAbstraction::ReadByte();
-            if (this->curByte == -1)
+            if (this->curByte == PBG_EOF)
             {
-                return FALSE;
+                return 0;
             }
             this->offsetInFile += 1;
             this->crc += this->curByte;
@@ -105,7 +105,7 @@ i32 Pbg3Parser::ReadByte()
     return FileAbstraction::ReadByte();
 }
 
-i32 Pbg3Parser::SeekToOffset(u32 fileOffset)
+BOOL Pbg3Parser::SeekToOffset(u32 fileOffset)
 {
     if (fileOffset >= this->fileSize)
     {
@@ -127,7 +127,7 @@ i32 Pbg3Parser::SeekToOffset(u32 fileOffset)
     return TRUE;
 }
 
-i32 Pbg3Parser::SeekToNextByte()
+BOOL Pbg3Parser::SeekToNextByte()
 {
     if (!this->HasNonNullHandle())
     {
@@ -141,18 +141,16 @@ i32 Pbg3Parser::SeekToNextByte()
     return TRUE;
 }
 
-i32 Pbg3Parser::ReadByteAlignedData(u8 *data, u32 bytesToRead)
+BOOL Pbg3Parser::ReadByteAlignedData(u8 *data, u32 bytesToRead)
 {
-    u32 numBytesRead;
+    DWORD numBytesRead;
 
     this->SeekToNextByte();
     return FileAbstraction::Read(data, bytesToRead, &numBytesRead);
 }
 
-i32 Pbg3Parser::GetLastWriteTime(LPFILETIME lastWriteTime)
+BOOL Pbg3Parser::GetLastWriteTime(LPFILETIME lastWriteTime)
 {
-    // Yes, this is comparing against INVALID_HANDLE_VALUE instead of NULL. Why?
-    // Unclear.
     if (!this->HasValidHandle())
     {
         return FALSE;
@@ -160,4 +158,4 @@ i32 Pbg3Parser::GetLastWriteTime(LPFILETIME lastWriteTime)
 
     return GetFileTime(this->handle, NULL, NULL, lastWriteTime);
 }
-}; // namespace th06
+} // namespace th06

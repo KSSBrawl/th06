@@ -230,4 +230,4 @@ struct AnmVm : AnmVmBase
     // Two final padding bytes
 };
 ZUN_ASSERT_SIZE(AnmVm, 0x110);
-}; // namespace th06
+} // namespace th06

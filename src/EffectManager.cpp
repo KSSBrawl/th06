@@ -83,15 +83,14 @@ i32 EffectManager::EffectCallbackStill(Effect *effect)
     return EFFECT_CALLBACK_RESULT_DONE;
 }
 
-#pragma var_order(posOffset, verticalAngle, local_54, horizontalAngle, normalizedPos, alpha)
+#pragma var_order(posOffset, verticalAngle, matrix, horizontalAngle, normalizedPos)
 i32 EffectManager::EffectUpdateCallback4(Effect *effect)
 {
     D3DXVECTOR3 posOffset;
     f32 verticalAngle;
-    D3DXMATRIX local_54;
+    D3DXMATRIX matrix;
     f32 horizontalAngle;
     D3DXVECTOR3 normalizedPos;
-    f32 alpha;
 
     D3DXVec3Normalize(&normalizedPos, &effect->pos2);
 
@@ -102,7 +101,7 @@ i32 EffectManager::EffectUpdateCallback4(Effect *effect)
     effect->quaternion.y = normalizedPos.y * verticalAngle;
     effect->quaternion.z = normalizedPos.z * verticalAngle;
     effect->quaternion.w = horizontalAngle;
-    D3DXMatrixRotationQuaternion(&local_54, &effect->quaternion);
+    D3DXMatrixRotationQuaternion(&matrix, &effect->quaternion);
 
     posOffset.x = normalizedPos.y * 1.0f - normalizedPos.z * 0.0f;
     posOffset.y = normalizedPos.z * 0.0f - normalizedPos.x * 1.0f;
@@ -118,7 +117,7 @@ i32 EffectManager::EffectUpdateCallback4(Effect *effect)
     }
 
     posOffset *= effect->unk_15c;
-    D3DXVec3TransformCoord(&posOffset, &posOffset, &local_54);
+    D3DXVec3TransformCoord(&posOffset, &posOffset, &matrix);
     posOffset.z *= 6.0f;
 
     effect->pos1 = posOffset + effect->position;
@@ -132,7 +131,7 @@ i32 EffectManager::EffectUpdateCallback4(Effect *effect)
             return EFFECT_CALLBACK_RESULT_STOP;
         }
 
-        alpha = 1.0f - effect->unk_17b / 16.0f;
+        float alpha = 1.0f - effect->unk_17b / 16.0f;
         effect->vm.color = COLOR_SET_ALPHA3(effect->vm.color, (i32)(alpha * 255.0f));
 
         effect->vm.scaleY = 2.0f - alpha;
@@ -191,10 +190,10 @@ Effect *EffectManager::SpawnParticles(i32 effectIdx, D3DXVECTOR3 *pos, i32 count
     Effect *effect;
 
     effect = &this->effects[this->nextIndex];
-    for (idx = 0; idx < ARRAY_SIZE_SIGNED(this->effects) - 1; idx++)
+    for (idx = 0; idx < MAX_EFFECT_COUNT; idx++)
     {
         this->nextIndex++;
-        if (this->nextIndex >= ARRAY_SIZE_SIGNED(this->effects) - 1)
+        if (this->nextIndex >= MAX_EFFECT_COUNT)
         {
             this->nextIndex = 0;
         }
@@ -237,7 +236,7 @@ Effect *EffectManager::SpawnParticles(i32 effectIdx, D3DXVECTOR3 *pos, i32 count
         }
     }
 
-    return idx >= ARRAY_SIZE_SIGNED(this->effects) - 1 ? &this->effects[512] : effect;
+    return idx >= MAX_EFFECT_COUNT ? &this->effects[MAX_EFFECT_COUNT] : effect;
 }
 
 ChainCallbackResult EffectManager::OnUpdate(EffectManager *mgr)
@@ -247,7 +246,7 @@ ChainCallbackResult EffectManager::OnUpdate(EffectManager *mgr)
 
     effect = &mgr->effects[0];
     mgr->activeEffects = 0;
-    for (effectIdx = 0; effectIdx < ARRAY_SIZE_SIGNED(mgr->effects) - 1; effectIdx++, effect++)
+    for (effectIdx = 0; effectIdx < MAX_EFFECT_COUNT; effectIdx++, effect++)
     {
         if (!effect->inUseFlag)
         {
@@ -255,7 +254,7 @@ ChainCallbackResult EffectManager::OnUpdate(EffectManager *mgr)
         }
 
         mgr->activeEffects++;
-        if (effect->updateCallback != NULL && (effect->updateCallback)(effect) != EFFECT_CALLBACK_RESULT_DONE)
+        if (effect->updateCallback != NULL && effect->updateCallback(effect) != EFFECT_CALLBACK_RESULT_DONE)
         {
             effect->inUseFlag = false;
         }
@@ -273,11 +272,11 @@ ChainCallbackResult EffectManager::OnUpdate(EffectManager *mgr)
 
 ChainCallbackResult EffectManager::OnDraw(EffectManager *mgr)
 {
-    int effectIdx;
+    i32 effectIdx;
     Effect *effect;
 
     effect = &mgr->effects[0];
-    for (effectIdx = 0; effectIdx < ARRAY_SIZE_SIGNED(mgr->effects) - 1; effectIdx++, effect++)
+    for (effectIdx = 0; effectIdx < MAX_EFFECT_COUNT; effectIdx++, effect++)
     {
         if (!effect->inUseFlag)
         {
@@ -381,4 +380,4 @@ void EffectManager::CutChain()
     g_Chain.Cut(&g_EffectManagerCalcChain);
     g_Chain.Cut(&g_EffectManagerDrawChain);
 }
-}; // namespace th06
+} // namespace th06

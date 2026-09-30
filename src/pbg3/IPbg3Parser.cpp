@@ -64,7 +64,7 @@ u32 IPbg3Parser::ReadMagic()
     return b3;
 }
 
-u32 IPbg3Parser::ReadString(char *out, u32 maxSize)
+BOOL IPbg3Parser::ReadString(char *out, u32 maxSize)
 {
     if (out == NULL)
         return FALSE;
@@ -80,4 +80,4 @@ u32 IPbg3Parser::ReadString(char *out, u32 maxSize)
 
     return FALSE;
 }
-}; // namespace th06
+} // namespace th06

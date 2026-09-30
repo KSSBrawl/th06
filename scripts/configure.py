@@ -31,9 +31,8 @@ def configure(build_type):
         writer.variable("cl_common_flags", cl_common_flags)
         writer.variable(
             "cl_flags",
-            "$cl_common_flags /Fp$builddir/pch.pch /YX /Od /Oi /Ob1 /Op /Gy /GF",
+            "$cl_common_flags /Fp$builddir/pch.pch /YX /Od /Ob1 /Op /Gy /GF",
         )
-        writer.variable("cl_flags_small_codegen", "$cl_flags /Os")
         writer.variable("cl_flags_pbg3", "$cl_common_flags /O2")
 
         writer.variable("rc", "rc.exe")
@@ -107,6 +106,8 @@ def configure(build_type):
             "zwave",
         ]
 
+        no_pch_sources = set(["EffectManager"])
+
         small_codegen_sources = set(
             [
                 "GameManager",
@@ -116,6 +117,14 @@ def configure(build_type):
                 "Supervisor",
                 "ZunTimer",
                 "Supervisor2",
+                "TextHelper",
+                "ResultScreen",
+            ]
+        )
+
+        no_intrin_sources = set(
+            [
+                "MainMenu",
                 "TextHelper",
                 "ResultScreen",
             ]
@@ -147,14 +156,15 @@ def configure(build_type):
         writer.build("objdiff", "phony", [], objdiff_deps)
 
         for rule in cxx_sources:
-            variables = {}
+            variables = {"cl_flags": "$cl_flags"}
             if rule in small_codegen_sources:
-                variables = {"cl_flags": "$cl_flags_small_codegen"}
-
-            # Disable precompiled headers for specific files
-            if rule in ("EffectManager"):
-                base_flags = variables.get("cl_flags", "$cl_flags")
-                variables["cl_flags"] = base_flags + " /Y-"
+                variables["cl_flags"] += " /Os"
+            if rule in no_intrin_sources:
+                variables["cl_flags"] += " /Oi-"
+            else:
+                variables["cl_flags"] += " /Oi"
+            if rule in no_pch_sources:
+                variables["cl_flags"] += " /Y-"
 
             writer.build(
                 "$builddir/" + rule + ".obj",

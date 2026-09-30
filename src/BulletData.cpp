@@ -540,4 +540,4 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(CharacterPowerData, 9, g_CharacterPowerDataMarisaB)
     /* Rank8   */ {5, 127, g_CharacterPowerBulletDataMarisaBRank8},
     /* Rank9   */ {7, 999, g_CharacterPowerBulletDataMarisaBRank9},
 };
-}; // namespace th06
+} // namespace th06

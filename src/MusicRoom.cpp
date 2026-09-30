@@ -62,15 +62,10 @@ ZunResult MusicRoom::CheckInputEnable()
     return ZUN_SUCCESS;
 }
 
-#pragma var_order(listPos, i, lineCharBuffer)
 ZunBool MusicRoom::ProcessInput()
 {
-    i32 i;
-    char lineCharBuffer[64];
-    i32 listPos;
-
     // This variable is never used after this?
-    listPos = this->listingOffset;
+    i32 listPos = this->listingOffset;
 
     if (WAS_PRESSED(TH_BUTTON_UP))
     {
@@ -113,8 +108,9 @@ ZunBool MusicRoom::ProcessInput()
         g_Supervisor.PlayAudio(this->trackDescriptors[this->selectedSongIndex].path);
 
         // Update description to match newly selected song
-        for (i = 0; i < ARRAY_SIZE_SIGNED(this->descriptionSprites); i++)
+        for (i32 i = 0; i < ARRAY_SIZE_SIGNED(this->descriptionSprites); i++)
         {
+            char lineCharBuffer[64];
             memset(lineCharBuffer, 0, sizeof(lineCharBuffer));
 
             if (i % 2 == 0 || strlen(this->trackDescriptors[this->selectedSongIndex].description[i / 2]) > 32)
@@ -267,14 +263,13 @@ ChainCallbackResult MusicRoom::OnDraw(MusicRoom *musicRoom)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-#pragma var_order(i, lineIndex, currChar, charIndex, fileBase, lineCharBuffer)
+#pragma var_order(i, lineIndex, currChar, charIndex, fileBase)
 ZunResult MusicRoom::AddedCallback(MusicRoom *musicRoom)
 {
     u32 charIndex;
     char *currChar;
     char *fileBase;
     i32 i;
-    char lineCharBuffer[64];
     i32 lineIndex;
 
     if (g_AnmManager->LoadSurface(0, "data/result/music.jpg") != ZUN_SUCCESS)
@@ -416,6 +411,8 @@ finishMusiccmtRead:
     for (i = 0; i < ARRAY_SIZE_SIGNED(musicRoom->descriptionSprites); i++)
     {
         g_AnmManager->InitializeAndSetSprite(&musicRoom->descriptionSprites[i], ANM_SCRIPT_TEXT_MUSIC_ROOM_DESC + i);
+
+        char lineCharBuffer[64];
         memset(lineCharBuffer, 0, sizeof(lineCharBuffer));
 
         if (i % 2 == 0 || strlen(musicRoom->trackDescriptors[musicRoom->selectedSongIndex].description[i / 2]) > 32)

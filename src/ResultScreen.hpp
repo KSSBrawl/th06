@@ -153,4 +153,4 @@ ZunResult ParseClrd(ScoreDat *s, Clrd *out);
 ZunResult ParsePscr(ScoreDat *s, Pscr *out);
 
 ZunResult ResultScreen_RegisterChain(ZunBool unk);
-}; // namespace th06
+} // namespace th06

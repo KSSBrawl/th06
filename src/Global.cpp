@@ -43,7 +43,7 @@ class CMyFont
     CMyFont()
     {
         m_lpFont = NULL;
-    };
+    }
     virtual void Init(LPDIRECT3DDEVICE8 lpD3DDEV, int w, int h);
     virtual void Print(char *str, int x, int y, D3DCOLOR color = COLOR_WHITE);
     virtual void Clean();
@@ -1107,5 +1107,5 @@ void DebugPrint2(const char *fmt, ...)
     printf("DEBUG2: %s\n", tmpBuffer);
 #endif
 }
-}; // namespace utils
-}; // namespace th06
+} // namespace utils
+} // namespace th06

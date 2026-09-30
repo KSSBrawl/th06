@@ -98,4 +98,4 @@ void Supervisor::TickTimer(i32 *frames, f32 *subframes)
         *frames += 1;
     }
 }
-}; // namespace th06
+} // namespace th06

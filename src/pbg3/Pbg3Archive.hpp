@@ -23,10 +23,10 @@ class Pbg3Archive
     Pbg3Archive();
     ~Pbg3Archive();
 
-    i32 Release();
+    BOOL Release();
 
-    i32 Load(const char *path);
-    i32 ParseHeader();
+    BOOL Load(const char *path);
+    BOOL ParseHeader();
     i32 FindEntry(const char *path);
     u32 GetEntrySize(u32 entryIdx);
     u8 *ReadEntryRaw(u32 *outSize, u32 *outChecksum, i32 entryIdx);
@@ -40,4 +40,4 @@ class Pbg3Archive
     Pbg3Entry *entries;
 };
 ZUN_ASSERT_SIZE(Pbg3Archive, 0x14);
-}; // namespace th06
+} // namespace th06

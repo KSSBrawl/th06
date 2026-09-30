@@ -41,9 +41,9 @@ void ExInsCirnoRainbowBallJank(Enemy *enemy, EclRawInstr *instr)
     effectIndex = instr->args.exInstr.i32Param;
 
     g_EffectManager.SpawnParticles(PARTICLE_EFFECT_UNK_12, &enemy->position, 1, COLOR_WHITE);
-    for (i = 0; i < ARRAY_SIZE_SIGNED(g_BulletManager.bullets); i++, currentBullet++)
+    for (i = 0; i < MAX_ENEMY_BULLETS; i++, currentBullet++)
     {
-        if (currentBullet->state == BULLET_STATE_UNUSED || currentBullet->state == BULLET_STATE_DESPAWNING)
+        if (currentBullet->state == BULLET_STATE_INACTIVE || currentBullet->state == BULLET_STATE_DESPAWNING)
         {
             continue;
         }
@@ -75,10 +75,10 @@ void ExInsShootAtRandomArea(Enemy *enemy, EclRawInstr *instr)
     bulletSpeed = instr->args.exInstr.i32Param;
     enemy->bulletProps.position = enemy->position + enemy->shootOffset;
     enemy->bulletProps.position.x =
-        (g_Rng.GetRandomF32ZeroToOne() * bulletSpeed + (enemy->position).x) - bulletSpeed / 2.0f;
+        (g_Rng.GetRandomF32ZeroToOne() * bulletSpeed + enemy->position.x) - bulletSpeed / 2.0f;
     bulletSpeed *= 0.75f;
     enemy->bulletProps.position.y =
-        (g_Rng.GetRandomF32ZeroToOne() * bulletSpeed + (enemy->position).y) - bulletSpeed / 2.0f;
+        (g_Rng.GetRandomF32ZeroToOne() * bulletSpeed + enemy->position.y) - bulletSpeed / 2.0f;
     g_BulletManager.SpawnBulletPattern(&enemy->bulletProps);
 }
 
@@ -187,9 +187,9 @@ void ExInsStage56Func4(Enemy *enemy, EclRawInstr *instr)
         currentBullet = g_BulletManager.bullets;
         if (g_GameManager.difficulty <= NORMAL)
         {
-            for (i = 0; i < ARRAY_SIZE_SIGNED(g_BulletManager.bullets); i++, currentBullet++)
+            for (i = 0; i < MAX_ENEMY_BULLETS; i++, currentBullet++)
             {
-                if (currentBullet->state == BULLET_STATE_UNUSED || currentBullet->state == BULLET_STATE_DESPAWNING)
+                if (currentBullet->state == BULLET_STATE_INACTIVE || currentBullet->state == BULLET_STATE_DESPAWNING)
                 {
                     continue;
                 }
@@ -229,9 +229,9 @@ void ExInsStage56Func4(Enemy *enemy, EclRawInstr *instr)
         else
         {
             bulletsLeft = 52;
-            for (i = 0; i < ARRAY_SIZE_SIGNED(g_BulletManager.bullets); i++, currentBullet++)
+            for (i = 0; i < MAX_ENEMY_BULLETS; i++, currentBullet++)
             {
-                if (currentBullet->state == BULLET_STATE_UNUSED || currentBullet->state == BULLET_STATE_DESPAWNING)
+                if (currentBullet->state == BULLET_STATE_INACTIVE || currentBullet->state == BULLET_STATE_DESPAWNING)
                 {
                     continue;
                 }
@@ -275,7 +275,6 @@ void ExInsStage56Func4(Enemy *enemy, EclRawInstr *instr)
                   cosOut, matrixInSeed, matrixOut)
 void ExInsStage5Func5(Enemy *enemy, EclRawInstr *instr)
 {
-
     if (enemy->currentContext.var2 % 9 == 0)
     {
         D3DXVECTOR3 bpPositionOffset;
@@ -541,9 +540,9 @@ void ExInsStage6Func8(Enemy *enemy, EclRawInstr *instr)
 
     EnemyBulletShooter bulletProps;
 
-    for (i = 0; i < ARRAY_SIZE_SIGNED(g_BulletManager.bullets); i++, currentBullet++)
+    for (i = 0; i < MAX_ENEMY_BULLETS; i++, currentBullet++)
     {
-        if (currentBullet->state == BULLET_STATE_UNUSED || currentBullet->state == BULLET_STATE_DESPAWNING)
+        if (currentBullet->state == BULLET_STATE_INACTIVE || currentBullet->state == BULLET_STATE_DESPAWNING)
         {
             continue;
         }
@@ -582,9 +581,9 @@ void ExInsStage6Func9(Enemy *enemy, EclRawInstr *instr)
     randomAngleModifier = g_Rng.GetRandomF32InRange(ZUN_2PI) - ZUN_PI;
     g_EffectManager.SpawnParticles(PARTICLE_EFFECT_UNK_12, &enemy->position, 1, COLOR_WHITE);
 
-    for (i = 0; i < ARRAY_SIZE_SIGNED(g_BulletManager.bullets); i++, currentBullet++)
+    for (i = 0; i < MAX_ENEMY_BULLETS; i++, currentBullet++)
     {
-        if (currentBullet->state == BULLET_STATE_UNUSED || currentBullet->state == BULLET_STATE_DESPAWNING)
+        if (currentBullet->state == BULLET_STATE_INACTIVE || currentBullet->state == BULLET_STATE_DESPAWNING)
         {
             continue;
         }
@@ -629,9 +628,9 @@ void ExInsStage6Func11(Enemy *enemy, EclRawInstr *instr)
     unusedRandomNumber = g_Rng.GetRandomF32InRange(ZUN_2PI) - ZUN_PI;
     g_EffectManager.SpawnParticles(PARTICLE_EFFECT_UNK_12, &enemy->position, 1, COLOR_WHITE);
 
-    for (i = 0; i < ARRAY_SIZE_SIGNED(g_BulletManager.bullets); i++, currentBullet++)
+    for (i = 0; i < MAX_ENEMY_BULLETS; i++, currentBullet++)
     {
-        if (currentBullet->state == BULLET_STATE_UNUSED || currentBullet->state == BULLET_STATE_DESPAWNING)
+        if (currentBullet->state == BULLET_STATE_INACTIVE || currentBullet->state == BULLET_STATE_DESPAWNING)
         {
             continue;
         }
@@ -663,10 +662,10 @@ void ExInsHandleBatTransformation(Enemy *enemy, EclRawInstr *instr)
     ExInsBatWingEffect(enemy, instr);
     if (g_Player.bombInfo.isInUse)
     {
-        if (enemy->anmExLeft >= 0)
+        if (enemy->anmPoseLeft >= 0) // Check if poses are enabled
         {
             g_AnmManager->SetAndExecuteScriptIdx(&enemy->primaryVm, ANM_SCRIPT_ENEMY_END);
-            enemy->anmExLeft = -1;
+            enemy->anmPoseLeft = -1; // Disable poses for duration of transformation
         }
 
         enemy->flags.isInteractable = false;
@@ -676,10 +675,10 @@ void ExInsHandleBatTransformation(Enemy *enemy, EclRawInstr *instr)
     {
         if (enemy->exInsFunc10Timer > 0 && (enemy->exInsFunc10Timer--, enemy->exInsFunc10Timer == 0))
         {
-            if (enemy->anmExLeft < 0)
+            if (enemy->anmPoseLeft < 0) // Check if poses are disabled
             {
                 g_AnmManager->SetAndExecuteScriptIdx(&enemy->primaryVm, ANM_OFFSET_ENEMY + 160);
-                enemy->anmExLeft = 161;
+                enemy->anmPoseLeft = 161;
             }
 
             enemy->flags.isInteractable = true;
@@ -778,9 +777,9 @@ void ExInsStageXFunc15(Enemy *enemy, EclRawInstr *instr)
     currentBullet = g_BulletManager.bullets;
     EnemyBulletShooter unusedBulletProps;
 
-    for (i = 0; i < ARRAY_SIZE_SIGNED(g_BulletManager.bullets); i++, currentBullet++)
+    for (i = 0; i < MAX_ENEMY_BULLETS; i++, currentBullet++)
     {
-        if (currentBullet->state == BULLET_STATE_UNUSED || currentBullet->state == BULLET_STATE_DESPAWNING)
+        if (currentBullet->state == BULLET_STATE_INACTIVE || currentBullet->state == BULLET_STATE_DESPAWNING)
         {
             continue;
         }
@@ -791,10 +790,9 @@ void ExInsStageXFunc15(Enemy *enemy, EclRawInstr *instr)
             totalIterations++;
             enemyAngle = atan2f(currentBullet->pos.y - enemy->position.y, currentBullet->pos.x - enemy->position.x);
 
-            for (j = 0, innerBullet = g_BulletManager.bullets; j < ARRAY_SIZE_SIGNED(g_BulletManager.bullets);
-                 j++, innerBullet++)
+            for (j = 0, innerBullet = g_BulletManager.bullets; j < MAX_ENEMY_BULLETS; j++, innerBullet++)
             {
-                if (innerBullet->state == BULLET_STATE_UNUSED || innerBullet->state == BULLET_STATE_DESPAWNING)
+                if (innerBullet->state == BULLET_STATE_INACTIVE || innerBullet->state == BULLET_STATE_DESPAWNING)
                 {
                     continue;
                 }
@@ -827,13 +825,9 @@ void ExInsStageXFunc15(Enemy *enemy, EclRawInstr *instr)
     enemy->currentContext.var3 = totalIterations;
 }
 
-#pragma var_order(remainingLife, rangeModifier)
 void ExInsFlandreFinalContextUpdate(Enemy *enemy, EclRawInstr *instr)
 {
-    f32 rangeModifier;
-    i32 remainingLife;
-
-    remainingLife = enemy->life;
+    i32 remainingLife = enemy->life;
     if (enemy->bossTimer >= RAGE_TIME_THRESHOLD)
     {
         remainingLife = 0;
@@ -846,11 +840,11 @@ void ExInsFlandreFinalContextUpdate(Enemy *enemy, EclRawInstr *instr)
     }
     else
     {
-        rangeModifier = 320.0f - (remainingLife * 160.0f) / 6000.0f;
+        float rangeModifier = 320.0f - (remainingLife * 160.0f) / 6000.0f;
         enemy->currentContext.float2 = g_Rng.GetRandomF32InRange(rangeModifier) + (192.0f - rangeModifier / 2.0f);
         rangeModifier = 128.0f - (remainingLife * 64.0f) / 6000.0f;
         enemy->currentContext.float3 = g_Rng.GetRandomF32InRange(rangeModifier) + (96.0f - rangeModifier / 2.0f);
     }
 }
-}; // namespace EnemyEclInstr
-}; // namespace th06
+} // namespace EnemyEclInstr
+} // namespace th06

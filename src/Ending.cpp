@@ -188,19 +188,9 @@ void Ending::FadingEffect()
     }
 }
 
-#pragma var_order(lineDisplayed, textBuffer, charactersReaded, anmScriptIdx, vmIndex, anmSpriteIdx, scrollBGDistance,  \
-                  scrollBGDuration, characterIdx, diffIdx, spriteIdx, musicFadeFrames)
+#pragma var_order(lineDisplayed, textBuffer, charactersRead)
 ZunResult Ending::ParseEndFile()
 {
-    i32 vmIndex;
-    i32 anmScriptIdx;
-    i32 anmSpriteIdx;
-    i32 scrollBGDistance;
-    i32 scrollBGDuration;
-    f32 musicFadeFrames;
-    i32 spriteIdx;
-    i32 diffIdx;
-    i32 characterIdx;
     i32 charactersRead;
     ZunBool lineDisplayed;
 
@@ -272,24 +262,27 @@ ZunResult Ending::ParseEndFile()
                 }
                 break;
 
-            case END_OPCODE_EXECUTE_ANM:
+#pragma var_order(anmScriptIdx, vmIndex, anmSpriteIdx)
+            case END_OPCODE_EXECUTE_ANM: {
                 /* anm(vm_index, script_index, sprite_index) */
                 this->endFileDataPtr++;
-                vmIndex = this->ReadEndFileParameter();      // vm_index
-                anmScriptIdx = this->ReadEndFileParameter(); // script_index
-                anmSpriteIdx = this->ReadEndFileParameter(); // sprite_index
+                i32 vmIndex = this->ReadEndFileParameter();      // vm_index
+                i32 anmScriptIdx = this->ReadEndFileParameter(); // script_index
+                i32 anmSpriteIdx = this->ReadEndFileParameter(); // sprite_index
                 g_AnmManager->ExecuteAnmIdx(&this->sprites[vmIndex], ANM_OFFSET_STAFF01 + anmScriptIdx);
                 g_AnmManager->SetActiveSprite(&this->sprites[vmIndex], ANM_OFFSET_STAFF01 + anmSpriteIdx);
                 break;
+            }
 
-            case END_OPCODE_SCROLL_BACKGROUND:
+#pragma var_order(scrollBGDistance, scrollBGDuration)
+            case END_OPCODE_SCROLL_BACKGROUND: {
                 /* scrollbg(distance, duration) */
                 this->endFileDataPtr++;
-                scrollBGDistance = this->ReadEndFileParameter(); // distance
-                scrollBGDuration = this->ReadEndFileParameter(); // duration
+                i32 scrollBGDistance = this->ReadEndFileParameter(); // distance
+                i32 scrollBGDuration = this->ReadEndFileParameter(); // duration
                 this->backgroundScrollSpeed = scrollBGDistance / (f32)scrollBGDuration;
                 break;
-
+            }
             case END_OPCODE_SET_VERTICAL_SCROLL_POS:
                 /* setscroll(newVertCoordinate) */
                 this->endFileDataPtr++;
@@ -297,7 +290,7 @@ ZunResult Ending::ParseEndFile()
                 this->backgroundPos.y = this->ReadEndFileParameter(); // newVertCoordinate
                 break;
 
-            case END_OPCODE_EXEC_END_FILE:
+            case END_OPCODE_EXEC_END_FILE: {
                 /* exec(endfile) */
 
                 if (this->LoadEnding(this->endFileDataPtr + 1) != ZUN_SUCCESS)
@@ -306,9 +299,9 @@ ZunResult Ending::ParseEndFile()
                 }
                 charactersRead = 0;
                 lineDisplayed = false;
-                for (characterIdx = 0; characterIdx < ARRAY_SIZE_SIGNED(g_GameManager.clrd); characterIdx++)
+                for (i32 characterIdx = 0; characterIdx < SHOTTYPE_COUNT; characterIdx++)
                 {
-                    for (diffIdx = 0; diffIdx < EXTRA; diffIdx++)
+                    for (i32 diffIdx = 0; diffIdx < EXTRA; diffIdx++)
                     {
                         if (g_GameManager.clrd[characterIdx].difficultyClearedWithRetries[diffIdx] == 99 ||
                             g_GameManager.clrd[characterIdx].difficultyClearedWithoutRetries[diffIdx] == 99)
@@ -318,29 +311,30 @@ ZunResult Ending::ParseEndFile()
                         }
                     }
                 }
-
-            case END_OPCODE_ROLL_STAFF:
+                // no break
+            }
+            case END_OPCODE_ROLL_STAFF: {
                 /* staffroll()
                    Assumingly this clears the entire anm stack allocated for Ending. */
 
-                for (spriteIdx = 0; spriteIdx < ARRAY_SIZE_SIGNED(this->sprites); spriteIdx++)
+                for (i32 spriteIdx = 0; spriteIdx < ARRAY_SIZE_SIGNED(this->sprites); spriteIdx++)
                 {
                     this->sprites[spriteIdx].anmFileIndex = 0;
                 }
                 break;
-
+            }
             case END_OPCODE_PLAY_MUSIC:
                 /* musicplay(file) */
                 g_Supervisor.PlayAudio(this->endFileDataPtr + 1);
                 break;
 
-            case END_OPCODE_FADE_MUSIC:
+            case END_OPCODE_FADE_MUSIC: {
                 /* musicfade(duration) */
                 this->endFileDataPtr++;
-                musicFadeFrames = this->ReadEndFileParameter();
+                float musicFadeFrames = this->ReadEndFileParameter();
                 g_Supervisor.FadeOutMusic(musicFadeFrames);
                 break;
-
+            }
             case END_OPCODE_SET_DELAY:
                 /* setdelay(line2Delay, topLineDelay) */
                 this->endFileDataPtr++;
@@ -577,7 +571,7 @@ ChainCallbackResult Ending::OnUpdate(Ending *ending)
             continue;
         }
         break;
-    };
+    }
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
@@ -598,13 +592,13 @@ ChainCallbackResult Ending::OnDraw(Ending *ending)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-#pragma var_order(unused, shotTypeAndCharacter)
+#pragma var_order(unusedshotTypeAndCharacter, shotTypeAndCharacter)
 ZunResult Ending::AddedCallback(Ending *ending)
 {
     i32 shotTypeAndCharacter;
-    i32 unused;
+    i32 unusedshotTypeAndCharacter;
 
-    unused = g_GameManager.character * SHOTTYPES_PER_CHARACTER + g_GameManager.shotType;
+    unusedshotTypeAndCharacter = g_GameManager.character * SHOTTYPES_PER_CHARACTER + g_GameManager.shotType;
 
     g_GameManager.isGameCompleted = true;
     g_Supervisor.isInEnding = true;
@@ -716,4 +710,4 @@ ZunResult Ending::DeletedCallback(Ending *ending)
     g_Supervisor.ReleasePbg3(ED_PBG3_INDEX);
     return ZUN_SUCCESS;
 }
-}; // namespace th06
+} // namespace th06

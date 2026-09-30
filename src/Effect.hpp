@@ -41,4 +41,4 @@ struct EffectInfo
     EffectUpdateCallback updateCallback;
 };
 ZUN_ASSERT_SIZE(EffectInfo, 0x8);
-}; // namespace th06
+} // namespace th06

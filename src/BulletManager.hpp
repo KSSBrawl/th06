@@ -40,7 +40,7 @@ ZUN_ASSERT_SIZE(BulletTypeSprites, 0x560);
 
 enum BulletState
 {
-    BULLET_STATE_UNUSED,
+    BULLET_STATE_INACTIVE,
     BULLET_STATE_FIRED,
     BULLET_STATE_SPAWNING_FAST,
     BULLET_STATE_SPAWNING_NORMAL,
@@ -99,6 +99,10 @@ struct Laser
 };
 ZUN_ASSERT_SIZE(Laser, 0x270);
 
+#define NUM_ENEMY_BULLET_TYPES 16
+#define MAX_ENEMY_BULLETS 640
+#define MAX_ENEMY_LASERS 64
+
 struct BulletManager
 {
     BulletManager();
@@ -122,9 +126,9 @@ struct BulletManager
     Laser *SpawnLaserPattern(EnemyLaserShooter *bulletProps);
     u32 SpawnSingleBullet(EnemyBulletShooter *bulletProps, i32 bulletIdx1, i32 bulletIdx2, f32 angle);
 
-    BulletTypeSprites bulletTypeTemplates[16];
-    Bullet bullets[640];
-    Laser lasers[64];
+    BulletTypeSprites bulletTypeTemplates[NUM_ENEMY_BULLET_TYPES];
+    Bullet bullets[MAX_ENEMY_BULLETS];
+    Laser lasers[MAX_ENEMY_LASERS];
     i32 nextBulletIndex;
     i32 bulletCount;
     ZunTimer time;
@@ -134,4 +138,4 @@ ZUN_ASSERT_SIZE(BulletManager, 0xf5c18);
 
 DIFFABLE_EXTERN(u32 *, g_EffectsColor);
 DIFFABLE_EXTERN(BulletManager, g_BulletManager);
-}; // namespace th06
+} // namespace th06

@@ -168,7 +168,7 @@ void AsciiManager::CutChain()
 
 void AsciiManager::AddString(D3DXVECTOR3 *position, const char *text)
 {
-    if (this->numStrings >= ARRAY_SIZE_SIGNED(this->strings))
+    if (this->numStrings >= ASCII_STRING_COUNT)
     {
         return;
     }
@@ -936,4 +936,4 @@ void dummy_float_1()
     a += 1.0f;
 }
 
-}; // namespace th06
+} // namespace th06

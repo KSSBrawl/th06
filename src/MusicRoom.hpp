@@ -8,4 +8,4 @@
 namespace th06
 {
 ZunResult MusicRoom_RegisterChain();
-}; // namespace th06
+} // namespace th06

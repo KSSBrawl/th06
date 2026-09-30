@@ -285,4 +285,4 @@ ZunResult ScreenEffect::DeletedCallback(ScreenEffect *effect)
 
     return ZUN_SUCCESS;
 }
-}; // namespace th06
+} // namespace th06

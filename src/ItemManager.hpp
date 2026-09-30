@@ -35,6 +35,8 @@ struct Item
 };
 ZUN_ASSERT_SIZE(Item, 0x144);
 
+#define MAX_ITEMS 512
+
 struct ItemManager
 {
     void SpawnItem(D3DXVECTOR3 *position, ItemType type, i32 state);
@@ -42,11 +44,11 @@ struct ItemManager
     void OnDraw();
     void RemoveAllItems();
 
-    Item items[513];
+    Item items[MAX_ITEMS + 1]; // +1 dummy slot to avoid null checks for failed spawns
     i32 nextIndex;
     u32 itemCount;
 };
 ZUN_ASSERT_SIZE(ItemManager, 0x2894c);
 
 DIFFABLE_EXTERN(ItemManager, g_ItemManager);
-}; // namespace th06
+} // namespace th06

@@ -65,7 +65,7 @@ struct TextHelper
 
     u8 *GetBuffer()
     {
-        return this->buffer;
+        return (u8 *)this->buffer;
     }
 
     D3DFORMAT format;
@@ -76,6 +76,6 @@ struct TextHelper
     HDC hdc;
     HGDIOBJ gdiObj;
     HGDIOBJ gdiObj2;
-    u8 *buffer;
+    void *buffer;
 };
-}; // namespace th06
+} // namespace th06

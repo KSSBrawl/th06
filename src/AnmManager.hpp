@@ -86,6 +86,9 @@ struct RenderVertexInfo
 };
 ZUN_ASSERT_SIZE(RenderVertexInfo, 0x14);
 
+#define MAX_ANM_SCRIPTS 2048
+#define MAX_ANM_SPRITES 2048
+
 struct AnmManager
 {
     AnmManager();
@@ -133,6 +136,30 @@ struct AnmManager
     {
         vm->Initialize();
         this->SetActiveSprite(vm, spriteIdx);
+    }
+
+    void ClearScriptRange(i32 base, i32 range)
+    {
+        for (i32 i = 0; i < range; i++)
+        {
+            this->scripts[i + base] = NULL;
+        }
+    }
+
+    ZunBool ShouldDraw(AnmVm *vm)
+    {
+        if (vm->sprite == NULL)
+        {
+            return false;
+        }
+        else if (vm->sprite->sourceFileIndex < 0)
+        {
+            return false;
+        }
+        else
+        {
+            return this->textures[vm->sprite->sourceFileIndex] != NULL;
+        }
     }
 
     void SetCurrentVertexShader(u8 vertexShader)
@@ -211,13 +238,13 @@ struct AnmManager
         this->screenshotHeight = GAME_REGION_HEIGHT;
     }
 
-    AnmLoadedSprite sprites[2048];
+    AnmLoadedSprite sprites[MAX_ANM_SPRITES];
     AnmVm virtualMachine;
     LPDIRECT3DTEXTURE8 textures[264];
     void *imageDataArray[256];
     i32 maybeLoadedSpriteCount;
-    AnmRawInstr *scripts[2048];
-    i32 spriteIndices[2048];
+    AnmRawInstr *scripts[MAX_ANM_SCRIPTS];
+    i32 spriteIndices[MAX_ANM_SPRITES];
     AnmRawEntry *anmFiles[128];
     u32 anmFilesSpriteIndexOffsets[128];
     LPDIRECT3DSURFACE8 surfaces[32];
@@ -242,4 +269,4 @@ ZUN_ASSERT_SIZE(AnmManager, 0x2112c);
 
 DIFFABLE_EXTERN(AnmManager *, g_AnmManager);
 DIFFABLE_EXTERN(const D3DFORMAT, g_TextureFormatD3D8Mapping[6]);
-}; // namespace th06
+} // namespace th06

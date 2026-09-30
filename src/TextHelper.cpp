@@ -73,19 +73,16 @@ bool TextHelper::AllocateBufferWithFallback(i32 width, i32 height, D3DFORMAT for
     return false;
 }
 
-#pragma function(strlen)
 void strlen_dummy(const char *a)
 {
     strlen(a);
 }
-#pragma intrinsic(strlen)
 
-#pragma function(memset)
 #pragma var_order(imageWidthInBytes, deviceContext, originalBitmapObj, bitmapInfo, formatInfo, bitmapObj, bitmapData)
 bool TextHelper::TryAllocateBuffer(i32 width, i32 height, D3DFORMAT format)
 {
     HGDIOBJ originalBitmapObj;
-    u8 *bitmapData;
+    void *bitmapData;
     HBITMAP bitmapObj;
     FormatInfo *formatInfo;
     BITMAPV4HEADER bitmapInfo;
@@ -114,7 +111,7 @@ bool TextHelper::TryAllocateBuffer(i32 width, i32 height, D3DFORMAT format)
         bitmapInfo.bV4BlueMask = formatInfo->blueMask;
         bitmapInfo.bV4AlphaMask = formatInfo->alphaMask;
     }
-    bitmapObj = CreateDIBSection(NULL, (BITMAPINFO *)&bitmapInfo, 0, (void **)&bitmapData, NULL, 0);
+    bitmapObj = CreateDIBSection(NULL, (BITMAPINFO *)&bitmapInfo, 0, &bitmapData, NULL, 0);
     if (bitmapObj == NULL)
     {
         return false;
@@ -156,13 +153,12 @@ struct A1R5G5B5
     u16 alpha : 1;
 };
 
-#pragma var_order(bufferRegion, idx, doubleArea, bufferCursor)
+#pragma var_order(bufferRegion, idx, doubleArea)
 bool TextHelper::InvertAlpha(i32 x, i32 y, i32 spriteWidth, i32 fontHeight)
 {
     i32 doubleArea;
     u8 *bufferRegion;
     i32 idx;
-    A1R5G5B5 *bufferCursor;
 
     doubleArea = spriteWidth * fontHeight * 2;
     bufferRegion = &this->GetBuffer()[y * spriteWidth * 2];
@@ -174,7 +170,8 @@ bool TextHelper::InvertAlpha(i32 x, i32 y, i32 spriteWidth, i32 fontHeight)
             bufferRegion[idx] = bufferRegion[idx] ^ 0xff;
         }
         break;
-    case D3DFMT_A1R5G5B5:
+    case D3DFMT_A1R5G5B5: {
+        A1R5G5B5 *bufferCursor;
         for (bufferCursor = (A1R5G5B5 *)bufferRegion, idx = 0; idx < doubleArea; idx += 2, bufferCursor += 1)
         {
             bufferCursor->alpha ^= 1;
@@ -192,6 +189,7 @@ bool TextHelper::InvertAlpha(i32 x, i32 y, i32 spriteWidth, i32 fontHeight)
             }
         }
         break;
+    }
     case D3DFMT_A4R4G4B4:
         for (idx = 1; idx < doubleArea; idx += 2)
         {
@@ -204,7 +202,6 @@ bool TextHelper::InvertAlpha(i32 x, i32 y, i32 spriteWidth, i32 fontHeight)
     return true;
 }
 
-#pragma function(memcpy)
 #pragma var_order(dstBuf, dstWidthBytes, rectToLock, curHeight, srcWidthBytes, outSurfaceDesc, srcBuf, lockedRect)
 bool TextHelper::CopyTextToSurface(LPDIRECT3DSURFACE8 outSurface)
 {
@@ -274,7 +271,6 @@ void Fake_TextOutA_SetBkMode_SetTextColor_CxxThrowException()
     _CxxThrowException(NULL, NULL);
 }
 
-#pragma function(strlen)
 #pragma var_order(hdc, font, textSurfaceDesc, h, textHelper, hdc, srcRect, destRect, destSurface)
 void TextHelper::RenderTextToTexture(i32 xPos, i32 yPos, i32 spriteWidth, i32 spriteHeight, i32 fontHeight,
                                      i32 fontWidth, ZunColor textColor, ZunColor shadowColor, const char *string,
@@ -326,4 +322,4 @@ void TextHelper::RenderTextToTexture(i32 xPos, i32 yPos, i32 spriteWidth, i32 sp
     D3DXLoadSurfaceFromSurface(destSurface, NULL, &destRect, g_TextBufferSurface, NULL, &srcRect, 4, 0);
     SAFE_RELEASE(destSurface);
 }
-}; // namespace th06
+} // namespace th06

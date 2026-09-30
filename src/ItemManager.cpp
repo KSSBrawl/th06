@@ -18,18 +18,18 @@ DIFFABLE_STATIC_SORTED(K4, ItemManager, g_ItemManager);
 DIFFABLE_STATIC_SORTED(K5, ChainElem, g_ItemManagerCalcChain); // unused
 DIFFABLE_STATIC_SORTED(K3, ChainElem, g_ItemManagerDrawChain); // unused
 
-void ItemManager::SpawnItem(D3DXVECTOR3 *position, ItemType itemType, int state)
+void ItemManager::SpawnItem(D3DXVECTOR3 *position, ItemType itemType, i32 state)
 {
     Item *item;
     i32 idx;
 
     item = &this->items[this->nextIndex];
-    for (idx = 0; idx < ARRAY_SIZE_SIGNED(this->items) - 1; idx++)
+    for (idx = 0; idx < MAX_ITEMS; idx++)
     {
         this->nextIndex++;
         if (item->isInUse)
         {
-            if (this->nextIndex >= ARRAY_SIZE_SIGNED(this->items) - 1)
+            if (this->nextIndex >= MAX_ITEMS)
             {
                 this->nextIndex = 0;
                 item = &this->items[0];
@@ -40,7 +40,7 @@ void ItemManager::SpawnItem(D3DXVECTOR3 *position, ItemType itemType, int state)
             }
             continue;
         }
-        if (this->nextIndex >= ARRAY_SIZE_SIGNED(this->items) - 1)
+        if (this->nextIndex >= MAX_ITEMS)
         {
             this->nextIndex = 0;
         }
@@ -81,18 +81,12 @@ i32 __inline calculatePointScore(Item *curItem, i32 scoreAcquiredItemTop, i32 sc
                : (scoreAcquiredItemBottom - (((i32)curItem->currentPosition.y - 128) * posMultiplier));
 }
 
-#pragma var_order(idx, itemScore, playerAngle, itemAcquired, curItem, fVar5, powerLevelA, prevPowerLevelA,             \
-                  powerLevelB, prevPowerLevelB)
+#pragma var_order(idx, itemScore, playerAngle, itemAcquired, curItem)
 void ItemManager::OnUpdate()
 {
-    i32 prevPowerLevelB;
-    i32 prevPowerLevelA;
     i32 itemScore;
-    i32 powerLevelB;
-    i32 powerLevelA;
     i32 idx;
     Item *curItem;
-    f32 fVar5;
     f32 playerAngle;
     ZunBool itemAcquired;
 
@@ -102,7 +96,7 @@ void ItemManager::OnUpdate()
 
     itemAcquired = false;
     this->itemCount = 0;
-    for (idx = 0; idx < ARRAY_SIZE_SIGNED(this->items) - 1; idx++, curItem++)
+    for (idx = 0; idx < MAX_ITEMS; idx++, curItem++)
     {
         if (!curItem->isInUse)
         {
@@ -113,7 +107,7 @@ void ItemManager::OnUpdate()
         {
             if (curItem->timer < 60)
             {
-                fVar5 = curItem->timer.AsFramesFloat() / 60.0f;
+                float fVar5 = curItem->timer.AsFramesFloat() / 60.0f;
                 curItem->currentPosition = fVar5 * curItem->targetPosition + curItem->startPosition * (1.0f - fVar5);
                 goto yolo;
             }
@@ -174,13 +168,14 @@ void ItemManager::OnUpdate()
                                                 itemScore >= 12800 ? COLOR_YELLOW : COLOR_WHITE);
                 }
                 else
+#pragma var_order(powerLevel, prevPowerLevel)
                 {
-                    powerLevelA = 0;
-                    while (g_GameManager.currentPower >= g_PowerUpThresholds[powerLevelA])
+                    i32 powerLevel = 0;
+                    while (g_GameManager.currentPower >= g_PowerUpThresholds[powerLevel])
                     {
-                        powerLevelA++;
+                        powerLevel++;
                     }
-                    prevPowerLevelA = powerLevelA;
+                    i32 prevPowerLevel = powerLevel;
                     g_GameManager.powerItemCountForScore = 0;
                     g_GameManager.currentPower++;
                     if (g_GameManager.currentPower >= MAX_POWER)
@@ -191,11 +186,11 @@ void ItemManager::OnUpdate()
                     }
                     g_GameManager.AddScore(10);
                     g_Gui.flags.flag2 = 2;
-                    while (g_GameManager.currentPower >= g_PowerUpThresholds[powerLevelA])
+                    while (g_GameManager.currentPower >= g_PowerUpThresholds[powerLevel])
                     {
-                        powerLevelA++;
+                        powerLevel++;
                     }
-                    if (powerLevelA != prevPowerLevelA)
+                    if (powerLevel != prevPowerLevel)
                     {
                         g_AsciiManager.CreatePopup1(&curItem->currentPosition, -1, 0xff80c0ff);
                         g_SoundPlayer.PlaySoundByIdx(SOUND_POWERUP);
@@ -259,13 +254,14 @@ void ItemManager::OnUpdate()
                                                 itemScore >= 12800 ? COLOR_YELLOW : COLOR_WHITE);
                 }
                 else
+#pragma var_order(powerLevel, prevPowerLevel)
                 {
-                    powerLevelB = 0;
-                    while (g_GameManager.currentPower >= g_PowerUpThresholds[powerLevelB])
+                    i32 powerLevel = 0;
+                    while (g_GameManager.currentPower >= g_PowerUpThresholds[powerLevel])
                     {
-                        powerLevelB++;
+                        powerLevel++;
                     }
-                    prevPowerLevelB = powerLevelB;
+                    i32 prevPowerLevel = powerLevel;
                     g_GameManager.currentPower += 8;
                     if (g_GameManager.currentPower >= MAX_POWER)
                     {
@@ -275,11 +271,11 @@ void ItemManager::OnUpdate()
                     }
                     g_Gui.flags.flag2 = 2;
                     g_GameManager.AddScore(10);
-                    while (g_GameManager.currentPower >= g_PowerUpThresholds[powerLevelB])
+                    while (g_GameManager.currentPower >= g_PowerUpThresholds[powerLevel])
                     {
-                        powerLevelB++;
+                        powerLevel++;
                     }
-                    if (powerLevelB != prevPowerLevelB)
+                    if (powerLevel != prevPowerLevel)
                     {
                         g_AsciiManager.CreatePopup1(&curItem->currentPosition, -1, 0xff80c0ff);
                         g_SoundPlayer.PlaySoundByIdx(SOUND_POWERUP);
@@ -349,7 +345,7 @@ void ItemManager::RemoveAllItems()
     Item *cursor;
     i32 idx;
 
-    for (cursor = &this->items[0], idx = 0; idx < ARRAY_SIZE_SIGNED(this->items) - 1; idx++, cursor++)
+    for (cursor = &this->items[0], idx = 0; idx < MAX_ITEMS; idx++, cursor++)
     {
         if (!cursor->isInUse)
         {
@@ -367,8 +363,7 @@ void ItemManager::OnDraw()
     i32 itemAlpha;
 
     curItem = &this->items[0];
-    idx = 0;
-    for (; idx < ARRAY_SIZE_SIGNED(this->items) - 1; idx++, curItem++)
+    for (idx = 0; idx < MAX_ITEMS; idx++, curItem++)
     {
         if (!curItem->isInUse)
         {
@@ -405,4 +400,4 @@ void ItemManager::OnDraw()
     }
 }
 
-}; // namespace th06
+} // namespace th06

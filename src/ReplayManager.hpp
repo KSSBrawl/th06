@@ -7,6 +7,8 @@
 
 namespace th06
 {
+#define REPLAY_MAGIC "T6RP"
+
 struct ReplayManager
 {
     static ZunResult RegisterChain(ZunBool isDemo, const char *replayFile);
@@ -42,4 +44,4 @@ struct ReplayManager
     ChainElem *drawChain;
     ChainElem *calcChainDemoHighPrio;
 };
-}; // namespace th06
+} // namespace th06

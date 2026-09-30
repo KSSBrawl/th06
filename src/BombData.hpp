@@ -19,4 +19,4 @@ struct BombData
     static void BombMarisaBDraw(Player *);
     static void DarkenViewport(Player *player);
 };
-}; // namespace th06
+} // namespace th06

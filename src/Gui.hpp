@@ -88,4 +88,4 @@ struct Gui
 ZUN_ASSERT_SIZE(Gui, 0x2c);
 
 DIFFABLE_EXTERN(Gui, g_Gui);
-}; // namespace th06
+} // namespace th06
