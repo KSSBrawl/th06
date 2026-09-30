@@ -63,7 +63,7 @@ struct AnmRawInstr
     i16 time;
     u8 opcode;
     u8 argsCount;
-    u32 args[10];
+    u32 args[0];
 };
 
 enum AnmVmFlagsEnum

@@ -56,7 +56,7 @@ ZUN_ASSERT_TYPE(AnmRawSprite, 0x14, 4);
 struct AnmRawScript
 {
     u32 id;
-    AnmRawInstr *firstInstruction;
+    u32 firstInstructionOffset;
 };
 ZUN_ASSERT_TYPE(AnmRawScript, 8, 4);
 
@@ -78,10 +78,9 @@ struct AnmRawEntry
     u32 hasData;
     u32 nextOffset;
     unreferenced_fields(0x4);
-    u32 spriteOffsets[10];
-    AnmRawScript scripts[10];
+    u32 spriteOffsets[0];
 };
-ZUN_ASSERT_TYPE(AnmRawEntry, 0xb8, 4);
+ZUN_ASSERT_SIZE(AnmRawEntry, 0x40);
 
 struct RenderVertexInfo
 {
@@ -136,7 +135,7 @@ struct AnmManager
         this->SetAndExecuteScript(vm, this->scripts[anmFileIdx]);
     }
 
-    void InitializeAndSetSprite(AnmVm *vm, i32 spriteIdx)
+    void InitializeAndSetSprite(AnmVm *vm, u32 spriteIdx)
     {
         vm->Initialize();
         this->SetActiveSprite(vm, spriteIdx);

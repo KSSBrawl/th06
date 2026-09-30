@@ -106,9 +106,6 @@ ZunResult AsciiManager::RegisterChain()
 
 ZunResult AsciiManager::AddedCallback(AsciiManager *s)
 {
-    // TODO: Are these inline padding vars?
-    i32 pad[3];
-
     if (g_AnmManager->LoadAnm(ANM_FILE_ASCII, "data/ascii.anm", ANM_OFFSET_ASCII) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
@@ -123,31 +120,6 @@ ZunResult AsciiManager::AddedCallback(AsciiManager *s)
     }
     s->InitializeVms();
     return ZUN_SUCCESS;
-}
-
-#pragma var_order(vm1, mgr1, mgr0)
-void AsciiManager::InitializeVms()
-{
-    memset(this, 0, sizeof(AsciiManager));
-
-    this->color = COLOR_WHITE;
-    this->scale.x = 1.0f;
-    this->scale.y = 1.0f;
-
-    this->vm1.flags.anchor = AnmVmAnchor_TopLeft;
-
-    // NOTE: AnmManager::InitializeAndSetSprite does not match here?
-    AnmVm *vm1 = &this->vm1;
-    AnmManager *mgr1 = g_AnmManager;
-    vm1->Initialize();
-    mgr1->SetActiveSprite(vm1, 0);
-
-    AnmManager *mgr0 = g_AnmManager;
-    this->vm0.Initialize();
-    mgr0->SetActiveSprite(&this->vm0, 32);
-
-    this->vm1.pos.z = 0.1f;
-    this->isSelected = false;
 }
 
 ZunResult AsciiManager::DeletedCallback(AsciiManager *s)
