@@ -151,6 +151,7 @@ void ExInsShootStarPattern(Enemy *enemy, EclRawInstr *instr)
 #define METAL_WATER_SIGN_MERCURY_POISON 3
 #define EARTH_METAL_SIGN_EMERALD_MEGALITH 4
 
+// The weird comments are just to preserve formatting in the github CI
 DIFFABLE_STATIC_ASSIGN(i32, g_PatchouliShottypeVars[CHARACTER_COUNT][SHOTTYPES_PER_CHARACTER][3]) = {
     {
         // Reimu
