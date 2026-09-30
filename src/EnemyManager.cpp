@@ -55,7 +55,7 @@ void EnemyManager::Initialize()
     enemy->speed = 0.0f;
     enemy->flags.movementMode = 0;
     enemy->flags.shootingDisabled = false;
-    enemy->flags.invertX = false;
+    enemy->flags.mirrored = false;
     enemy->flags.isBoss = false;
     enemy->stackDepth = 0;
     enemy->life = 1;
@@ -70,7 +70,7 @@ void EnemyManager::Initialize()
     enemy->anmPoseRight = -1;
     enemy->anmPoseDefault = -1;
     enemy->flags.isDamageable = true;
-    enemy->flags.deathMode = DESPAWN_NO_CALLBACK;
+    enemy->flags.deathMode = EnemyDeath_DespawnNoCallback;
     enemy->deathCallbackSub = -1;
     enemy->flags.shouldClampPos = false;
     enemy->effectIdx = 0;
@@ -168,7 +168,7 @@ void EnemyManager::RunEclTimeline()
             case TIMELINE_OPCODE_ENEMY_CREATE:
                 if (!g_Gui.BossPresent())
                 {
-                    EclTimelineInstrArgs *args = &this->timelineInstr->args;
+                    TimelineInstrArgs *args = &this->timelineInstr->args;
                     this->SpawnEnemy(this->timelineInstr->arg0, args->Var1AsVec(), args->ushortVar1, args->ushortVar2,
                                      args->uintVar4);
                 }
@@ -183,10 +183,10 @@ void EnemyManager::RunEclTimeline()
             case TIMELINE_OPCODE_ENEMY_CREATE_MIRROR:
                 if (!g_Gui.BossPresent())
                 {
-                    EclTimelineInstrArgs *args = &this->timelineInstr->args;
+                    TimelineInstrArgs *args = &this->timelineInstr->args;
                     spawnedEnemy = this->SpawnEnemy(this->timelineInstr->arg0, args->Var1AsVec(), args->ushortVar1,
                                                     args->ushortVar2, args->uintVar4);
-                    spawnedEnemy->flags.invertX = true;
+                    spawnedEnemy->flags.mirrored = true;
                 }
                 break;
             case TIMELINE_OPCODE_DUMMY_CREATE_MIRROR:
@@ -194,11 +194,11 @@ void EnemyManager::RunEclTimeline()
                 {
                     spawnedEnemy = this->SpawnEnemy(this->timelineInstr->arg0, this->timelineInstr->args.Var1AsVec(),
                                                     -1, ITEM_RANDOM_ITEM, -1);
-                    spawnedEnemy->flags.invertX = true;
+                    spawnedEnemy->flags.mirrored = true;
                 }
                 break;
             case TIMELINE_OPCODE_ENEMY_CREATE_RANDOM: {
-                EclTimelineInstrArgs *args;
+                TimelineInstrArgs *args;
                 if (!g_Gui.BossPresent())
                 {
                     args = &this->timelineInstr->args;
@@ -240,7 +240,7 @@ void EnemyManager::RunEclTimeline()
                 }
                 break;
             case TIMELINE_OPCODE_ENEMY_CREATE_MIRROR_RANDOM: {
-                EclTimelineInstrArgs *args;
+                TimelineInstrArgs *args;
                 if (!g_Gui.BossPresent())
                 {
                     args = &this->timelineInstr->args;
@@ -259,7 +259,7 @@ void EnemyManager::RunEclTimeline()
                     }
                     spawnedEnemy = this->SpawnEnemy(this->timelineInstr->arg0, &pos, args->ushortVar1, args->ushortVar2,
                                                     args->uintVar4);
-                    spawnedEnemy->flags.invertX = true;
+                    spawnedEnemy->flags.mirrored = true;
                 }
                 break;
             }
@@ -280,7 +280,7 @@ void EnemyManager::RunEclTimeline()
                         pos.z = g_Rng.GetRandomF32InRange(800.0f);
                     }
                     spawnedEnemy = this->SpawnEnemy(this->timelineInstr->arg0, &pos, -1, ITEM_RANDOM_ITEM, -1);
-                    spawnedEnemy->flags.invertX = true;
+                    spawnedEnemy->flags.mirrored = true;
                 }
                 break;
             case TIMELINE_OPCODE_MSG_READ:
@@ -320,7 +320,7 @@ void EnemyManager::RunEclTimeline()
         {
             break;
         }
-        this->timelineInstr = (EclTimelineInstr *)((i32)this->timelineInstr + this->timelineInstr->size);
+        this->timelineInstr = (TimelineInstr *)((u32)this->timelineInstr + this->timelineInstr->size);
     }
     if (!g_Gui.HasCurrentMsgIdx())
     {
@@ -438,7 +438,7 @@ ZunBool Enemy::HandleTimerCallback()
 
 void Enemy::Despawn()
 {
-    if (this->flags.deathMode == DESPAWN_NO_CALLBACK)
+    if (this->flags.deathMode == EnemyDeath_DespawnNoCallback)
     {
         this->flags.isSlotOccupied = false;
     }
@@ -634,20 +634,20 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
                 curEnemy->timerCallbackThreshold = -1;
                 switch (curEnemy->flags.deathMode)
                 {
-                case SET_HP_TO_1:
+                case EnemyDeath_SetHpTo1:
                     curEnemy->life = 1;
                     curEnemy->flags.isDamageable = false;
-                    curEnemy->flags.deathMode = DESPAWN_NO_CALLBACK;
+                    curEnemy->flags.deathMode = EnemyDeath_DespawnNoCallback;
                     g_Gui.bossPresent = false;
                     g_EffectManager.SpawnParticles(curEnemy->deathParticle1, &curEnemy->position, 1, COLOR_WHITE);
                     g_EffectManager.SpawnParticles(curEnemy->deathParticle1, &curEnemy->position, 1, COLOR_WHITE);
                     g_EffectManager.SpawnParticles(curEnemy->deathParticle1, &curEnemy->position, 1, COLOR_WHITE);
                     break;
-                case DISABLE_INTERACTION:
+                case EnemyDeath_DisableInteraction:
                     g_GameManager.AddScore(curEnemy->score);
                     curEnemy->flags.isInteractable = false;
                     goto LAB_00412a4d;
-                case DESPAWN_NO_CALLBACK:
+                case EnemyDeath_DespawnNoCallback:
                     g_GameManager.AddScore(curEnemy->score);
                     curEnemy->flags.isSlotOccupied = false;
                 LAB_00412a4d:
@@ -656,7 +656,7 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
                         g_Gui.bossPresent = false;
                         Enemy::ResetEffectArray(curEnemy);
                     }
-                case DROP_ITEMS_ONLY:
+                case EnemyDeath_DropItemsOnly:
                     if (curEnemy->itemDrop >= 0)
                     {
                         g_EffectManager.SpawnParticles(curEnemy->deathParticle2 + 4, &curEnemy->position, 3,

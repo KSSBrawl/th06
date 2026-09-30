@@ -51,14 +51,14 @@ struct RawStageObjectInstance
 };
 ZUN_ASSERT_TYPE(RawStageObjectInstance, 0x10, 4);
 
-struct RawStageInstr
+struct StdRawInstr
 {
-    i32 frame;
+    i32 time;
     i16 opcode;
     i16 size;
-    i32 args[3];
+    i32 args[3]; // Args are fixed at 3
 };
-ZUN_ASSERT_TYPE(RawStageInstr, 0x14, 4);
+ZUN_ASSERT_TYPE(StdRawInstr, 0x14, 4);
 
 struct StageCameraSky
 {
@@ -82,14 +82,14 @@ struct StageFile
 };
 ZUN_ASSERT_TYPE(StageFile, 0x8, 4);
 
-enum StageOpcode
+enum StdOpcode
 {
-    STDOP_CAMERA_POSITION_KEY,
-    STDOP_FOG,
-    STDOP_CAMERA_FACING,
-    STDOP_CAMERA_FACING_INTERP_LINEAR,
-    STDOP_FOG_INTERP,
-    STDOP_PAUSE,
+    STD_OPCODE_CAMERA_POSITION_KEY,
+    STD_OPCODE_FOG,
+    STD_OPCODE_CAMERA_FACING,
+    STD_OPCODE_CAMERA_FACING_INTERP_LINEAR,
+    STD_OPCODE_FOG_INTERP,
+    STD_OPCODE_STD_PAUSE,
 };
 
 struct Stage
@@ -112,7 +112,7 @@ struct Stage
     i32 objectsCount;
     RawStageObject **objects;
     RawStageObjectInstance *objectInstances;
-    RawStageInstr *beginningOfScript;
+    StdRawInstr *beginningOfScript;
     ZunTimer scriptTime;
     i32 instructionIndex;
     ZunTimer timer;

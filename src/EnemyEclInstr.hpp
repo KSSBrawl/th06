@@ -8,7 +8,7 @@ namespace EnemyEclInstr
 {
 i32 *GetVar(Enemy *enemy, EclVarId *varId, EclValueType *valueType);
 f32 *GetVarFloat(Enemy *enemy, f32 *varId, EclValueType *valueType);
-void SetVar(Enemy *enemy, EclVarId lhs, void *rhs);
+void SetVar(Enemy *enemy, EclVarId out, void *value);
 
 void MathAdd(Enemy *enemy, EclVarId out, EclVarId *lhs, EclVarId *rhs);
 void MathSub(Enemy *enemy, EclVarId out, EclVarId *lhs, EclVarId *rhs);

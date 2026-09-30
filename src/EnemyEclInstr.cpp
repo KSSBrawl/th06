@@ -82,13 +82,13 @@ void ExInsShootStarPattern(Enemy *enemy, EclRawInstr *instr)
     D3DXVECTOR3 starPatterTarget1;
     f32 targetDistance;
 
-    if (enemy->currentContext.var2 >= enemy->currentContext.var3)
+    if (enemy->currentContext.int2 >= enemy->currentContext.int3)
     {
         enemy->currentContext.funcSetFunc = NULL;
         return;
     }
 
-    if (enemy->currentContext.var2 == 0)
+    if (enemy->currentContext.int2 == 0)
     {
         g_EclManager.extra.coords[ENEMY_POS] = enemy->position;
         g_EclManager.extra.coords[PLAYER_POS] = g_Player.positionCenter;
@@ -96,7 +96,7 @@ void ExInsShootStarPattern(Enemy *enemy, EclRawInstr *instr)
         g_EclManager.extra.starAngleTable[1] =
             utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[0], 4.0f * ZUN_PI / 5.0f);
     }
-    if (enemy->currentContext.var2 % 30 == 0)
+    if (enemy->currentContext.int2 % 30 == 0)
     {
         g_EclManager.extra.starAngleTable[0] = g_EclManager.extra.starAngleTable[1];
         g_EclManager.extra.starAngleTable[1] =
@@ -110,9 +110,9 @@ void ExInsShootStarPattern(Enemy *enemy, EclRawInstr *instr)
         g_EclManager.extra.starAngleTable[5] =
             utils::AddNormalizeAngle(g_EclManager.extra.starAngleTable[4], 4.0f * ZUN_PI / 5.0f);
     }
-    if (enemy->currentContext.var2 % 6 == 0)
+    if (enemy->currentContext.int2 % 6 == 0)
     {
-        patternPosition = (f32)enemy->currentContext.var2 / (f32)enemy->currentContext.var3;
+        patternPosition = (f32)enemy->currentContext.int2 / (f32)enemy->currentContext.int3;
         targetDistance = patternPosition * 0.1f;
 
         baseTargetPosition =
@@ -125,7 +125,7 @@ void ExInsShootStarPattern(Enemy *enemy, EclRawInstr *instr)
 
         for (i = 0; i < 5; i++)
         {
-            targetDistance = (enemy->currentContext.var2 % 30) / 30.0f;
+            targetDistance = (enemy->currentContext.int2 % 30) / 30.0f;
             sincosmul(&starPatternTarget0, g_EclManager.extra.starAngleTable[i], enemy->currentContext.float3);
             sincosmul(&starPatterTarget1, g_EclManager.extra.starAngleTable[i + 1], enemy->currentContext.float3);
             starPatternTarget0 = (starPatterTarget1 - starPatternTarget0) * targetDistance + starPatternTarget0;
@@ -140,7 +140,7 @@ void ExInsShootStarPattern(Enemy *enemy, EclRawInstr *instr)
         }
         g_SoundPlayer.PlaySoundByIdx(SOUND_16);
     }
-    enemy->currentContext.var2++;
+    enemy->currentContext.int2++;
 #undef ENEMY_POS
 #undef PLAYER_POS
 }
@@ -183,9 +183,9 @@ DIFFABLE_STATIC_ASSIGN(i32, g_PatchouliShottypeVars[CHARACTER_COUNT][SHOTTYPES_P
 
 void ExInsPatchouliShottypeSetVars(Enemy *enemy, EclRawInstr *instr)
 {
-    enemy->currentContext.var1 = g_PatchouliShottypeVars[g_GameManager.character][g_GameManager.shotType][0];
-    enemy->currentContext.var2 = g_PatchouliShottypeVars[g_GameManager.character][g_GameManager.shotType][1];
-    enemy->currentContext.var3 = g_PatchouliShottypeVars[g_GameManager.character][g_GameManager.shotType][2];
+    enemy->currentContext.int1 = g_PatchouliShottypeVars[g_GameManager.character][g_GameManager.shotType][0];
+    enemy->currentContext.int2 = g_PatchouliShottypeVars[g_GameManager.character][g_GameManager.shotType][1];
+    enemy->currentContext.int3 = g_PatchouliShottypeVars[g_GameManager.character][g_GameManager.shotType][2];
 }
 
 #pragma var_order(playerBulletOffset, bulletsLeft, i, currentBullet)
@@ -288,14 +288,14 @@ void ExInsStage56Func4(Enemy *enemy, EclRawInstr *instr)
             }
         }
     }
-    enemy->currentContext.var2 = 0;
+    enemy->currentContext.int2 = 0;
 }
 
 #pragma var_order(patternPosition, i, bulletProps, sinOut, bpPositionOffset, matrixOutSeed, matrixIn, bulletAngle,     \
                   cosOut, matrixInSeed, matrixOut)
 void ExInsStage5Func5(Enemy *enemy, EclRawInstr *instr)
 {
-    if (enemy->currentContext.var2 % 9 == 0)
+    if (enemy->currentContext.int2 % 9 == 0)
     {
         D3DXVECTOR3 bpPositionOffset;
         f32 bulletAngle;
@@ -309,7 +309,7 @@ void ExInsStage5Func5(Enemy *enemy, EclRawInstr *instr)
         f32 sinOut;
         EnemyBulletShooter bulletProps;
 
-        patternPosition = enemy->currentContext.var2 / 9;
+        patternPosition = enemy->currentContext.int2 / 9;
         bulletProps.sprite = 8;
         bulletProps.aimMode = 0;
         if (g_GameManager.difficulty <= NORMAL)
@@ -370,7 +370,7 @@ void ExInsStage5Func5(Enemy *enemy, EclRawInstr *instr)
         }
         g_SoundPlayer.PlaySoundByIdx(SOUND_7);
     }
-    enemy->currentContext.var2++;
+    enemy->currentContext.int2++;
 }
 
 #pragma var_order(effect, baseAngleModifier, distanceModifier, finalAngle, particlePos)
@@ -584,7 +584,7 @@ void ExInsStage6Func8(Enemy *enemy, EclRawInstr *instr)
         }
     }
 
-    enemy->currentContext.var3 = changedBullets;
+    enemy->currentContext.int3 = changedBullets;
 }
 
 #pragma var_order(unusedBulletProps, i, local64, currentBullet, randomAngleModifier)
@@ -732,7 +732,7 @@ void ExInsStageXFunc13(Enemy *enemy, EclRawInstr *instr)
 
     numPatterns = instr->args.exInstr.i32Param;
     basePatternAngle = enemy->currentContext.float2;
-    if (enemy->currentContext.var3 % 6 == 0)
+    if (enemy->currentContext.int3 % 6 == 0)
     {
         for (i = 0; i < numPatterns; i++, basePatternAngle += ZUN_2PI / numPatterns)
         {
@@ -743,7 +743,7 @@ void ExInsStageXFunc13(Enemy *enemy, EclRawInstr *instr)
             g_BulletManager.SpawnBulletPattern(&bulletProps);
         }
     }
-    enemy->currentContext.var3++;
+    enemy->currentContext.int3++;
 }
 
 #pragma var_order(bulletPosition, i, angleSin, currentLaser, angleCos, positionMultiplier)
@@ -756,7 +756,7 @@ void ExInsStageXFunc14(Enemy *enemy, EclRawInstr *instr)
     i32 i;
     f32 positionMultiplier;
 
-    enemy->currentContext.var3 = 0;
+    enemy->currentContext.int3 = 0;
     for (i = 0; i < 8; i++)
     {
         if (enemy->lasers[i] != NULL && enemy->lasers[i]->inUse)
@@ -775,7 +775,7 @@ void ExInsStageXFunc14(Enemy *enemy, EclRawInstr *instr)
                 positionMultiplier += 48.0f;
             }
 
-            enemy->currentContext.var3++;
+            enemy->currentContext.int3++;
         }
     }
 }
@@ -842,7 +842,7 @@ void ExInsStageXFunc15(Enemy *enemy, EclRawInstr *instr)
     }
 
     ExInsHandleBatTransformation(enemy, instr);
-    enemy->currentContext.var3 = totalIterations;
+    enemy->currentContext.int3 = totalIterations;
 }
 
 #define RAGE_TIME_THRESHOLD 7200
@@ -858,7 +858,7 @@ void ExInsFlandreFinalContextUpdate(Enemy *enemy, EclRawInstr *instr)
     if (instr->args.exInstr.i32Param == 0)
     {
         enemy->currentContext.float3 = 2.0f - (remainingLife * 1.0f) / 6000.0f;
-        enemy->currentContext.var5 = (remainingLife * 240) / 6000 + 40;
+        enemy->currentContext.counter1 = (remainingLife * 240) / 6000 + 40;
     }
     else
     {

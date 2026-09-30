@@ -45,7 +45,7 @@ struct EnemyManager
     unreferenced_fields(0x4);
     RunningSpellcardInfo spellcardInfo;
     unreferenced_fields(0x4);
-    EclTimelineInstr *timelineInstr;
+    TimelineInstr *timelineInstr;
     ZunTimer timelineTime;
 };
 ZUN_ASSERT_TYPE(EnemyManager, 0xee5ec, 4);
