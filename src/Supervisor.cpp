@@ -15,7 +15,7 @@
 #include "TextHelper.hpp"
 #include "ZunTimer.hpp"
 #include "i18n.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 
 #include <stdio.h>
 #include <string.h>
@@ -59,7 +59,7 @@ ChainCallbackResult Supervisor::OnUpdate(Supervisor *s)
 
     if (s->wantedState != s->curState)
     {
-        s->wantedState2 = s->wantedState;
+        s->prevState = s->wantedState;
         switch (s->wantedState)
         {
         case SUPERVISOR_STATE_INIT:

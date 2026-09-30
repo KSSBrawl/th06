@@ -88,8 +88,9 @@ struct GuiMsgVm
     u32 fontSize;
     u32 ignoreWaitCounter;
     u8 dialogueSkippable;
+    alignment_padding(0x3);
 };
-ZUN_ASSERT_SIZE(GuiMsgVm, 0x6a8);
+ZUN_ASSERT_TYPE(GuiMsgVm, 0x6a8, 4);
 
 struct GuiFormattedText
 {
@@ -98,7 +99,7 @@ struct GuiFormattedText
     ZunBool isShown;
     ZunTimer timer;
 };
-ZUN_ASSERT_SIZE(GuiFormattedText, 0x20);
+ZUN_ASSERT_TYPE(GuiFormattedText, 0x20, 4);
 
 struct GuiImpl
 {
@@ -108,6 +109,7 @@ struct GuiImpl
 
     AnmVm vms[26];
     u8 bossHealthBarState;
+    alignment_padding(0x3);
     AnmVm stageNameSprite;
     AnmVm songNameSprite;
     AnmVm playerSpellcardPortrait;
@@ -124,7 +126,7 @@ struct GuiImpl
     GuiFormattedText fullPowerMode;
     GuiFormattedText spellCardBonus;
 };
-ZUN_ASSERT_SIZE(GuiImpl, 0x2c44);
+ZUN_ASSERT_TYPE(GuiImpl, 0x2c44, 4);
 
 DIFFABLE_STATIC_SORTED(G1, Gui, g_Gui);
 DIFFABLE_STATIC_SORTED(G3, ChainElem, g_GuiCalcChain);
@@ -187,15 +189,10 @@ ChainCallbackResult Gui::OnUpdate(Gui *gui)
 
 ChainCallbackResult Gui::OnDraw(Gui *gui)
 {
-    char spellCardBonusStr[32];
-    D3DXVECTOR3 stringPos;
-
     g_Supervisor.d3dDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS);
     if (gui->impl->finishedStage)
     {
-        stringPos.x = GAME_REGION_LEFT + 42.0f;
-        stringPos.y = GAME_REGION_TOP + 112.0f;
-        stringPos.z = 0.0f;
+        D3DXVECTOR3 stringPos(GAME_REGION_LEFT + 42.0f, GAME_REGION_TOP + 112.0f, 0.0f);
         g_AsciiManager.color = COLOR_SUNSHINEYELLOW;
         if (g_GameManager.currentStage < EXTRA_STAGE)
         {
@@ -225,7 +222,7 @@ ChainCallbackResult Gui::OnDraw(Gui *gui)
         if (EXTRA_STAGE <= g_GameManager.currentStage)
         {
             stringPos.y += 16.0f;
-            g_AsciiManager.color = COLOR_LIGHTYELLOW;
+            g_AsciiManager.color = COLOR_LIGHT_YELLOW;
             g_AsciiManager.AddFormatText(&stringPos, "Player    = %8d\n", g_GameManager.livesRemaining * 3000000);
             stringPos.y += 16.0f;
             g_AsciiManager.AddFormatText(&stringPos, "Bomb      = %8d\n", g_GameManager.bombsRemaining * 1000000);
@@ -284,7 +281,7 @@ ChainCallbackResult Gui::OnDraw(Gui *gui)
     g_AsciiManager.isGui = true;
     if (gui->impl->bonusScore.isShown)
     {
-        g_AsciiManager.color = COLOR_LIGHTYELLOW;
+        g_AsciiManager.color = COLOR_LIGHT_YELLOW;
         g_AsciiManager.AddFormatText(&gui->impl->bonusScore.pos, "BONUS %8d", gui->impl->bonusScore.fmtArg);
         g_AsciiManager.color = COLOR_WHITE;
     }
@@ -305,6 +302,7 @@ ChainCallbackResult Gui::OnDraw(Gui *gui)
         g_AsciiManager.AddFormatText(&gui->impl->spellCardBonus.pos, "Spell Card Bonus!");
 
         gui->impl->spellCardBonus.pos.y += 16.0f;
+        char spellCardBonusStr[32];
         sprintf(spellCardBonusStr, "+%d", gui->impl->spellCardBonus.fmtArg);
         gui->impl->spellCardBonus.pos.x =
             (GAME_REGION_WIDTH - (f32)strlen(spellCardBonusStr) * 32.0f) / 2.0f + GAME_REGION_LEFT;
@@ -324,11 +322,11 @@ ChainCallbackResult Gui::OnDraw(Gui *gui)
 
 void Gui::ShowBombNamePortrait(u32 sprite, const char *bombName)
 {
-    g_AnmManager->SetAndExecuteScriptIdx(&this->impl->playerSpellcardPortrait, 1185);
+    g_AnmManager->SetAndExecuteScriptIdx(&this->impl->playerSpellcardPortrait, ANM_SCRIPT_FACE_BOMB_PORTRAIT);
     g_AnmManager->SetActiveSprite(&this->impl->playerSpellcardPortrait, sprite);
-    g_AnmManager->SetAndExecuteScriptIdx(&this->impl->bombSpellcardName, 1798);
-    g_AnmManager->DrawVmTextFmt(&this->impl->bombSpellcardName, 0xf0f0ff, 0x0, bombName);
-    this->bombSpellcardBarLength = strlen(bombName) * 15 / 2.0f + 16.0f;
+    g_AnmManager->SetAndExecuteScriptIdx(&this->impl->bombSpellcardName, ANM_SCRIPT_TEXT_BOMB_NAME);
+    g_AnmManager->DrawVmTextFmt(&this->impl->bombSpellcardName, COLOR_RGB(COLOR_BARELY_BLUE), COLOR_RGB(COLOR_BLACK), bombName);
+    this->bombSpellcardBarLength = strlen(bombName) * 15 / 2.0f + 16.0f; // TODO: Is this 15 the font size?
     g_Supervisor.unk198 = 3;
     g_SoundPlayer.PlaySoundByIdx(SOUND_BOMB);
 }
@@ -338,15 +336,13 @@ void Gui::ShowSpellcard(i32 spellcardSprite, const char *spellcardName)
     g_AnmManager->SetAndExecuteScriptIdx(&this->impl->enemySpellcardPortrait, ANM_SCRIPT_FACE_ENEMY_SPELLCARD_PORTRAIT);
     g_AnmManager->SetActiveSprite(&this->impl->enemySpellcardPortrait, ANM_SPRITE_FACE_STAGE_START + spellcardSprite);
     g_AnmManager->SetAndExecuteScriptIdx(&this->impl->enemySpellcardName, ANM_SCRIPT_TEXT_ENEMY_SPELLCARD_NAME);
-    g_AnmManager->DrawStringFormat(&this->impl->enemySpellcardName, 0xfff0f0, COLOR_RGB(COLOR_BLACK), spellcardName);
+    g_AnmManager->DrawStringFormat(&this->impl->enemySpellcardName, COLOR_RGB(COLOR_BARELY_RED), COLOR_RGB(COLOR_BLACK), spellcardName);
     this->blueSpellcardBarLength = strlen(spellcardName) * 15 / 2.0f + 16.0f;
     g_SoundPlayer.PlaySoundByIdx(SOUND_BOMB);
 }
 
 ZunResult Gui::ActualAddedCallback()
 {
-    i32 idx;
-
     if (g_Supervisor.IsNotLoadingNextStage())
     {
         memset(this->impl, 0, sizeof(GuiImpl));
@@ -509,7 +505,7 @@ ZunResult Gui::ActualAddedCallback()
     }
     if (g_Supervisor.IsNotLoadingNextStage())
     {
-        for (idx = 0; idx < ARRAY_SIZE_SIGNED(this->impl->vms); idx++)
+        for (i32 idx = 0; idx < ARRAY_SIZE_SIGNED(this->impl->vms); idx++)
         {
             g_AnmManager->SetAndExecuteScriptIdx(&this->impl->vms[idx], ANM_SCRIPT_FRONT_START + idx);
         }
@@ -533,16 +529,16 @@ ZunResult Gui::ActualAddedCallback()
     this->impl->bombSpellcardName.flags.isVisible = false;
     this->impl->enemySpellcardPortrait.flags.isVisible = false;
     this->impl->enemySpellcardName.flags.isVisible = false;
-    this->impl->bombSpellcardName.fontWidth = 15;
-    this->impl->bombSpellcardName.fontHeight = 15;
-    this->impl->enemySpellcardName.fontWidth = 15;
-    this->impl->enemySpellcardName.fontHeight = 15;
+    this->impl->bombSpellcardName.fontWidth = DEFAULT_ANM_FONT_SIZE;
+    this->impl->bombSpellcardName.fontHeight = DEFAULT_ANM_FONT_SIZE;
+    this->impl->enemySpellcardName.fontWidth = DEFAULT_ANM_FONT_SIZE;
+    this->impl->enemySpellcardName.fontHeight = DEFAULT_ANM_FONT_SIZE;
     g_AnmManager->SetAndExecuteScriptIdx(&this->impl->stageNameSprite, ANM_SCRIPT_TEXT_STAGE_NAME);
     g_AnmManager->SetAndExecuteScriptIdx(&this->impl->songNameSprite, ANM_SCRIPT_TEXT_SONG_NAME);
     g_AnmManager->DrawStringFormat2(&this->impl->stageNameSprite, COLOR_RGB(COLOR_LIGHTCYAN), COLOR_RGB(COLOR_BLACK),
                                     g_Stage.stdData->stageName);
-    this->impl->songNameSprite.fontWidth = 16;
-    this->impl->songNameSprite.fontHeight = 16;
+    this->impl->songNameSprite.fontWidth = DEFAULT_ANM_FONT_SIZE + 1;
+    this->impl->songNameSprite.fontHeight = DEFAULT_ANM_FONT_SIZE + 1;
     g_AnmManager->DrawStringFormat(&this->impl->songNameSprite, COLOR_RGB(COLOR_LIGHTCYAN), COLOR_RGB(COLOR_BLACK),
                                    TH_SONG_NAME, g_Stage.stdData->songNames[0]);
     this->impl->msg.currentMsgIdx = -1;
@@ -705,12 +701,12 @@ ZunResult GuiImpl::RunMsg()
             break;
         case MSG_OPCODE_MUSIC:
             g_AnmManager->SetAndExecuteScriptIdx(&this->songNameSprite, 1793);
-            this->songNameSprite.fontWidth = 16;
-            this->songNameSprite.fontHeight = 16;
+            this->songNameSprite.fontWidth = DEFAULT_ANM_FONT_SIZE + 1;
+            this->songNameSprite.fontHeight = DEFAULT_ANM_FONT_SIZE + 1;
             g_AnmManager->DrawStringFormat(&this->songNameSprite, COLOR_RGB(COLOR_LIGHTCYAN), COLOR_RGB(COLOR_BLACK),
                                            TH_SONG_NAME,
                                            g_Stage.stdData->songNames[this->msg.currentInstr->args.music]);
-            if (g_Supervisor.PlayMidiFile(this->msg.currentInstr->args.music) != 0)
+            if (g_Supervisor.PlayMidiFile(this->msg.currentInstr->args.music))
             {
                 g_Supervisor.PlayAudio(g_Stage.stdData->songPaths[this->msg.currentInstr->args.music]);
             }

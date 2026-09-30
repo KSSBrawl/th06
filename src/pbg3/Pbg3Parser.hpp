@@ -1,6 +1,5 @@
 #pragma once
-
-#include "inttypes.hpp"
+#include "decomp.hpp"
 #include "pbg3/FileAbstraction.hpp"
 #include "pbg3/IPbg3Parser.hpp"
 

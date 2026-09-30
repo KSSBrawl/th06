@@ -1,7 +1,6 @@
 #pragma once
-
 #include "AnmVm.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 
 namespace th06
 {
@@ -21,5 +20,5 @@ struct StageMenu
     AnmVm menuSprites[6];
     AnmVm menuBackground;
 };
-ZUN_ASSERT_SIZE(StageMenu, 0x778);
+ZUN_ASSERT_TYPE(StageMenu, 0x778, 4);
 } // namespace th06

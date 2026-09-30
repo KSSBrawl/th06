@@ -1,8 +1,7 @@
 #pragma once
-
 #include "ZunBool.hpp"
 #include "ZunResult.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 #include <Windows.h>
 
 namespace th06
@@ -24,7 +23,7 @@ struct MidiTimer
     u32 timerId;
     TIMECAPS timeCaps;
 };
-ZUN_ASSERT_SIZE(MidiTimer, 0x10);
+ZUN_ASSERT_TYPE(MidiTimer, 0x10, 4);
 
 enum MidiOpcode
 {
@@ -74,12 +73,13 @@ struct MidiTrack
     i32 trackLengthOther;
     u32 trackLength;
     u8 opcode;
+    alignment_padding(0x3);
     u8 *trackData;
     u8 *curTrackDataCursor;
     u8 *startTrackDataMaybe;
-    u32 unk1c;
+    i32 unk1c;
 };
-ZUN_ASSERT_SIZE(MidiTrack, 0x20);
+ZUN_ASSERT_TYPE(MidiTrack, 0x20, 4);
 
 struct MidiDevice
 {
@@ -94,7 +94,7 @@ struct MidiDevice
     HMIDIOUT handle;
     u32 deviceId;
 };
-ZUN_ASSERT_SIZE(MidiDevice, 0x8);
+ZUN_ASSERT_TYPE(MidiDevice, 0x8, 4);
 
 struct MidiChannel
 {
@@ -107,6 +107,7 @@ struct MidiChannel
     u8 channelVolume;
     u8 modifiedVolume;
 };
+ZUN_ASSERT_TYPE(MidiChannel, 0x17, 1);
 
 struct MidiOutput : MidiTimer
 {
@@ -154,14 +155,15 @@ struct MidiOutput : MidiTimer
     u32 format;
     i32 divisions;
     i32 tempo;
-    u32 unk124;
+    unreferenced_fields(0x4);
     ULONGLONG volume;
     LONGLONG unk130;
     MidiTrack *tracks;
     MidiDevice midiOutDev;
-    u8 unk144[16];
+    unreferenced_fields(0x10);
     MidiChannel channels[16];
     i8 unk2c4;
+    alignment_padding(0x1);
     f32 fadeOutVolumeMultiplier;
     u32 fadeOutLastSetVolume;
     u32 unk2d0;
@@ -171,9 +173,9 @@ struct MidiOutput : MidiTimer
     ZunBool fadeOutFlag;
     i32 fadeOutInterval;
     i32 fadeOutElapsedMS;
-    u32 unk2ec;
+    i32 unk2ec;
     ULONGLONG unk2f0;
     ULONGLONG unk2f8;
 };
-ZUN_ASSERT_SIZE(MidiOutput, 0x300);
+ZUN_ASSERT_TYPE(MidiOutput, 0x300, 8);
 } // namespace th06

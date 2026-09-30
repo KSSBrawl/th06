@@ -15,7 +15,7 @@
 #include "Supervisor.hpp"
 #include "TextHelper.hpp"
 #include "i18n.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 
 #include <stdio.h>
 #include <string.h>

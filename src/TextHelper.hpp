@@ -1,7 +1,6 @@
 #pragma once
-
 #include "ZunColor.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 
 #include <d3d8.h>
 
@@ -16,6 +15,8 @@ struct FormatInfo
     u32 greenMask;
     u32 blueMask;
 };
+
+// TODO: Move type into the cpp file
 struct TextHelper
 {
     static void CreateTextBuffer();
@@ -78,4 +79,5 @@ struct TextHelper
     HGDIOBJ gdiObj2;
     void *buffer;
 };
+ZUN_ASSERT_TYPE(TextHelper, 0x24, 4);
 } // namespace th06

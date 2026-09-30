@@ -58,7 +58,7 @@ void BombData::BombReimuACalc(Player *player)
 
             player->bombInfo.bombRegionVelocities[i].y =
                 sinf(angle.x) * player->bombInfo.reimuABombProjectilesRelated[i];
-            player->unk_838[i] = 0;
+            player->bombRegionTotalDamages[i] = 0;
 
             for (bombSprite = &player->bombInfo.sprites[0][i * 4], bombIdx = 0; bombIdx < 4; bombIdx++, bombSprite++)
             {
@@ -123,7 +123,8 @@ void BombData::BombReimuACalc(Player *player)
                 player->bombProjectiles[i].size.x = 48.0f;
                 player->bombProjectiles[i].size.y = 48.0f;
 
-                if (player->unk_838[i] >= 100 || player->bombInfo.timer >= player->bombInfo.duration - 30)
+                if (player->bombRegionTotalDamages[i] >= 100 ||
+                    player->bombInfo.timer >= player->bombInfo.duration - 30)
                 {
                     g_EffectManager.SpawnParticles(PARTICLE_EFFECT_UNK_6, &player->bombInfo.bombRegionPositions[i], 8,
                                                    COLOR_WHITE);
@@ -338,7 +339,7 @@ void BombData::BombReimuBDraw(Player *player)
     }
 }
 
-#pragma var_order(i, starSprite, unused)
+#pragma var_order(i, starSprite, pad)
 void BombData::BombMarisaACalc(Player *player)
 {
     i32 pad[3];

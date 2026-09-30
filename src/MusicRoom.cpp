@@ -21,7 +21,7 @@ struct TrackDescriptor
     char title[34];
     char description[8][66];
 };
-ZUN_ASSERT_SIZE(TrackDescriptor, 0x272);
+ZUN_ASSERT_TYPE(TrackDescriptor, 0x272, 1);
 
 struct MusicRoom
 {
@@ -40,7 +40,7 @@ struct MusicRoom
     ChainElem *calc_chain;
     ChainElem *draw_chain;
     i32 waitFramesCount;
-    i32 enableInput;
+    ZunBool enableInput;
     i32 cursor;
     i32 selectedSongIndex;
     i32 listingOffset;
@@ -50,13 +50,13 @@ struct MusicRoom
     AnmVm titleSprites[32];
     AnmVm descriptionSprites[16];
 };
-ZUN_ASSERT_SIZE(MusicRoom, 0x3434);
+ZUN_ASSERT_TYPE(MusicRoom, 0x3434, 4);
 
 ZunResult MusicRoom::CheckInputEnable()
 {
     if (this->waitFramesCount >= 8)
     {
-        this->enableInput = 1;
+        this->enableInput = true;
     }
 
     return ZUN_SUCCESS;
@@ -173,7 +173,7 @@ ZunResult MusicRoom_RegisterChain()
 
 ChainCallbackResult MusicRoom::OnUpdate(MusicRoom *musicRoom)
 {
-    i32 oldInputSetting = musicRoom->enableInput;
+    ZunBool oldInputSetting = musicRoom->enableInput;
     for (;;)
     {
         switch (musicRoom->enableInput)

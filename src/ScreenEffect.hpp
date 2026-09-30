@@ -1,5 +1,4 @@
 #pragma once
-
 #include <Windows.h>
 #include <d3d8types.h>
 #include <string.h>
@@ -8,7 +7,7 @@
 #include "Supervisor.hpp"
 #include "ZunResult.hpp"
 #include "ZunTimer.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 
 namespace th06
 {
@@ -48,10 +47,10 @@ struct ScreenEffect
     static void Clear(D3DCOLOR color);
     static void SetViewport(D3DCOLOR color);
 
-    enum ScreenEffects usedEffect;
+    ScreenEffects usedEffect;
     ChainElem *calcChainElement;
     ChainElem *drawChainElement;
-    u32 unused;
+    unreferenced_fields(0x4);
     i32 fadeAlpha;
     i32 effectLength;
     i32 genericParam;   // effectParam1
@@ -59,4 +58,5 @@ struct ScreenEffect
     i32 unusedParam;
     ZunTimer timer;
 };
+ZUN_ASSERT_TYPE(ScreenEffect, 0x30, 4);
 } // namespace th06

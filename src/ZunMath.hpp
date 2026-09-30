@@ -1,6 +1,5 @@
 #pragma once
-#include "diffbuild.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 #include <Windows.h>
 #include <d3dx8math.h>
 
@@ -16,7 +15,7 @@ struct ZunVec2
 
     f64 VectorLengthF64()
     {
-        return (f64)this->VectorLength();
+        return this->VectorLength();
     }
 };
 ZUN_ASSERT_SIZE(ZunVec2, 0x8);

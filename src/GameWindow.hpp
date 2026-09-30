@@ -1,8 +1,6 @@
 #pragma once
-
 #include "ZunBool.hpp"
-#include "diffbuild.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 #include <windows.h>
 
 #define GAME_WINDOW_WIDTH 640
@@ -33,10 +31,12 @@ struct GameWindow
     ZunBool isAppActive;
     ZunBool showCursor;
     u8 curFrame;
+    alignment_padding(0x3);
     BOOL screenSaveActive;
     BOOL lowPowerActive;
     BOOL powerOffActive;
 };
+ZUN_ASSERT_TYPE(GameWindow, 0x20, 4);
 
 DIFFABLE_EXTERN(GameWindow, g_GameWindow);
 

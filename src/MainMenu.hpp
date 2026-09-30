@@ -1,13 +1,6 @@
 #pragma once
-
-#include <D3D8.h>
-
-#include "AnmVm.hpp"
-#include "Chain.hpp"
-#include "ReplayData.hpp"
 #include "ZunBool.hpp"
 #include "ZunResult.hpp"
-#include "inttypes.hpp"
 
 #define REPLAYS_PER_PAGE 15
 #define NORMAL_REPLAY_COUNT REPLAYS_PER_PAGE

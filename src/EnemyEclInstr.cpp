@@ -14,22 +14,6 @@ namespace th06
 {
 namespace EnemyEclInstr
 {
-#define RAGE_TIME_THRESHOLD 7200
-
-struct PatchouliShottypeVars
-{
-    struct
-    {
-        i32 var1;
-        i32 var2;
-        i32 var3;
-    } shotVars[2];
-};
-ZUN_ASSERT_SIZE(PatchouliShottypeVars, 0x18);
-
-DIFFABLE_STATIC_ARRAY_ASSIGN(PatchouliShottypeVars, 2, g_PatchouliShottypeVars) = {{{{0, 3, 1}, {2, 3, 4}}},
-                                                                                   {{{1, 4, 0}, {4, 2, 3}}}};
-
 #pragma var_order(i, currentBullet, effectIndex)
 void ExInsCirnoRainbowBallJank(Enemy *enemy, EclRawInstr *instr)
 {
@@ -161,11 +145,46 @@ void ExInsShootStarPattern(Enemy *enemy, EclRawInstr *instr)
 #undef PLAYER_POS
 }
 
+#define FIRE_EARTH_SIGN_LAVA_CROMLECH 0
+#define WOOD_FIRE_SIGN_FOREST_BLAZE 1
+#define WATER_WOOD_SIGN_WATER_ELF 2
+#define METAL_WATER_SIGN_MERCURY_POISON 3
+#define EARTH_METAL_SIGN_EMERALD_MEGALITH 4
+
+DIFFABLE_STATIC_ASSIGN(i32, g_PatchouliShottypeVars[CHARACTER_COUNT][SHOTTYPES_PER_CHARACTER][3]) = {
+    // Reimu
+    {
+        { // A
+            FIRE_EARTH_SIGN_LAVA_CROMLECH,
+            METAL_WATER_SIGN_MERCURY_POISON,
+            WOOD_FIRE_SIGN_FOREST_BLAZE
+        },
+        { // B
+            WATER_WOOD_SIGN_WATER_ELF,
+            METAL_WATER_SIGN_MERCURY_POISON,
+            EARTH_METAL_SIGN_EMERALD_MEGALITH
+        }
+    },
+    // Marisa
+    {
+        { // A
+            WOOD_FIRE_SIGN_FOREST_BLAZE,
+            EARTH_METAL_SIGN_EMERALD_MEGALITH,
+            FIRE_EARTH_SIGN_LAVA_CROMLECH
+        },
+        { // B
+            EARTH_METAL_SIGN_EMERALD_MEGALITH,
+            WATER_WOOD_SIGN_WATER_ELF,
+            METAL_WATER_SIGN_MERCURY_POISON
+        }
+    }
+};
+
 void ExInsPatchouliShottypeSetVars(Enemy *enemy, EclRawInstr *instr)
 {
-    enemy->currentContext.var1 = g_PatchouliShottypeVars[g_GameManager.character].shotVars[g_GameManager.shotType].var1;
-    enemy->currentContext.var2 = g_PatchouliShottypeVars[g_GameManager.character].shotVars[g_GameManager.shotType].var2;
-    enemy->currentContext.var3 = g_PatchouliShottypeVars[g_GameManager.character].shotVars[g_GameManager.shotType].var3;
+    enemy->currentContext.var1 = g_PatchouliShottypeVars[g_GameManager.character][g_GameManager.shotType][0];
+    enemy->currentContext.var2 = g_PatchouliShottypeVars[g_GameManager.character][g_GameManager.shotType][1];
+    enemy->currentContext.var3 = g_PatchouliShottypeVars[g_GameManager.character][g_GameManager.shotType][2];
 }
 
 #pragma var_order(playerBulletOffset, bulletsLeft, i, currentBullet)
@@ -825,10 +844,12 @@ void ExInsStageXFunc15(Enemy *enemy, EclRawInstr *instr)
     enemy->currentContext.var3 = totalIterations;
 }
 
+#define RAGE_TIME_THRESHOLD 7200
+
 void ExInsFlandreFinalContextUpdate(Enemy *enemy, EclRawInstr *instr)
 {
     i32 remainingLife = enemy->life;
-    if (enemy->bossTimer >= RAGE_TIME_THRESHOLD)
+    if (enemy->phaseTimer >= RAGE_TIME_THRESHOLD)
     {
         remainingLife = 0;
     }

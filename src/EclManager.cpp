@@ -45,8 +45,6 @@ DIFFABLE_STATIC_SORTED(C3, f32, g_PlayerAngle);
 
 ZunResult EclManager::Load(const char *eclPath)
 {
-    i32 idx;
-
     this->eclFile = (EclRawHeader *)FileSystem::OpenPath(eclPath);
     if (this->eclFile == NULL)
     {
@@ -56,7 +54,7 @@ ZunResult EclManager::Load(const char *eclPath)
     this->eclFile->timelineOffsets[0] =
         (EclTimelineInstr *)((int)this->eclFile->timelineOffsets[0] + (int)this->eclFile);
     this->subTable = &this->eclFile->subOffsets[0];
-    for (idx = 0; idx < this->eclFile->subCount; idx++)
+    for (i32 idx = 0; idx < this->eclFile->subCount; idx++)
     {
         this->subTable[idx] = (EclRawInstr *)((int)this->subTable[idx] + (int)this->eclFile);
     }
@@ -788,8 +786,8 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                 }
                 g_Stage.spellcardState = NOT_RUNNING;
                 break;
-            case ECL_OPCODE_BOSSTIMERSET:
-                enemy->bossTimer = instruction->args.setInt;
+            case ECL_OPCODE_PHASETIMERSET:
+                enemy->phaseTimer = instruction->args.setInt;
                 break;
             case ECL_OPCODE_LIFECALLBACKTHRESHOLD:
                 enemy->lifeCallbackThreshold = instruction->args.setInt;
@@ -799,7 +797,7 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
                 break;
             case ECL_OPCODE_TIMERCALLBACKTHRESHOLD:
                 enemy->timerCallbackThreshold = instruction->args.setInt;
-                enemy->bossTimer = 0;
+                enemy->phaseTimer = 0;
                 break;
             case ECL_OPCODE_TIMERCALLBACKSUB:
                 enemy->timerCallbackSub = instruction->args.setInt;
@@ -925,9 +923,9 @@ ZunResult EclManager::RunEcl(Enemy *enemy)
             case ECL_OPCODE_ENEMYFLAGINVISIBLE:
                 enemy->flags.isInvisible = instruction->args.setInt;
                 break;
-            case ECL_OPCODE_BOSSTIMERCLEAR:
+            case ECL_OPCODE_PHASETIMERCLEAR:
                 enemy->timerCallbackSub = enemy->deathCallbackSub;
-                enemy->bossTimer = 0;
+                enemy->phaseTimer = 0;
                 break;
             case ECL_OPCODE_SPELLCARDFLAGTIMEOUT:
                 enemy->flags.isTimeoutSpell = instruction->args.setInt;
@@ -1231,7 +1229,7 @@ i32 *GetVar(Enemy *enemy, EclVarId *eclVarId, EclValueType *valueType)
     case ECL_VAR_ENEMY_TIMER:
         if (valueType != NULL)
             *valueType = ECL_VALUE_TYPE_INT;
-        return &enemy->bossTimer.current;
+        return &enemy->phaseTimer.current;
 
     case ECL_VAR_PLAYER_DISTANCE:
         g_PlayerDistance = D3DXVec3Length(&(g_Player.positionCenter - enemy->position));

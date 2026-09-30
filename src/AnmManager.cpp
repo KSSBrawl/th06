@@ -4,22 +4,21 @@
 #include "TextHelper.hpp"
 #include "ZunMath.hpp"
 #include "ZunTimer.hpp"
+#include "decomp.hpp"
 #include "i18n.hpp"
 
 #include <stdio.h>
 
 namespace th06
 {
-DIFFABLE_STATIC_SORTED(S3, VertexTex1Xyzrwh, g_PrimitivesToDrawVertexBuf[4]);
-DIFFABLE_STATIC_SORTED(S2, VertexTex1DiffuseXyzrwh, g_PrimitivesToDrawNoVertexBuf[4]);
-DIFFABLE_STATIC_SORTED(S4, VertexTex1DiffuseXyz, g_PrimitivesToDrawUnknown[4]);
-DIFFABLE_STATIC_SORTED(S1, AnmManager *, g_AnmManager);
+DIFFABLE_STATIC_SORTED(T3, VertexTex1Xyzrwh, g_PrimitivesToDrawVertexBuf[4]);
+DIFFABLE_STATIC_SORTED(T2, VertexTex1DiffuseXyzrwh, g_PrimitivesToDrawNoVertexBuf[4]);
+DIFFABLE_STATIC_SORTED(T4, VertexTex1DiffuseXyz, g_PrimitivesToDrawUnknown[4]);
+DIFFABLE_STATIC_SORTED(T1, AnmManager *, g_AnmManager);
 
-#ifndef DIFFBUILD
-const D3DFORMAT g_TextureFormatD3D8Mapping[6] = {
+DIFFABLE_STATIC_ARRAY_ASSIGN(const D3DFORMAT, 6, g_TextureFormatD3D8Mapping) = {
     D3DFMT_UNKNOWN, D3DFMT_A8R8G8B8, D3DFMT_A1R5G5B5, D3DFMT_R5G6B5, D3DFMT_R8G8B8, D3DFMT_A4R4G4B4,
 };
-#endif
 
 #define TEX_FMT_UNKNOWN 0
 #define TEX_FMT_A8R8G8B8 1
@@ -170,14 +169,12 @@ ZunResult AnmManager::LoadTextureAlphaChannel(i32 textureIdx, const char *textur
         u16 a : 4;
     };
 
-    LPDIRECT3DTEXTURE8 textureSrc;
     D3DSURFACE_DESC surfaceDesc;
     D3DLOCKED_RECT lockedRectDst;
     D3DLOCKED_RECT lockedRectSrc;
-    u8 *data;
 
-    textureSrc = NULL;
-    data = FileSystem::OpenPath(textureName);
+    LPDIRECT3DTEXTURE8 textureSrc = NULL;
+    u8 *data = FileSystem::OpenPath(textureName);
 
     if (data == NULL)
     {
@@ -338,8 +335,8 @@ ZunResult AnmManager::LoadAnm(i32 anmIdx, const char *path, i32 spriteIdxOffset)
         loadedSprite.startPixelInclusive.y = rawSprite->offset.y;
         loadedSprite.endPixelInclusive.x = rawSprite->offset.x + rawSprite->size.x;
         loadedSprite.endPixelInclusive.y = rawSprite->offset.y + rawSprite->size.y;
-        loadedSprite.textureWidth = (float)anm->width;
-        loadedSprite.textureHeight = (float)anm->height;
+        loadedSprite.textureWidth = anm->width;
+        loadedSprite.textureHeight = anm->height;
         this->LoadSprite(rawSprite->id + spriteIdxOffset, &loadedSprite);
     }
 
@@ -390,7 +387,6 @@ void AnmManager::ReleaseAnm(i32 anmIdx)
 void AnmManager::ReleaseTexture(i32 textureIdx)
 {
     SAFE_RELEASE(this->textures[textureIdx]);
-
     ZUN_FREE(this->imageDataArray[textureIdx]);
     this->imageDataArray[textureIdx] = NULL;
 }
@@ -602,9 +598,6 @@ ZunResult AnmManager::DrawInner(AnmVm *vm, ZunBool roundVertices)
 
 ZunResult AnmManager::DrawNoRotation(AnmVm *vm)
 {
-    float fVar2;
-    float fVar3;
-
     if (!vm->flags.isVisible)
     {
         return ZUN_ERROR;
@@ -613,12 +606,12 @@ ZunResult AnmManager::DrawNoRotation(AnmVm *vm)
     {
         return ZUN_ERROR;
     }
-    if (vm->color == 0)
+    if (vm->color == COLOR_NONE)
     {
         return ZUN_ERROR;
     }
-    fVar2 = (vm->sprite->widthPx * vm->scaleX) / 2.0f;
-    fVar3 = (vm->sprite->heightPx * vm->scaleY) / 2.0f;
+    float fVar2 = vm->sprite->widthPx * vm->scaleX / 2.0f;
+    float fVar3 = vm->sprite->heightPx * vm->scaleY / 2.0f;
     if (!(vm->flags.anchor & AnmVmAnchor_Left))
     {
         g_PrimitivesToDrawVertexBuf[0].position.x = g_PrimitivesToDrawVertexBuf[2].position.x = vm->pos.x - fVar2;
@@ -674,7 +667,7 @@ ZunResult AnmManager::Draw(AnmVm *vm)
     {
         return ZUN_ERROR;
     }
-    if (vm->color == 0)
+    if (vm->color == COLOR_NONE)
     {
         return ZUN_ERROR;
     }
@@ -682,8 +675,8 @@ ZunResult AnmManager::Draw(AnmVm *vm)
     sincos(z, zSine, zCosine);
     xOffset = rintf(vm->pos.x);
     yOffset = rintf(vm->pos.y);
-    spriteXCenter = rintf((vm->sprite->widthPx * vm->scaleX) / 2.0f);
-    spriteYCenter = rintf((vm->sprite->heightPx * vm->scaleY) / 2.0f);
+    spriteXCenter = rintf(vm->sprite->widthPx * vm->scaleX / 2.0f);
+    spriteYCenter = rintf(vm->sprite->heightPx * vm->scaleY / 2.0f);
     this->TranslateRotation(&g_PrimitivesToDrawVertexBuf[0], -spriteXCenter - 0.5f, -spriteYCenter - 0.5f, zSine,
                             zCosine, xOffset, yOffset);
     this->TranslateRotation(&g_PrimitivesToDrawVertexBuf[1], spriteXCenter - 0.5f, -spriteYCenter - 0.5f, zSine,
@@ -713,9 +706,6 @@ ZunResult AnmManager::Draw(AnmVm *vm)
 
 ZunResult AnmManager::DrawFacingCamera(AnmVm *vm)
 {
-    f32 centerX;
-    f32 centerY;
-
     if (!vm->flags.isVisible)
     {
         return ZUN_ERROR;
@@ -724,13 +714,13 @@ ZunResult AnmManager::DrawFacingCamera(AnmVm *vm)
     {
         return ZUN_ERROR;
     }
-    if (vm->color == 0)
+    if (vm->color == COLOR_NONE)
     {
         return ZUN_ERROR;
     }
 
-    centerX = vm->sprite->widthPx * vm->scaleX / 2.0f;
-    centerY = vm->sprite->heightPx * vm->scaleY / 2.0f;
+    f32 centerX = vm->sprite->widthPx * vm->scaleX / 2.0f;
+    f32 centerY = vm->sprite->heightPx * vm->scaleY / 2.0f;
     if (!(vm->flags.anchor & AnmVmAnchor_Left))
     {
         g_PrimitivesToDrawVertexBuf[0].position.x = g_PrimitivesToDrawVertexBuf[2].position.x = vm->pos.x - centerX;
@@ -771,7 +761,7 @@ ZunResult AnmManager::Draw3(AnmVm *vm)
     {
         return ZUN_ERROR;
     }
-    if (vm->color == 0)
+    if (vm->color == COLOR_NONE)
     {
         return ZUN_ERROR;
     }
@@ -780,6 +770,7 @@ ZunResult AnmManager::Draw3(AnmVm *vm)
     worldTransformMatrix.m[0][0] *= vm->scaleX;
     worldTransformMatrix.m[1][1] *= -vm->scaleY;
 
+    // NOTE: These comparisons being doubles is not a typo
     if (vm->rotation.x != 0.0)
     {
         D3DXMatrixRotationX(&rotationMatrix, vm->rotation.x);
@@ -804,8 +795,7 @@ ZunResult AnmManager::Draw3(AnmVm *vm)
     }
     else
     {
-        float scaledXCenter = vm->sprite->widthPx * vm->scaleX / 2.0f;
-        worldTransformMatrix.m[3][0] = fabsf(scaledXCenter) + vm->pos.x;
+        worldTransformMatrix.m[3][0] = fabsf(vm->sprite->widthPx * vm->scaleX / 2.0f) + vm->pos.x;
     }
 
     if (!(vm->flags.anchor & AnmVmAnchor_Top))
@@ -814,8 +804,7 @@ ZunResult AnmManager::Draw3(AnmVm *vm)
     }
     else
     {
-        float scaledYCenter = vm->sprite->heightPx * vm->scaleY / 2.0f;
-        worldTransformMatrix.m[3][1] = -vm->pos.y - fabsf(scaledYCenter);
+        worldTransformMatrix.m[3][1] = -vm->pos.y - fabsf(vm->sprite->heightPx * vm->scaleY / 2.0f);
     }
 
     worldTransformMatrix.m[3][2] = vm->pos.z;
@@ -1209,11 +1198,11 @@ stop:
         }
         if (vm->flags.flip & AnmVmMirror_X)
         {
-            vm->scaleX = vm->scaleX * -1.0f;
+            vm->scaleX *= -1.0f;
         }
         if (vm->flags.flip & AnmVmMirror_Y)
         {
-            vm->scaleY = vm->scaleY * -1.0f;
+            vm->scaleY *= -1.0f;
         }
     }
     else
@@ -1302,76 +1291,69 @@ void AnmManager::DrawTextToSprite(u32 textureDstIdx, i32 xPos, i32 yPos, i32 spr
 {
     if (fontWidth <= 0)
     {
-        fontWidth = 15;
+        fontWidth = DEFAULT_ANM_FONT_SIZE;
     }
     if (fontHeight <= 0)
     {
-        fontHeight = 15;
+        fontHeight = DEFAULT_ANM_FONT_SIZE;
     }
     TextHelper::RenderTextToTexture(xPos, yPos, spriteWidth, spriteHeight, fontWidth, fontHeight, textColor,
                                     shadowColor, strToPrint, this->textures[textureDstIdx]);
 }
 
-#pragma var_order(argptr, buffer, fontWidth)
+#pragma var_order(args, buffer, fontWidth)
 void AnmManager::DrawVmTextFmt(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, const char *fmt, ...)
 {
-    u32 fontWidth;
     char buffer[64];
-    va_list argptr;
+    va_list args;
 
-    fontWidth = vm->fontWidth;
-    va_start(argptr, fmt);
-    vsprintf(buffer, fmt, argptr);
-    va_end(argptr);
+    i32 fontWidth = vm->fontWidth;
+    va_start(args, fmt);
+    vsprintf(buffer, fmt, args);
+    va_end(args);
     this->DrawTextToSprite(vm->sprite->sourceFileIndex, vm->sprite->startPixelInclusive.x,
                            vm->sprite->startPixelInclusive.y, vm->sprite->textureWidth, vm->sprite->textureHeight,
                            fontWidth, vm->fontHeight, textColor, shadowColor, buffer);
     vm->flags.isVisible = true;
 }
 
-#pragma var_order(args, secondPartStartX, buf, fontWidth)
+#pragma var_order(args, secondPartStartX, buffer, fontWidth)
 void AnmManager::DrawStringFormat(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, const char *fmt, ...)
 {
-    char buf[64];
+    char buffer[64];
     va_list args;
-    i32 fontWidth;
-    i32 secondPartStartX;
 
-    fontWidth = vm->fontWidth <= 0 ? 15 : vm->fontWidth;
+    i32 fontWidth = vm->fontWidth <= 0 ? DEFAULT_ANM_FONT_SIZE : vm->fontWidth;
     va_start(args, fmt);
-    vsprintf(buf, fmt, args);
+    vsprintf(buffer, fmt, args);
     va_end(args);
     this->DrawTextToSprite(vm->sprite->sourceFileIndex, vm->sprite->startPixelInclusive.x,
                            vm->sprite->startPixelInclusive.y, vm->sprite->textureWidth, vm->sprite->textureHeight,
                            fontWidth, vm->fontHeight, textColor, shadowColor, " ");
-    secondPartStartX =
-        vm->sprite->startPixelInclusive.x + vm->sprite->textureWidth - ((f32)strlen(buf) * (f32)(fontWidth + 1) / 2.0f);
+    i32 secondPartStartX = vm->sprite->startPixelInclusive.x + vm->sprite->textureWidth - ((f32)strlen(buffer) * (f32)(fontWidth + 1) / 2.0f);
     this->DrawTextToSprite(vm->sprite->sourceFileIndex, secondPartStartX, vm->sprite->startPixelInclusive.y,
                            vm->sprite->textureWidth, vm->sprite->textureHeight, fontWidth, vm->fontHeight, textColor,
-                           shadowColor, buf);
+                           shadowColor, buffer);
     vm->flags.isVisible = true;
 }
 
-#pragma var_order(args, secondPartStartX, buf, fontWidth)
+#pragma var_order(args, secondPartStartX, buffer, fontWidth)
 void AnmManager::DrawStringFormat2(AnmVm *vm, ZunColor textColor, ZunColor shadowColor, const char *fmt, ...)
 {
-    char buf[64];
+    char buffer[64];
     va_list args;
-    i32 fontWidth;
-    i32 secondPartStartX;
 
-    fontWidth = vm->fontWidth <= 0 ? 15 : vm->fontWidth;
+    i32 fontWidth = vm->fontWidth <= 0 ? DEFAULT_ANM_FONT_SIZE : vm->fontWidth;
     va_start(args, fmt);
-    vsprintf(buf, fmt, args);
+    vsprintf(buffer, fmt, args);
     va_end(args);
     this->DrawTextToSprite(vm->sprite->sourceFileIndex, vm->sprite->startPixelInclusive.x,
                            vm->sprite->startPixelInclusive.y, vm->sprite->textureWidth, vm->sprite->textureHeight,
                            fontWidth, vm->fontHeight, textColor, shadowColor, " ");
-    secondPartStartX = vm->sprite->startPixelInclusive.x + vm->sprite->textureWidth / 2.0f -
-                       ((f32)strlen(buf) * (f32)(fontWidth + 1) / 4.0f);
+    i32 secondPartStartX = vm->sprite->startPixelInclusive.x + vm->sprite->textureWidth / 2.0f - ((f32)strlen(buffer) * (f32)(fontWidth + 1) / 4.0f);
     this->DrawTextToSprite(vm->sprite->sourceFileIndex, secondPartStartX, vm->sprite->startPixelInclusive.y,
                            vm->sprite->textureWidth, vm->sprite->textureHeight, fontWidth, vm->fontHeight, textColor,
-                           shadowColor, buf);
+                           shadowColor, buffer);
     vm->flags.isVisible = true;
 }
 
@@ -1543,24 +1525,25 @@ void AnmManager::DrawEndingRect(i32 surfaceIdx, i32 rectX, i32 rectY, i32 rectLe
 #pragma var_order(rect, destSurface, sourceSurface)
 void AnmManager::TakeScreenshot(i32 textureId, i32 left, i32 top, i32 width, i32 height)
 {
-    LPDIRECT3DSURFACE8 sourceSurface;
-    LPDIRECT3DSURFACE8 destSurface;
-    RECT rect;
-
     if (this->textures[textureId] == NULL)
     {
         return;
     }
+
+    LPDIRECT3DSURFACE8 sourceSurface;
     if (g_Supervisor.d3dDevice->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &sourceSurface) != D3D_OK)
     {
         return;
     }
+
+    LPDIRECT3DSURFACE8 destSurface;
     if (this->textures[textureId]->GetSurfaceLevel(0, &destSurface) != D3D_OK)
     {
         sourceSurface->Release();
         return;
     }
 
+    RECT rect;
     rect.left = left;
     rect.top = top;
     rect.right = left + width;

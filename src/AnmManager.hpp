@@ -1,5 +1,4 @@
 #pragma once
-
 #include <d3d8.h>
 #include <d3dx8math.h>
 
@@ -7,8 +6,7 @@
 #include "AnmVm.hpp"
 #include "GameManager.hpp"
 #include "ZunResult.hpp"
-#include "diffbuild.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 
 namespace th06
 {
@@ -19,6 +17,7 @@ struct VertexDiffuseXyzrwh
     float position_w;
     D3DCOLOR diffuse;
 };
+ZUN_ASSERT_TYPE(VertexDiffuseXyzrwh, 0x14, 4);
 
 // Structure of a vertex with SetVertexShade FVF set to D3DFVF_TEX1 | D3DFVF_XYZRHW
 struct VertexTex1Xyzrwh
@@ -26,6 +25,7 @@ struct VertexTex1Xyzrwh
     D3DXVECTOR4 position;
     D3DXVECTOR2 textureUV;
 };
+ZUN_ASSERT_TYPE(VertexTex1Xyzrwh, 0x18, 4);
 
 // Structure of a vertex with SetVertexShade FVF set to D3DFVF_TEX1 | D3DFVF_DIFFUSE | D3DFVF_XYZRHW
 struct VertexTex1DiffuseXyzrwh
@@ -34,6 +34,7 @@ struct VertexTex1DiffuseXyzrwh
     D3DCOLOR diffuse;
     D3DXVECTOR2 textureUV;
 };
+ZUN_ASSERT_TYPE(VertexTex1DiffuseXyzrwh, 0x1c, 4);
 
 // Structure of a vertex with SetVertexShade FVF set to D3DFVF_TEX1 | D3DFVF_DIFFUSE | D3DFVF_XYZ
 struct VertexTex1DiffuseXyz
@@ -42,6 +43,7 @@ struct VertexTex1DiffuseXyz
     D3DCOLOR diffuse;
     D3DXVECTOR2 textureUV;
 };
+ZUN_ASSERT_TYPE(VertexTex1DiffuseXyz, 0x18, 4);
 
 struct AnmRawSprite
 {
@@ -49,12 +51,14 @@ struct AnmRawSprite
     D3DXVECTOR2 offset;
     D3DXVECTOR2 size;
 };
+ZUN_ASSERT_TYPE(AnmRawSprite, 0x14, 4);
 
 struct AnmRawScript
 {
     u32 id;
     AnmRawInstr *firstInstruction;
 };
+ZUN_ASSERT_TYPE(AnmRawScript, 8, 4);
 
 struct AnmRawEntry
 {
@@ -69,22 +73,22 @@ struct AnmRawEntry
     u32 spriteIdxOffset;
     u32 mipmapNameOffset;
     u32 version;
-    u32 unk1;
+    unreferenced_fields(0x4);
     u32 textureOffset;
     u32 hasData;
     u32 nextOffset;
-    u32 unk2;
+    unreferenced_fields(0x4);
     u32 spriteOffsets[10];
     AnmRawScript scripts[10];
 };
-ZUN_ASSERT_SIZE(AnmRawEntry, 0xb8);
+ZUN_ASSERT_TYPE(AnmRawEntry, 0xb8, 4);
 
 struct RenderVertexInfo
 {
     D3DXVECTOR3 position;
     D3DXVECTOR2 textureUV;
 };
-ZUN_ASSERT_SIZE(RenderVertexInfo, 0x14);
+ZUN_ASSERT_TYPE(RenderVertexInfo, 0x14, 4);
 
 #define MAX_ANM_SCRIPTS 2048
 #define MAX_ANM_SPRITES 2048
@@ -221,8 +225,7 @@ struct AnmManager
         vm->anmFileIndex = anmFileIdx;
         vm->pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
         vm->posOffset = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-        vm->fontHeight = 15;
-        vm->fontWidth = 15;
+        vm->fontWidth = vm->fontHeight = DEFAULT_ANM_FONT_SIZE;
 
         this->SetAndExecuteScript(vm, this->scripts[anmFileIdx]);
     }
@@ -265,7 +268,7 @@ struct AnmManager
     i32 screenshotWidth;
     i32 screenshotHeight;
 };
-ZUN_ASSERT_SIZE(AnmManager, 0x2112c);
+ZUN_ASSERT_TYPE(AnmManager, 0x2112c, 4);
 
 DIFFABLE_EXTERN(AnmManager *, g_AnmManager);
 DIFFABLE_EXTERN(const D3DFORMAT, g_TextureFormatD3D8Mapping[6]);

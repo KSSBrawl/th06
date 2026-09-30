@@ -1,7 +1,7 @@
 #include "AnmIdx.hpp"
 #include "Player.hpp"
 #include "SoundPlayer.hpp"
-#include "diffbuild.hpp"
+#include "decomp.hpp"
 
 namespace th06
 {

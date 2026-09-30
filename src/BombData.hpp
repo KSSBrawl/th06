@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Player.hpp"
 
 namespace th06

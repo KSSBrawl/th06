@@ -30,7 +30,7 @@ struct DifficultyInfo
     u32 minRank;
     u32 maxRank;
 };
-ZUN_ASSERT_SIZE(DifficultyInfo, 0xc);
+ZUN_ASSERT_TYPE(DifficultyInfo, 0xc, 4);
 
 DIFFABLE_STATIC_SORTED(H1, GameManager, g_GameManager);
 DIFFABLE_STATIC_SORTED(H2, ChainElem, g_GameManagerCalcChain);

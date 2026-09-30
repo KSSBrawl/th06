@@ -8,6 +8,9 @@
 
 namespace th06
 {
+FILE_BSS_SORT(R1);
+
+DIFFABLE_STATIC(ScreenEffect, g_ScreenEffect); // UNUSED FOREVER
 
 void ScreenEffect::Clear(D3DCOLOR color)
 {

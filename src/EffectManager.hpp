@@ -1,10 +1,9 @@
 #pragma once
-
 #include "Chain.hpp"
 #include "Effect.hpp"
 #include "ZunColor.hpp"
 #include "ZunResult.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 
 namespace th06
 {
@@ -52,18 +51,18 @@ struct EffectManager
     static ZunResult AddedCallback(EffectManager *mgr);
     static ZunResult DeletedCallback(EffectManager *mgr);
 
-    static i32 EffectCallbackRandomSplash(Effect *);
-    static i32 EffectCallbackRandomSplashBig(Effect *);
-    static i32 EffectCallbackStill(Effect *);
-    static i32 EffectUpdateCallback4(Effect *);
-    static i32 EffectCallbackAttract(Effect *);
-    static i32 EffectCallbackAttractSlow(Effect *);
+    static EffectCallbackResult EffectCallbackRandomSplash(Effect *);
+    static EffectCallbackResult EffectCallbackRandomSplashBig(Effect *);
+    static EffectCallbackResult EffectCallbackStill(Effect *);
+    static EffectCallbackResult EffectUpdateCallback4(Effect *);
+    static EffectCallbackResult EffectCallbackAttract(Effect *);
+    static EffectCallbackResult EffectCallbackAttractSlow(Effect *);
 
     static ChainCallbackResult OnDraw(EffectManager *mgr);
     void Reset();
     Effect *SpawnParticles(i32 effectIdx, D3DXVECTOR3 *pos, i32 count, ZunColor color);
 };
-ZUN_ASSERT_SIZE(EffectManager, 0x2f984);
+ZUN_ASSERT_TYPE(EffectManager, 0x2f984, 4);
 
 DIFFABLE_EXTERN(EffectManager, g_EffectManager);
 } // namespace th06

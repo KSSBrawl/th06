@@ -1063,9 +1063,7 @@ namespace utils
 {
 f32 AddNormalizeAngle(f32 a, f32 b)
 {
-    i32 i;
-
-    i = 0;
+    i32 i = 0;
     a += b;
     while (a > ZUN_PI)
     {
@@ -1085,11 +1083,8 @@ f32 AddNormalizeAngle(f32 a, f32 b)
 #pragma var_order(sinOut, cosOut)
 void Rotate(D3DXVECTOR3 *outVector, D3DXVECTOR3 *point, f32 angle)
 {
-    f32 sinOut;
-    f32 cosOut;
-
-    sinOut = sinf(angle);
-    cosOut = cosf(angle);
+    f32 sinOut = sinf(angle);
+    f32 cosOut = cosf(angle);
     outVector->x = cosOut * point->x + sinOut * point->y;
     outVector->y = cosOut * point->y - sinOut * point->x;
 }

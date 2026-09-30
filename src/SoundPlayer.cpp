@@ -7,13 +7,14 @@
 
 namespace th06
 {
+FILE_BSS_SORT(S1);
 
 #define BACKGROUND_MUSIC_BUFFER_SIZE 0x8000
 #define BACKGROUND_MUSIC_WAV_NUM_CHANNELS 2
 #define BACKGROUND_MUSIC_WAV_BITS_PER_SAMPLE 16
 #define BACKGROUND_MUSIC_WAV_BLOCK_ALIGN BACKGROUND_MUSIC_WAV_BITS_PER_SAMPLE / 8 * BACKGROUND_MUSIC_WAV_NUM_CHANNELS
 
-DIFFABLE_STATIC_ARRAY_ASSIGN(SoundBufferIdxVolume, 32, g_SoundBufferIdxVol) = {
+DIFFABLE_STATIC_ARRAY_ASSIGN(SoundEffectData, 32, g_SoundBufferIdxVol) = {
     {0, -1500, 0},   {0, -2000, 0},   {1, -1200, 5},   {1, -1400, 5},  {2, -1000, 100}, {3, -500, 100},
     {4, -500, 100},  {5, -1700, 50},  {6, -1700, 50},  {7, -1700, 50}, {8, -1000, 100}, {9, -1000, 100},
     {10, -1900, 10}, {11, -1200, 10}, {12, -900, 100}, {5, -1500, 50}, {13, -900, 50},  {14, -900, 50},
@@ -31,14 +32,7 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(const char *, 26, g_SFXList) = {
     "data/wav/graze.wav",  "data/wav/powerup.wav",
 };
 
-struct UnknownSoundThing
-{
-    u8 unknownA[0x24];
-    ZunTimer idk;
-};
-
-DIFFABLE_STATIC_SORTED(R1, UnknownSoundThing, g_UnknownSoundThing);
-DIFFABLE_STATIC_SORTED(R2, SoundPlayer, g_SoundPlayer);
+DIFFABLE_STATIC(SoundPlayer, g_SoundPlayer);
 
 #pragma var_order(bufDesc, audioBuffer2Start, audioBuffer2Len, audioBuffer1Len, audioBuffer1Start, wavFormat)
 ZunResult SoundPlayer::InitializeDSound(HWND gameWindow)
@@ -101,7 +95,7 @@ ZunResult SoundPlayer::Release(void)
     {
         return ZUN_SUCCESS;
     }
-    for (i = 0; i < ARRAY_SIZE_SIGNED(this->soundBuffers); i++)
+    for (i = 0; i < SOUND_EFFECT_COUNT; i++)
     {
         SAFE_RELEASE(this->duplicateSoundBuffers[i]);
         SAFE_RELEASE(this->soundBuffers[i]);

@@ -8,7 +8,7 @@
 #include "Global.hpp"
 #include "Gui.hpp"
 #include "Player.hpp"
-#include "diffbuild.hpp"
+#include "decomp.hpp"
 
 namespace th06
 {
@@ -43,7 +43,7 @@ void EnemyManager::Initialize()
         enemy->vms[i].anmFileIndex = -1;
     }
     enemy->flags.isSlotOccupied = true;
-    enemy->bossTimer = 0;
+    enemy->phaseTimer = 0;
     enemy->flags.isInteractable = true;
     enemy->flags.isCollidable = true;
     enemy->flags.hasBeenInBounds = false;
@@ -133,7 +133,7 @@ void Enemy::ResetEffectArray(Enemy *enemy)
         {
             continue;
         }
-        enemy->effectArray[idx]->unk_17a = 1;
+        enemy->effectArray[idx]->flag_17a = true;
         enemy->effectArray[idx] = NULL;
     }
     enemy->effectIdx = 0;
@@ -381,10 +381,10 @@ ZunBool Enemy::HandleTimerCallback()
 
     if (this->flags.isBoss)
     {
-        g_Gui.SetSpellcardSeconds((this->timerCallbackThreshold - this->bossTimer) / 60);
+        g_Gui.SetSpellcardSeconds((this->timerCallbackThreshold - this->phaseTimer) / 60);
     }
 
-    if (this->HasBossTimerFinished())
+    if (this->HasPhaseTimerFinished())
     {
         if (this->lifeCallbackThreshold > 0)
         {
@@ -394,7 +394,7 @@ ZunBool Enemy::HandleTimerCallback()
         g_EclManager.CallEclSub(&this->currentContext, this->timerCallbackSub);
         this->timerCallbackThreshold = -1;
         this->timerCallbackSub = this->deathCallbackSub;
-        this->bossTimer = 0;
+        this->phaseTimer = 0;
         if (!this->flags.isTimeoutSpell)
         {
             g_EnemyManager.spellcardInfo.isCapturing = false;
@@ -725,7 +725,7 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
         Enemy::UpdateEffects(curEnemy);
         if (!g_GameManager.isTimeStopped)
         {
-            curEnemy->bossTimer++;
+            curEnemy->phaseTimer++;
         }
     }
     mgr->timelineTime++;
@@ -747,12 +747,12 @@ void Enemy::UpdateEffects(Enemy *enemy)
         }
 
         effect->position = enemy->position;
-        if (effect->unk_15c < enemy->effectDistance)
+        if (effect->distance < enemy->effectDistance)
         {
-            effect->unk_15c += 0.3f;
+            effect->distance += 0.3f;
         }
 
-        effect->angleRelated = utils::AddNormalizeAngle(effect->angleRelated, ZUN_PI / 100);
+        effect->angleRelated = utils::AddNormalizeAngle(effect->angleRelated, ZUN_PI / 100.0f);
     }
 }
 

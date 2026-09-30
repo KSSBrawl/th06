@@ -1,7 +1,5 @@
 #pragma once
-
-#include "diffbuild.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 #include "pbg3/Pbg3Parser.hpp"
 
 namespace th06

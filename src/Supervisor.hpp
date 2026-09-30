@@ -1,5 +1,4 @@
 #pragma once
-
 #include <d3d8.h>
 #include <d3dx8math.h>
 #include <dinput.h>
@@ -9,8 +8,7 @@
 #include "MidiOutput.hpp"
 #include "ZunBool.hpp"
 #include "ZunResult.hpp"
-#include "diffbuild.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 #include "pbg3/Pbg3Archive.hpp"
 
 namespace th06
@@ -31,7 +29,9 @@ struct GameConfigOpts
     u32 referenceRasterizerMode : 1;
     u32 disableFog : 1;
     u32 dontUseDirectInput : 1;
+    alignment_bitfields(u32, 20);
 };
+ZUN_ASSERT_TYPE(GameConfigOpts, 0x4, 4);
 
 enum MusicMode
 {
@@ -56,11 +56,11 @@ struct GameConfiguration
     u8 frameskipConfig;
     i16 padXAxis;
     i16 padYAxis;
-    i8 unk[16];
+    unreferenced_fields(0x10);
     // GameConfigOpts bitfield.
     GameConfigOpts opts;
 };
-ZUN_ASSERT_SIZE(GameConfiguration, 0x38);
+ZUN_ASSERT_TYPE(GameConfiguration, 0x38, 4);
 
 #define IN_PBG3_INDEX 0
 #define MD_PBG3_INDEX 1
@@ -100,7 +100,7 @@ struct Supervisor
     static void DrawFpsCounter();
 
     ZunBool ReadMidiFile(u32 midiFileIdx, const char *path);
-    i32 PlayMidiFile(i32 midiFileIdx);
+    ZunBool PlayMidiFile(i32 midiFileIdx);
     ZunResult PlayAudio(const char *path);
     ZunResult StopAudio();
     ZunResult SetupMidiPlayback(const char *path);
@@ -218,9 +218,9 @@ struct Supervisor
     i32 calcCount;
     i32 wantedState;
     i32 curState;
-    i32 wantedState2;
+    i32 prevState;
 
-    i32 unk194;
+    unreferenced_fields(0x4);
     i32 unk198;
     ZunBool isInEnding;
 
@@ -240,6 +240,7 @@ struct Supervisor
     u8 hasD3dHardwareVertexProcessing;
     u8 lockableBackbuffer;
     u8 colorMode16Bits;
+    alignment_padding(0x1);
 
     u32 startupTimeBeforeMenuMusic;
     D3DCAPS8 d3dCaps;

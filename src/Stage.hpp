@@ -1,9 +1,7 @@
 #pragma once
-
 #include "AnmVm.hpp"
 #include "Chain.hpp"
-#include "diffbuild.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 #include "zwave.hpp"
 #include <d3d8.h>
 #include <d3dx8math.h>
@@ -16,12 +14,12 @@ struct RawStageHeader
     i16 nbFaces;
     i32 facesOffset;
     i32 scriptOffset;
-    i32 unk_c;
+    unreferenced_fields(0x4);
     char stageName[128];
     char songNames[4][128];
     char songPaths[4][128];
 };
-ZUN_ASSERT_SIZE(RawStageHeader, 0x490);
+ZUN_ASSERT_TYPE(RawStageHeader, 0x490, 4);
 
 struct RawStageQuadBasic
 {
@@ -32,7 +30,7 @@ struct RawStageQuadBasic
     D3DXVECTOR3 position;
     D3DXVECTOR2 size;
 };
-ZUN_ASSERT_SIZE(RawStageQuadBasic, 0x1c);
+ZUN_ASSERT_TYPE(RawStageQuadBasic, 0x1c, 4);
 
 struct RawStageObject
 {
@@ -43,15 +41,15 @@ struct RawStageObject
     D3DXVECTOR3 size;
     RawStageQuadBasic firstQuad;
 };
-ZUN_ASSERT_SIZE(RawStageObject, 0x38);
+ZUN_ASSERT_TYPE(RawStageObject, 0x38, 4);
 
 struct RawStageObjectInstance
 {
     i16 id;
-    i16 unk2;
+    alignment_padding(0x2);
     D3DXVECTOR3 position;
 };
-ZUN_ASSERT_SIZE(RawStageObjectInstance, 0x10);
+ZUN_ASSERT_TYPE(RawStageObjectInstance, 0x10, 4);
 
 struct RawStageInstr
 {
@@ -60,7 +58,7 @@ struct RawStageInstr
     i16 size;
     i32 args[3];
 };
-ZUN_ASSERT_SIZE(RawStageInstr, 0x14);
+ZUN_ASSERT_TYPE(RawStageInstr, 0x14, 4);
 
 struct StageCameraSky
 {
@@ -68,7 +66,7 @@ struct StageCameraSky
     f32 farPlane;
     D3DCOLOR color;
 };
-ZUN_ASSERT_SIZE(StageCameraSky, 0xc);
+ZUN_ASSERT_TYPE(StageCameraSky, 0xc, 4);
 
 enum SpellcardState
 {
@@ -82,7 +80,7 @@ struct StageFile
     const char *anmFile;
     const char *stdFile;
 };
-ZUN_ASSERT_SIZE(StageFile, 0x8);
+ZUN_ASSERT_TYPE(StageFile, 0x8, 4);
 
 enum StageOpcode
 {
@@ -126,11 +124,13 @@ struct Stage
     i32 skyFogInterpDuration;
     ZunTimer skyFogInterpTimer;
     i8 skyFogNeedsSetup;
+    alignment_padding(0x3);
     SpellcardState spellcardState;
     i32 ticksSinceSpellcardStarted;
     AnmVm spellcardBackground;
-    AnmVm unk2;
+    unused_field(AnmVm);
     u8 unpauseFlag;
+    alignment_padding(0x3);
     D3DXVECTOR3 facingDirInterpInitial;
     D3DXVECTOR3 facingDirInterpFinal;
     i32 facingDirInterpDuration;
@@ -140,7 +140,7 @@ struct Stage
     D3DXVECTOR3 positionInterpInitial;
     i32 positionInterpStartTime;
 };
-ZUN_ASSERT_SIZE(Stage, 0x2f4);
+ZUN_ASSERT_TYPE(Stage, 0x2f4, 4);
 
 DIFFABLE_EXTERN(Stage, g_Stage);
 } // namespace th06

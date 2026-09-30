@@ -1,6 +1,5 @@
 #pragma once
-
-#include "inttypes.hpp"
+#include "decomp.hpp"
 
 namespace th06
 {
@@ -8,8 +7,9 @@ struct ReplayDataInput
 {
     i32 frameNum;
     u16 inputKey;
-    u16 padding;
+    alignment_padding(0x2);
 };
+ZUN_ASSERT_TYPE(ReplayDataInput, 0x8, 4);
 
 struct StageReplayData
 {
@@ -21,10 +21,10 @@ struct StageReplayData
     i8 bombsRemaining;
     u8 rank;
     i8 powerItemCountForScore;
-    i8 padding[3];
+    alignment_padding(0x3);
     ReplayDataInput replayInputs[53998];
 };
-ZUN_ASSERT_SIZE(StageReplayData, 0x69780);
+ZUN_ASSERT_TYPE(StageReplayData, 0x69780, 4);
 
 struct ReplayData
 {
@@ -39,11 +39,12 @@ struct ReplayData
     i8 rngValue3;
     char date[9];
     char name[8];
+    alignment_padding(0x3);
     i32 score;
     f32 slowdownRate2;
     f32 slowdownRate;
     f32 slowdownRate3;
     StageReplayData *stageReplayData[7];
 };
-ZUN_ASSERT_SIZE(ReplayData, 0x50);
+ZUN_ASSERT_TYPE(ReplayData, 0x50, 4);
 } // namespace th06

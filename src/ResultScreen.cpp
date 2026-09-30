@@ -68,8 +68,8 @@ struct ResultScreen
     i32 lastSpellcardSelected;
     i32 diffSelected;
     i32 cheatCodeStep;
-    char replayName[8];
-    i32 unk_3c;
+    char replayName[9];
+    alignment_padding(0x3);
     AnmVm unk_40[38];
     AnmVm unk_28a0[16];
     AnmVm unk_39a0;
@@ -82,7 +82,7 @@ struct ResultScreen
     ReplayData replays[NORMAL_REPLAY_COUNT];
     ReplayData defaultReplay;
 };
-ZUN_ASSERT_SIZE(ResultScreen, 0x56b0);
+ZUN_ASSERT_TYPE(ResultScreen, 0x56b0, 4);
 
 DIFFABLE_STATIC_ASSIGN(const char *, g_AlphabetList) = TH_KEYBOARD;
 
@@ -463,7 +463,7 @@ void ResultScreen::WriteScore(ResultScreen *resultScreen)
                     scoreNode->data->base.unkLen = sizeof(Hscr);
                     scoreNode->data->base.th6kLen = sizeof(Hscr);
                     scoreNode->data->base.version = TH6K_VERSION;
-                    scoreNode->data->base.unk_9 = 0;
+                    scoreNode->data->base.flag_9 = false;
                     memcpy(fileBuffer + sizeOfFile, scoreNode->data, sizeof(Hscr));
                     sizeOfFile += sizeof(Hscr);
                 }
@@ -523,7 +523,7 @@ void ResultScreen::WriteScore(ResultScreen *resultScreen)
     sd->csum = 0;
 
     sd->xorseed[1] = g_Rng.GetRandomU16InRange(0x100);
-    sd->unk[0] = g_Rng.GetRandomU16InRange(0x100);
+    sd->unk_9 = g_Rng.GetRandomU16InRange(0x100);
     sd->unk_8 = 0x10;
 
     for (remainingSize = 4; remainingSize < sizeOfFile; remainingSize++)
@@ -608,7 +608,7 @@ i32 ResultScreen::HandleResultKeyboard()
             this->hscr.stage = 99;
         }
 
-        this->hscr.base.unk_9 = 1;
+        this->hscr.base.flag_9 = true;
         strcpy(this->hscr.name, "        ");
 
         if (this->LinkScoreEx(&this->hscr, this->diffSelected,
@@ -1765,9 +1765,9 @@ ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
                 {
                     if (g_GameManager.shotType == SHOT_TYPE_A)
                     {
-                        if (ShootScoreListNodeA->data->base.unk_9 != 0)
+                        if (ShootScoreListNodeA->data->base.flag_9)
                         {
-                            g_AsciiManager.color = 0xfff0f0ff;
+                            g_AsciiManager.color = COLOR_BARELY_BLUE;
 
                             // Yes, this seems to be required to match. No, I don't like it either
                             *(u32 *)&name[0] = *(u32 *)"    ";
@@ -1779,7 +1779,7 @@ ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
                         }
                         else
                         {
-                            g_AsciiManager.color = 0x80ffffc0;
+                            g_AsciiManager.color = COLOR_SET_ALPHA(COLOR_PASTEL_YELLOW, 0x80);
                         }
                     }
                     else
@@ -1814,9 +1814,9 @@ ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
                 {
                     if (g_GameManager.shotType == SHOT_TYPE_B)
                     {
-                        if (ShootScoreListNodeB->data->base.unk_9 != 0)
+                        if (ShootScoreListNodeB->data->base.flag_9)
                         {
-                            g_AsciiManager.color = 0xfffff0f0;
+                            g_AsciiManager.color = COLOR_BARELY_RED;
 
                             *(u32 *)&name[0] = *(u32 *)"    ";
                             *(u32 *)&name[4] = *(u32 *)"    ";
@@ -1827,17 +1827,17 @@ ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
                         }
                         else
                         {
-                            g_AsciiManager.color = 0xc0c0c0ff;
+                            g_AsciiManager.color = COLOR_SET_ALPHA(COLOR_PASTEL_BLUE, 0xc0);
                         }
                     }
                     else
                     {
-                        g_AsciiManager.color = 0x80c0c0ff;
+                        g_AsciiManager.color = COLOR_SET_ALPHA(COLOR_PASTEL_BLUE, 0x80);
                     }
                 }
                 else
                 {
-                    g_AsciiManager.color = 0xffc0c0ff;
+                    g_AsciiManager.color = COLOR_PASTEL_BLUE;
                 }
                 if (ShootScoreListNodeB->data->stage <= 6)
                 {
@@ -1876,7 +1876,7 @@ ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
                 resultScreen->unk_28a0[row].pos = spritePos;
                 if (g_GameManager.catk[spellcardIdx].numAttempts == 0)
                 {
-                    g_AsciiManager.color = 0x80c0c0ff;
+                    g_AsciiManager.color = COLOR_SET_ALPHA(COLOR_PASTEL_BLUE, 0x80);
                 }
                 else if (g_GameManager.catk[spellcardIdx].numSuccess == 0)
                 {
@@ -1884,7 +1884,7 @@ ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
                 }
                 else
                 {
-                    g_AsciiManager.color = 0xfff0f0ff - row * 0x80800;
+                    g_AsciiManager.color = COLOR_BARELY_BLUE - row * 0x080800;
                 }
                 g_AsciiManager.AddFormatText(&spritePos, "No.%.2d", spellcardIdx + 1);
 
@@ -1914,7 +1914,7 @@ ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
                 charPos.x = 0.0f;
                 if (resultScreen->selectedCharacter == row * RESULT_KEYBOARD_COLUMNS + column)
                 {
-                    g_AsciiManager.color = COLOR_KEYBOARD_KEY_HIGHLIGHT;
+                    g_AsciiManager.color = COLOR_PASTEL_YELLOW;
                     if (resultScreen->frameTimer % 64 < 32)
                     {
                         charPos.y = 1.2f + 0.8f * (resultScreen->frameTimer % 32) / 32.0f;
@@ -1930,7 +1930,7 @@ ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
                 }
                 else
                 {
-                    g_AsciiManager.color = COLOR_KEYBOARD_KEY_NORMAL;
+                    g_AsciiManager.color = COLOR_SET_ALPHA(COLOR_LIGHT_GREY, 0x60);
                     g_AsciiManager.scale.x = 1.0f;
                     g_AsciiManager.scale.y = 1.0f;
                 }
@@ -1992,7 +1992,7 @@ ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
                                              resultScreen->defaultReplay.date,
                                              g_ShortCharacterList2[g_GameManager.CharacterShotType()],
                                              resultScreen->defaultReplay.score);
-                g_AsciiManager.color = 0xfff0f0ff;
+                g_AsciiManager.color = COLOR_BARELY_BLUE;
 
                 *(u32 *)&name[0] = *(u32 *)"    ";
                 *(u32 *)&name[4] = *(u32 *)"    ";
@@ -2074,8 +2074,8 @@ ZunResult ResultScreen::AddedCallback(ResultScreen *resultScreen)
 
             sprite->flags.anchor = AnmVmAnchor_TopLeft;
 
-            sprite->fontWidth = 15;
-            sprite->fontHeight = 15;
+            sprite->fontWidth = DEFAULT_ANM_FONT_SIZE;
+            sprite->fontHeight = DEFAULT_ANM_FONT_SIZE;
         }
     }
 
@@ -2092,7 +2092,7 @@ ZunResult ResultScreen::AddedCallback(ResultScreen *resultScreen)
                 resultScreen->defaultScore[i][shottype][slot].base.unkLen = sizeof(Hscr);
                 resultScreen->defaultScore[i][shottype][slot].base.th6kLen = sizeof(Hscr);
                 resultScreen->defaultScore[i][shottype][slot].stage = 1;
-                resultScreen->defaultScore[i][shottype][slot].base.unk_9 = 0;
+                resultScreen->defaultScore[i][shottype][slot].base.flag_9 = false;
 
                 resultScreen->LinkScoreEx(&resultScreen->defaultScore[i][shottype][slot], i, shottype);
 

@@ -1,10 +1,8 @@
 #pragma once
-
 #include "Supervisor.hpp"
 #include "ZunBool.hpp"
 #include "ZunResult.hpp"
-#include "diffbuild.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 
 namespace th06
 {
@@ -100,5 +98,5 @@ struct ZunTimer
         return this->current != this->previous;
     }
 };
-ZUN_ASSERT_SIZE(ZunTimer, 0xc);
+ZUN_ASSERT_TYPE(ZunTimer, 0xc, 4);
 } // namespace th06

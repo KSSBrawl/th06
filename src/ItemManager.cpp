@@ -63,7 +63,7 @@ void ItemManager::SpawnItem(D3DXVECTOR3 *position, ItemType itemType, i32 state)
         }
         g_AnmManager->SetAndExecuteScriptIdx(&item->sprite, ANM_SCRIPT_BULLET3_ITEMS_START + itemType);
         item->sprite.color = COLOR_WHITE;
-        item->unk_142 = 1;
+        item->flag_142 = true;
         return;
     }
 }
@@ -375,10 +375,10 @@ void ItemManager::OnDraw()
         if (curItem->currentPosition.y < -8.0f)
         {
             curItem->sprite.pos.y = 8.0f + g_GameManager.arcadeRegionTopLeftPos.y;
-            if (curItem->unk_142 != 0)
+            if (curItem->flag_142)
             {
                 g_AnmManager->SetActiveSprite(&curItem->sprite, curItem->itemType + 519);
-                curItem->unk_142 = 0;
+                curItem->flag_142 = false;
             }
             itemAlpha = 255 - (i32)(((8.0f - curItem->currentPosition.y) * 255.0f) / 128.0f);
             if (itemAlpha < 0x40)
@@ -389,10 +389,10 @@ void ItemManager::OnDraw()
         }
         else
         {
-            if (curItem->unk_142 == 0)
+            if (!curItem->flag_142)
             {
                 g_AnmManager->SetActiveSprite(&curItem->sprite, curItem->itemType + 512);
-                curItem->unk_142 = 1;
+                curItem->flag_142 = true;
                 curItem->sprite.color = COLOR_WHITE;
             }
         }

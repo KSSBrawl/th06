@@ -1,14 +1,14 @@
 #pragma once
-
 #include "Chain.hpp"
 #include "ChainPriorities.hpp"
 #include "ReplayData.hpp"
-#include "inttypes.hpp"
+#include "decomp.hpp"
 
 namespace th06
 {
 #define REPLAY_MAGIC "T6RP"
 
+// TODO: Move struct def into cpp file
 struct ReplayManager
 {
     static ZunResult RegisterChain(ZunBool isDemo, const char *replayFile);
@@ -27,21 +27,23 @@ struct ReplayManager
     {
     }
 
-    i32 IsDemo()
+    ZunBool IsDemo()
     {
         return this->isDemo;
     }
 
     i32 frameId;
     ReplayData *replayData;
-    i32 isDemo;
+    ZunBool isDemo;
     const char *replayFile;
-    u8 unk10[52];
+    unreferenced_fields(0x34);
     u16 unk44;
+    alignment_padding(0x2);
     ReplayDataInput *replayInputs;
     ReplayDataInput *replayInputStageBookmarks[7];
     ChainElem *calcChain;
     ChainElem *drawChain;
     ChainElem *calcChainDemoHighPrio;
 };
+ZUN_ASSERT_TYPE(ReplayManager, 0x74, 4);
 } // namespace th06
