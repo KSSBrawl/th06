@@ -374,7 +374,7 @@ ZunBool Player::CalcItemBoxCollision(D3DXVECTOR3 *itemCenter, D3DXVECTOR3 *itemS
     {
         return false;
     }
-    
+
     D3DXVECTOR3 itemTopLeft;
     D3DXVECTOR3 itemBottomRight;
 

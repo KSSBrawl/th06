@@ -66,10 +66,11 @@ struct GameManager
 
     ZunBool HasReachedMaxClears(i32 character, i32 shottype)
     {
-        return
-            this->clrd[shottype + character * SHOTTYPES_PER_CHARACTER].difficultyClearedWithRetries[1] == MAX_CLEARS ||
-            this->clrd[shottype + character * SHOTTYPES_PER_CHARACTER].difficultyClearedWithRetries[2] == MAX_CLEARS ||
-            this->clrd[shottype + character * SHOTTYPES_PER_CHARACTER].difficultyClearedWithRetries[3] == MAX_CLEARS;
+        return this->clrd[shottype + character * SHOTTYPES_PER_CHARACTER].difficultyClearedWithRetries[1] ==
+                   MAX_CLEARS ||
+               this->clrd[shottype + character * SHOTTYPES_PER_CHARACTER].difficultyClearedWithRetries[2] ==
+                   MAX_CLEARS ||
+               this->clrd[shottype + character * SHOTTYPES_PER_CHARACTER].difficultyClearedWithRetries[3] == MAX_CLEARS;
     }
     void IncreaseSubrank(i32 amount);
     void DecreaseSubrank(i32 amount);

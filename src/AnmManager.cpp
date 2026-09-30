@@ -1330,7 +1330,8 @@ void AnmManager::DrawStringFormat(AnmVm *vm, ZunColor textColor, ZunColor shadow
     this->DrawTextToSprite(vm->sprite->sourceFileIndex, vm->sprite->startPixelInclusive.x,
                            vm->sprite->startPixelInclusive.y, vm->sprite->textureWidth, vm->sprite->textureHeight,
                            fontWidth, vm->fontHeight, textColor, shadowColor, " ");
-    i32 secondPartStartX = vm->sprite->startPixelInclusive.x + vm->sprite->textureWidth - ((f32)strlen(buffer) * (f32)(fontWidth + 1) / 2.0f);
+    i32 secondPartStartX = vm->sprite->startPixelInclusive.x + vm->sprite->textureWidth -
+                           ((f32)strlen(buffer) * (f32)(fontWidth + 1) / 2.0f);
     this->DrawTextToSprite(vm->sprite->sourceFileIndex, secondPartStartX, vm->sprite->startPixelInclusive.y,
                            vm->sprite->textureWidth, vm->sprite->textureHeight, fontWidth, vm->fontHeight, textColor,
                            shadowColor, buffer);
@@ -1350,7 +1351,8 @@ void AnmManager::DrawStringFormat2(AnmVm *vm, ZunColor textColor, ZunColor shado
     this->DrawTextToSprite(vm->sprite->sourceFileIndex, vm->sprite->startPixelInclusive.x,
                            vm->sprite->startPixelInclusive.y, vm->sprite->textureWidth, vm->sprite->textureHeight,
                            fontWidth, vm->fontHeight, textColor, shadowColor, " ");
-    i32 secondPartStartX = vm->sprite->startPixelInclusive.x + vm->sprite->textureWidth / 2.0f - ((f32)strlen(buffer) * (f32)(fontWidth + 1) / 4.0f);
+    i32 secondPartStartX = vm->sprite->startPixelInclusive.x + vm->sprite->textureWidth / 2.0f -
+                           ((f32)strlen(buffer) * (f32)(fontWidth + 1) / 4.0f);
     this->DrawTextToSprite(vm->sprite->sourceFileIndex, secondPartStartX, vm->sprite->startPixelInclusive.y,
                            vm->sprite->textureWidth, vm->sprite->textureHeight, fontWidth, vm->fontHeight, textColor,
                            shadowColor, buffer);

@@ -14,8 +14,8 @@
 #include "SoundPlayer.hpp"
 #include "TextHelper.hpp"
 #include "ZunTimer.hpp"
-#include "i18n.hpp"
 #include "decomp.hpp"
+#include "i18n.hpp"
 
 #include <stdio.h>
 #include <string.h>
