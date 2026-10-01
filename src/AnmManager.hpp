@@ -78,7 +78,7 @@ struct AnmRawEntry
     u32 hasData;
     u32 nextOffset;
     unreferenced_fields(0x4);
-    u32 spriteOffsets[0];
+    u32 spriteOffsets[];
 };
 ZUN_ASSERT_TYPE(AnmRawEntry, 0x40, 4);
 
@@ -219,7 +219,7 @@ struct AnmManager
 
     void ReleaseAnm(i32 anmIdx);
     ZunResult LoadAnm(i32 anmIdx, const char *path, i32 spriteIdxOffset);
-    void AnmManager::ExecuteAnmIdx(AnmVm *vm, i32 anmFileIdx)
+    void ExecuteAnmIdx(AnmVm *vm, i32 anmFileIdx)
     {
         vm->anmFileIndex = anmFileIdx;
         vm->pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);

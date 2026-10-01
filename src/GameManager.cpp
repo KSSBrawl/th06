@@ -220,7 +220,7 @@ ZunResult GameManager::RegisterChain()
     return ZUN_SUCCESS;
 }
 
-#pragma var_order(failedToLoadReplay, catk, i, catkCursor, scoredat, clrdIdx)
+#pragma var_order(failedToLoadReplay, catk, i, catkCursor, scoredat, clrdIdx, pad)
 ZunResult GameManager::AddedCallback(GameManager *mgr)
 {
     static const char *g_EclFiles[] = {"dummy",
@@ -257,6 +257,11 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
         /* LUNATIC */ {16, 10, 32},
         /* EXTRA   */ {16, 14, 18},
     };
+
+    // TODO: Fake padding from g_AsciiManager.InitializeVms,
+    // but not currently known how to make that link correctly
+    // if is marked inline.
+    i32 pad[3];
 
     ScoreDat *scoredat;
     u32 clrdIdx;
@@ -459,6 +464,11 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
 
 ZunResult GameManager::DeletedCallback(GameManager *mgr)
 {
+    // TODO: Fake padding from g_AsciiManager.InitializeVms,
+    // but not currently known how to make that link correctly
+    // if is marked inline.
+    i32 pad[3];
+
     g_Supervisor.d3dDevice->ResourceManagerDiscardBytes(0);
     if (!g_GameManager.demoMode)
     {
