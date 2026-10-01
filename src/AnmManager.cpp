@@ -411,14 +411,14 @@ void AnmManager::LoadSprite(u32 spriteIdx, AnmLoadedSprite *sprite)
         this->sprites[spriteIdx].endPixelInclusive.y - this->sprites[spriteIdx].startPixelInclusive.y;
 }
 
-ZunResult AnmManager::SetActiveSprite(AnmVm *vm, u32 sprite_index)
+ZunResult AnmManager::SetActiveSprite(AnmVm *vm, i32 sprite_index)
 {
     if (this->sprites[sprite_index].sourceFileIndex < 0)
     {
         return ZUN_ERROR;
     }
 
-    vm->activeSpriteIndex = (i16)sprite_index;
+    vm->activeSpriteIndex = sprite_index;
     vm->sprite = this->sprites + sprite_index;
     D3DXMatrixIdentity(&vm->matrix);
     vm->matrix.m[0][0] = vm->sprite->widthPx / vm->sprite->textureWidth;

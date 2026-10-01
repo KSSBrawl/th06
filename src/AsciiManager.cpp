@@ -122,6 +122,24 @@ ZunResult AsciiManager::AddedCallback(AsciiManager *s)
     return ZUN_SUCCESS;
 }
 
+// TODO: Make this inline in the header somehow
+inline void AsciiManager::InitializeVms()
+{
+    memset(this, 0, sizeof(AsciiManager));
+
+    this->color = COLOR_WHITE;
+    this->scale.x = 1.0f;
+    this->scale.y = 1.0f;
+
+    this->vm1.flags.anchor = AnmVmAnchor_TopLeft;
+
+    g_AnmManager->InitializeAndSetSprite(&this->vm1, 0);
+    g_AnmManager->InitializeAndSetSprite(&this->vm0, 32);
+
+    this->vm1.pos.z = 0.1f;
+    this->isSelected = false;
+}
+
 ZunResult AsciiManager::DeletedCallback(AsciiManager *s)
 {
     g_AnmManager->ReleaseAnm(ANM_FILE_ASCII);
@@ -769,8 +787,6 @@ i32 StageMenu::OnUpdateRetryMenu()
 
 void StageMenu::OnDrawRetryMenu()
 {
-    i32 idx;
-
     if (g_GameManager.isInRetryMenu)
     {
         g_Supervisor.viewport.X = g_GameManager.arcadeRegionTopLeftPos.x;
@@ -791,7 +807,7 @@ void StageMenu::OnDrawRetryMenu()
                 &g_AnmManager->sprites[30 - g_GameManager.numRetries];
             g_AnmManager->DrawNoRotation(&this->menuSprites[RETRY_MENU_SPRITE_RETRIES_NUMBER]);
         }
-        for (idx = RETRY_MENU_SPRITES_START; idx < RETRY_MENU_SPRITES_END; idx++)
+        for (i32 idx = RETRY_MENU_SPRITES_START; idx < RETRY_MENU_SPRITES_END; idx++)
         {
             if (this->menuSprites[idx].flags.isVisible)
             {
@@ -805,12 +821,11 @@ void StageMenu::OnDrawRetryMenu()
 void AsciiManager::DrawPopupsWithHwVertexProcessing()
 {
     u8 *currentDigit;
-    AsciiManagerPopup *currentPopup;
     i32 i;
     i32 j;
     D3DXVECTOR3 unusedVec3;
 
-    currentPopup = this->popups;
+    AsciiManagerPopup *currentPopup = this->popups;
     g_Supervisor.viewport.X = g_GameManager.arcadeRegionTopLeftPos.x;
     g_Supervisor.viewport.Y = g_GameManager.arcadeRegionTopLeftPos.y;
     g_Supervisor.viewport.Width = g_GameManager.arcadeRegionSize.x;
@@ -855,12 +870,11 @@ void AsciiManager::DrawPopupsWithHwVertexProcessing()
 void AsciiManager::DrawPopupsWithoutHwVertexProcessing()
 {
     u8 *currentDigit;
-    AsciiManagerPopup *currentPopup;
     i32 i;
     i32 j;
     D3DXVECTOR3 unusedVec3;
 
-    currentPopup = this->popups;
+    AsciiManagerPopup *currentPopup = this->popups;
     g_Supervisor.viewport.X = g_GameManager.arcadeRegionTopLeftPos.x;
     g_Supervisor.viewport.Y = g_GameManager.arcadeRegionTopLeftPos.y;
     g_Supervisor.viewport.Width = g_GameManager.arcadeRegionSize.x;
