@@ -135,7 +135,7 @@ struct AnmManager
         this->SetAndExecuteScript(vm, this->scripts[anmFileIdx]);
     }
 
-    void InitializeAndSetSprite(AnmVm *vm, u32 spriteIdx)
+    void InitializeAndSetSprite(AnmVm *vm, i32 spriteIdx)
     {
         vm->Initialize();
         this->SetActiveSprite(vm, spriteIdx);
@@ -207,7 +207,7 @@ struct AnmManager
     ZunResult Draw3(AnmVm *vm);
 
     void LoadSprite(u32 spriteIdx, AnmLoadedSprite *sprite);
-    ZunResult SetActiveSprite(AnmVm *vm, u32 spriteIdx);
+    ZunResult SetActiveSprite(AnmVm *vm, i32 spriteIdx);
 
     ZunResult LoadSurface(i32 surfaceIdx, const char *path);
     void ReleaseSurface(i32 surfaceIdx);
