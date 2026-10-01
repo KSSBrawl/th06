@@ -199,9 +199,7 @@ ZunResult GameManager::RegisterChain()
 {
     GameManager *mgr = &g_GameManager;
 
-    g_GameManagerCalcChain.callback = (ChainCallback)GameManager::OnUpdate;
-    g_GameManagerCalcChain.addedCallback = NULL;
-    g_GameManagerCalcChain.deletedCallback = NULL;
+    g_GameManagerCalcChain.SetCallback((ChainCallback)GameManager::OnUpdate);
     g_GameManagerCalcChain.addedCallback = (ChainAddedCallback)GameManager::AddedCallback;
     g_GameManagerCalcChain.deletedCallback = (ChainDeletedCallback)GameManager::DeletedCallback;
     g_GameManagerCalcChain.arg = mgr;
@@ -212,9 +210,7 @@ ZunResult GameManager::RegisterChain()
     {
         return ZUN_ERROR;
     }
-    g_GameManagerDrawChain.callback = (ChainCallback)GameManager::OnDraw;
-    g_GameManagerDrawChain.addedCallback = NULL;
-    g_GameManagerDrawChain.deletedCallback = NULL;
+    g_GameManagerDrawChain.SetCallback((ChainCallback)GameManager::OnDraw);
     g_GameManagerDrawChain.arg = mgr;
     g_Chain.AddToDrawChain(&g_GameManagerDrawChain, TH_CHAIN_PRIO_DRAW_GAMEMANAGER);
     return ZUN_SUCCESS;

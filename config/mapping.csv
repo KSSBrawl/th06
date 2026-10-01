@@ -96,7 +96,7 @@ th06::Ending::ReadEndFileParameter,0x40f4d0,0x73,__thiscall,,i32,Ending*
 th06::Ending::FadingEffect,0x40f550,0x254,__thiscall,,void,Ending*
 th06::Ending::ParseEndFile,0x40f7c0,0xe23,__thiscall,,ZunResult,Ending*
 th06::Ending::LoadEnding,0x4106d0,0xdd,__thiscall,,ZunResult,Ending*,char*
-th06::Ending::RegisterChain,0x4107b0,0xf5,default,,ZunResult
+th06::Ending_RegisterChain,0x4107b0,0xf5,default,,ZunResult
 th06::Ending::Ending,0x4108b0,0x10f,__thiscall,,Ending*,Ending*
 th06::Ending::OnUpdate,0x4109c0,0xaa,default,,ChainCallbackResult,Ending*
 th06::Ending::OnDraw,0x410a70,0x96,default,,ChainCallbackResult,Ending*
@@ -398,7 +398,7 @@ th06::AnmManager::LoadAnm,0x431dc0,0x270,__thiscall,,ZunResult,AnmManager*,i32,c
 th06::AnmManager::ReleaseAnm,0x432030,0x1a2,__thiscall,,void,AnmManager*,i32
 th06::AnmManager::ReleaseTexture,0x4321e0,0x7d,__thiscall,,void,AnmManager*,i32
 th06::AnmManager::LoadSprite,0x432260,0x13b,__thiscall,,void,AnmManager*,u32,AnmLoadedSprite*
-th06::AnmManager::SetActiveSprite,0x4323a0,0x90,__thiscall,,ZunResult,AnmManager*,AnmVm*,u32
+th06::AnmManager::SetActiveSprite,0x4323a0,0x90,__thiscall,,ZunResult,AnmManager*,AnmVm*,i32
 th06::AnmManager::SetAndExecuteScript,0x432430,0x97,__thiscall,,void,AnmManager*,AnmVm*,AnmRawInstr*
 th06::AnmManager::SetRenderStateForVm,0x4324d0,0x256,__thiscall,,void,AnmManager*,AnmVm*
 th06::AnmManager::DrawInner,0x432730,0x393,__thiscall,,i32,AnmManager*,AnmVm*,i32
