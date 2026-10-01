@@ -1437,9 +1437,7 @@ ZunResult Gui::RegisterChain()
         memset(gui, 0, sizeof(Gui));
         gui->impl = ZUN_NEW(GuiImpl);
     }
-    g_GuiCalcChain.callback = (ChainCallback)Gui::OnUpdate;
-    g_GuiCalcChain.addedCallback = NULL;
-    g_GuiCalcChain.deletedCallback = NULL;
+    g_GuiCalcChain.SetCallback((ChainCallback)OnUpdate);
     g_GuiCalcChain.addedCallback = (ChainAddedCallback)Gui::AddedCallback;
     g_GuiCalcChain.deletedCallback = (ChainDeletedCallback)Gui::DeletedCallback;
     g_GuiCalcChain.arg = gui;
@@ -1447,9 +1445,7 @@ ZunResult Gui::RegisterChain()
     {
         return ZUN_ERROR;
     }
-    g_GuiDrawChain.callback = (ChainCallback)Gui::OnDraw;
-    g_GuiDrawChain.addedCallback = NULL;
-    g_GuiDrawChain.deletedCallback = NULL;
+    g_GuiDrawChain.SetCallback((ChainCallback)OnDraw);
     g_GuiDrawChain.arg = gui;
     g_Chain.AddToDrawChain(&g_GuiDrawChain, TH_CHAIN_PRIO_DRAW_GUI);
     return ZUN_SUCCESS;

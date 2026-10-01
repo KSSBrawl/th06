@@ -26,6 +26,16 @@ typedef ZunResult (*ChainDeletedCallback)(void *);
 class ChainElem
 {
   public:
+    ChainElem();
+    ~ChainElem();
+
+    void SetCallback(ChainCallback callback)
+    {
+        this->callback = callback;
+        this->addedCallback = NULL;
+        this->deletedCallback = NULL;
+    }
+
     i16 priority;
     u16 isHeapAllocated : 1;
     alignment_bitfields(u16, 15);
@@ -36,9 +46,6 @@ class ChainElem
     ChainElem *next;
     ChainElem *unkPtr;
     void *arg;
-
-    ChainElem();
-    ~ChainElem();
 };
 ZUN_ASSERT_TYPE(ChainElem, 0x20, 4);
 

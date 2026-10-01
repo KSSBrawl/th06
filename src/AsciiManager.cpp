@@ -78,9 +78,7 @@ ZunResult AsciiManager::RegisterChain()
 {
     AsciiManager *mgr = &g_AsciiManager;
 
-    g_AsciiManagerCalcChain.callback = (ChainCallback)AsciiManager::OnUpdate;
-    g_AsciiManagerCalcChain.addedCallback = NULL;
-    g_AsciiManagerCalcChain.deletedCallback = NULL;
+    g_AsciiManagerCalcChain.SetCallback((ChainCallback)AsciiManager::OnUpdate);
     g_AsciiManagerCalcChain.addedCallback = (ChainAddedCallback)AsciiManager::AddedCallback;
     g_AsciiManagerCalcChain.deletedCallback = (ChainDeletedCallback)AsciiManager::DeletedCallback;
     g_AsciiManagerCalcChain.arg = mgr;
@@ -89,15 +87,11 @@ ZunResult AsciiManager::RegisterChain()
         return ZUN_ERROR;
     }
 
-    g_AsciiManagerOnDrawMenusChain.callback = (ChainCallback)OnDrawMenus;
-    g_AsciiManagerOnDrawMenusChain.addedCallback = NULL;
-    g_AsciiManagerOnDrawMenusChain.deletedCallback = NULL;
+    g_AsciiManagerCalcChain.SetCallback((ChainCallback)OnDrawMenus);
     g_AsciiManagerOnDrawMenusChain.arg = mgr;
     g_Chain.AddToDrawChain(&g_AsciiManagerOnDrawMenusChain, TH_CHAIN_PRIO_DRAW_ASCIIMANAGER_MENUS);
 
-    g_AsciiManagerOnDrawPopupsChain.callback = (ChainCallback)OnDrawPopups;
-    g_AsciiManagerOnDrawPopupsChain.addedCallback = NULL;
-    g_AsciiManagerOnDrawPopupsChain.deletedCallback = NULL;
+    g_AsciiManagerOnDrawPopupsChain.SetCallback((ChainCallback)OnDrawPopups);
     g_AsciiManagerOnDrawPopupsChain.arg = mgr;
     g_Chain.AddToDrawChain(&g_AsciiManagerOnDrawPopupsChain, TH_CHAIN_PRIO_DRAW_ASCIIMANAGER_POPUPS);
 

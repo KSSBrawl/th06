@@ -336,14 +336,9 @@ void Chain::Release(void)
 
 ChainElem *Chain::CreateElem(ChainCallback callback)
 {
-    ChainElem *elem;
+    ChainElem *elem = ZUN_NEW(ChainElem);
 
-    elem = ZUN_NEW(ChainElem);
-
-    elem->callback = callback;
-    elem->addedCallback = NULL;
-    elem->deletedCallback = NULL;
-
+    elem->SetCallback(callback);
     elem->isHeapAllocated = true;
 
     return elem;

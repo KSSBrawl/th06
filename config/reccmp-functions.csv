@@ -97,7 +97,7 @@ th06::Ending::ReadEndFileParameter,0x40f4d0,function
 th06::Ending::FadingEffect,0x40f550,function
 th06::Ending::ParseEndFile,0x40f7c0,function
 th06::Ending::LoadEnding,0x4106d0,function
-th06::Ending::RegisterChain,0x4107b0,function
+th06::Ending_RegisterChain,0x4107b0,function
 th06::Ending::Ending,0x4108b0,function
 th06::Ending::OnUpdate,0x4109c0,function
 th06::Ending::OnDraw,0x410a70,function

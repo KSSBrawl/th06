@@ -78,7 +78,7 @@ struct AnmRawEntry
     u32 hasData;
     u32 nextOffset;
     unreferenced_fields(0x4);
-    u32 spriteOffsets[0];
+    u32 spriteOffsets[];
 };
 ZUN_ASSERT_TYPE(AnmRawEntry, 0x40, 4);
 
@@ -135,7 +135,7 @@ struct AnmManager
         this->SetAndExecuteScript(vm, this->scripts[anmFileIdx]);
     }
 
-    void InitializeAndSetSprite(AnmVm *vm, u32 spriteIdx)
+    void InitializeAndSetSprite(AnmVm *vm, i32 spriteIdx)
     {
         vm->Initialize();
         this->SetActiveSprite(vm, spriteIdx);
@@ -207,7 +207,7 @@ struct AnmManager
     ZunResult Draw3(AnmVm *vm);
 
     void LoadSprite(u32 spriteIdx, AnmLoadedSprite *sprite);
-    ZunResult SetActiveSprite(AnmVm *vm, u32 spriteIdx);
+    ZunResult SetActiveSprite(AnmVm *vm, i32 spriteIdx);
 
     ZunResult LoadSurface(i32 surfaceIdx, const char *path);
     void ReleaseSurface(i32 surfaceIdx);
@@ -219,7 +219,7 @@ struct AnmManager
 
     void ReleaseAnm(i32 anmIdx);
     ZunResult LoadAnm(i32 anmIdx, const char *path, i32 spriteIdxOffset);
-    void AnmManager::ExecuteAnmIdx(AnmVm *vm, i32 anmFileIdx)
+    void ExecuteAnmIdx(AnmVm *vm, i32 anmFileIdx)
     {
         vm->anmFileIndex = anmFileIdx;
         vm->pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
