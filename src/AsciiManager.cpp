@@ -24,7 +24,7 @@ ChainCallbackResult AsciiManager::OnUpdate(AsciiManager *mgr)
     if (!g_GameManager.isInGameMenu && !g_GameManager.isInRetryMenu)
     {
         AsciiManagerPopup *curPopup = &mgr->popups[0];
-        i32 i = 0;
+        i32 i = 0; // NOTE: This doesn't match if i is put in the loop?
         for (; i < ASCII_TOTAL_POPUPS_COUNT; i++, curPopup++)
         {
             if (!curPopup->inUse)
@@ -87,7 +87,7 @@ ZunResult AsciiManager::RegisterChain()
         return ZUN_ERROR;
     }
 
-    g_AsciiManagerCalcChain.SetCallback((ChainCallback)OnDrawMenus);
+    g_AsciiManagerOnDrawMenusChain.SetCallback((ChainCallback)OnDrawMenus);
     g_AsciiManagerOnDrawMenusChain.arg = mgr;
     g_Chain.AddToDrawChain(&g_AsciiManagerOnDrawMenusChain, TH_CHAIN_PRIO_DRAW_ASCIIMANAGER_MENUS);
 
@@ -196,13 +196,11 @@ void AsciiManager::DrawStrings(void)
     i32 padding_2;
     i32 padding_3;
     i32 i;
-    ZunBool guiString;
     f32 charWidth;
-    AsciiManagerString *string;
     u8 *text;
 
-    guiString = TRUE;
-    string = this->strings;
+    ZunBool guiString = TRUE;
+    AsciiManagerString *string = this->strings;
     this->vm0.flags.isVisible = true;
     this->vm0.flags.anchor = AnmVmAnchor_TopLeft;
     for (i = 0; i < this->numStrings; i++, string++)
@@ -211,7 +209,7 @@ void AsciiManager::DrawStrings(void)
         text = (u8 *)string->text;
         this->vm0.scaleX = string->scale.x;
         this->vm0.scaleY = string->scale.y;
-        charWidth = 14 * string->scale.x;
+        charWidth = 14.0f * string->scale.x;
         if (guiString != string->isGui)
         {
             guiString = string->isGui;
