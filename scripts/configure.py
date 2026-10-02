@@ -246,7 +246,7 @@ def configure(build_type):
         if build_type == BuildType.DIFFBUILD:
             objfiles += ["$builddir/globals.obj"]
 
-        th06_link_libs = "dinput8.lib dsound.lib d3d8.lib winmm.lib d3dx8.lib dxguid.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib odbc32.lib odbccp32.lib"
+        th06_link_libs = "dinput8.lib dsound.lib d3d8.lib d3dx8.lib winmm.lib dxguid.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib odbc32.lib odbccp32.lib"
 
         # Original exe does not have PDB path
         if build_type != BuildType.BINARY_MATCHBUILD:
