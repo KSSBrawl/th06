@@ -21,7 +21,7 @@ def get_sha256(path):
             h.update(data)
     return h.hexdigest()
 
-def build(build_type, verbose=False, jobs=1, target=None):
+def build(build_type, comdat_permute_enable, verbose=False, jobs=1, target=None):
 
     ninja_args = []
     if verbose:
@@ -46,7 +46,8 @@ def build(build_type, verbose=False, jobs=1, target=None):
     comdat_permute = 0
     
     while True:
-        print("Building comdat attempt " + str(comdat_permute + 1), file=sys.stderr)
+        if comdat_permute_enable:
+            print("Building comdat attempt " + str(comdat_permute + 1), file=sys.stderr)
         configure(build_type, comdat_permute)
 
         # Then, run the build. We use run_windows_program to automatically go through
@@ -67,11 +68,14 @@ def build(build_type, verbose=False, jobs=1, target=None):
                     "build/th06.exe",
                     "1038721275",  # 2002-12-01 06:41:15
                 ])
-            comdat_permute += 1
-            if comdat_permute == 100 or original_hash == get_sha256("build/th06.exe"):
-                break
-        else:
-            break
+            if comdat_permute_enable:
+                if original_hash == get_sha256("build/th06.exe"):
+                    print("Hash matches!", file=sys.stderr)
+                else:
+                    comdat_permute += 1
+                    if comdat_permute != 100:
+                        continue
+        break
 
 def main():
     parser = argparse.ArgumentParser(
@@ -85,6 +89,7 @@ def main():
             "tests",
             "objdiffbuild",
             "binary_matchbuild",
+            "binary_matchbuild_comdat",
         ],
         default="normal",
     )
@@ -112,6 +117,7 @@ def main():
     )
     args = parser.parse_args()
     target = None
+    comdat_permute = False
 
     # First, create the build.ninja file that will be used to build.
     if args.build_type == "normal":
@@ -124,6 +130,9 @@ def main():
         build_type = BuildType.OBJDIFFBUILD
     elif args.build_type == "binary_matchbuild":
         build_type = BuildType.BINARY_MATCHBUILD
+    elif args.build_type == "binary_matchbuild_comdat":
+        build_type = BuildType.BINARY_MATCHBUILD
+        comdat_permute = True
 
     if args.object_name is not None:
         object_name = Path(args.object_name).name
@@ -131,7 +140,7 @@ def main():
     elif args.target is not None:
         target = args.target
 
-    build(build_type, args.verbose, args.jobs, target=target)
+    build(build_type, comdat_permute, args.verbose, args.jobs, target=target)
 
 
 if __name__ == "__main__":
