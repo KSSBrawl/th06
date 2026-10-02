@@ -33,7 +33,8 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(CharacterData, 5, g_CharData) = {
     /* ReimuB  */ {4.0f, 2.0f, 4.0f, 2.0f, Player::FireBulletReimuB, Player::FireBulletReimuB},
     /* MarisaA */ {5.0f, 2.5f, 5.0f, 2.5f, Player::FireBulletMarisaA, Player::FireBulletMarisaA},
     /* MarisaB */ {5.0f, 2.5f, 5.0f, 2.5f, Player::FireBulletMarisaB, Player::FireBulletMarisaB},
-    /* Rin???  */ {4.0f, 2.0f, 4.0f, 2.0f, NULL, NULL}};
+    /* Rin???  */ {4.0f, 2.0f, 4.0f, 2.0f, NULL, NULL},
+};
 
 FILE_BSS_SORT(O1);
 
@@ -977,8 +978,8 @@ static void SpawnBullets(Player *p, u32 timer)
 {
     u32 idx = 0;
     PlayerBullet *curBullet = p->bullets;
-
-    for (i32 curBulletIdx = 0; curBulletIdx < MAX_PLAYER_BULLETS; curBulletIdx++, curBullet++)
+    i32 curBulletIdx = 0;
+    for (; curBulletIdx < MAX_PLAYER_BULLETS; curBulletIdx++, curBullet++)
     {
         if (curBullet->bulletState != PLAYER_BULLET_STATE_INACTIVE)
         {
@@ -1225,7 +1226,8 @@ ChainCallbackResult Player::OnUpdate(Player *p)
 static void DrawBullets(Player *p)
 {
     PlayerBullet *bullet = p->bullets;
-    for (i32 bulletIdx = 0; bulletIdx < MAX_PLAYER_BULLETS; bulletIdx++, bullet++)
+    i32 bulletIdx = 0;
+    for (; bulletIdx < MAX_PLAYER_BULLETS; bulletIdx++, bullet++)
     {
         if (bullet->bulletState != PLAYER_BULLET_STATE_FIRED)
         {
@@ -1274,7 +1276,8 @@ ChainCallbackResult Player::OnDrawHighPrio(Player *p)
 static void DrawBulletExplosions(Player *p)
 {
     PlayerBullet *bullet = p->bullets;
-    for (i32 bulletIdx = 0; bulletIdx < MAX_PLAYER_BULLETS; bulletIdx++, bullet++)
+    i32 bulletIdx = 0;
+    for (; bulletIdx < MAX_PLAYER_BULLETS; bulletIdx++, bullet++)
     {
         if (bullet->bulletState != PLAYER_BULLET_STATE_COLLIDED)
         {
