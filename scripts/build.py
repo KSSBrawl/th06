@@ -1,4 +1,5 @@
 import argparse
+import hashlib
 from pathlib import Path
 import textwrap
 import sys
@@ -10,9 +11,17 @@ from winhelpers import run_windows_program
 
 SCRIPTS_DIR = Path(__file__).parent
 
+def get_sha256(path):
+    h = hashlib.new("sha256")
+    with open(path, "rb") as f:
+        while True:
+            data = f.read(16 * 4096 * 4096)
+            if not data:
+                break
+            h.update(data)
+    return h.hexdigest()
 
 def build(build_type, verbose=False, jobs=1, target=None):
-    configure(build_type)
 
     ninja_args = []
     if verbose:
@@ -29,26 +38,40 @@ def build(build_type, verbose=False, jobs=1, target=None):
         ninja_args += ["objdiff"]
     else:
         ninja_args += ["build/th06.exe"]
-
-    # Then, run the build. We use run_windows_program to automatically go through
-    # wine if running on linux/macos. scripts/th06run.bat will setup PATH and other
-    # environment variables for the MSVC toolchain to work before calling ninja.
-    run_windows_program(
-        [str(SCRIPTS_DIR / "th06run.bat"), "ninja"] + ninja_args,
-        cwd=str(SCRIPTS_DIR.parent),
-    )
-
-    # Ninja is pretty hard to work with so this is the only (janky)
-    # working solution. If you can think of a better one, PRs welcome.
+        
+    original_hash = ""
     if build_type == BuildType.BINARY_MATCHBUILD:
-        if os.path.isfile("build/th06.exe"):
-            run_windows_program([
-                sys.executable,
-                str(SCRIPTS_DIR / "patch_timestamp.py"),
-                "build/th06.exe",
-                "1038721275",  # 2002-12-01 06:41:15
-            ])
+        original_hash = get_sha256("resources/th06.exe")
+        
+    comdat_permute = 0
+    
+    while True:
+        print("Building comdat attempt " + str(comdat_permute + 1), file=sys.stderr)
+        configure(build_type, comdat_permute)
 
+        # Then, run the build. We use run_windows_program to automatically go through
+        # wine if running on linux/macos. scripts/th06run.bat will setup PATH and other
+        # environment variables for the MSVC toolchain to work before calling ninja.
+        run_windows_program(
+            [str(SCRIPTS_DIR / "th06run.bat"), "ninja"] + ninja_args,
+            cwd=str(SCRIPTS_DIR.parent),
+        )
+
+        # Ninja is pretty hard to work with so this is the only (janky)
+        # working solution. If you can think of a better one, PRs welcome.
+        if build_type == BuildType.BINARY_MATCHBUILD:
+            if os.path.isfile("build/th06.exe"):
+                run_windows_program([
+                    sys.executable,
+                    str(SCRIPTS_DIR / "patch_timestamp.py"),
+                    "build/th06.exe",
+                    "1038721275",  # 2002-12-01 06:41:15
+                ])
+            comdat_permute += 1
+            if comdat_permute == 100 or original_hash == get_sha256("build/th06.exe"):
+                break
+        else:
+            break
 
 def main():
     parser = argparse.ArgumentParser(
