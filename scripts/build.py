@@ -1,5 +1,4 @@
 import argparse
-import hashlib
 from pathlib import Path
 import textwrap
 import sys
@@ -10,16 +9,20 @@ from configure import BuildType, configure
 from winhelpers import run_windows_program
 
 SCRIPTS_DIR = Path(__file__).parent
-
-def get_sha256(path):
-    h = hashlib.new("sha256")
-    with open(path, "rb") as f:
+    
+def find_diff(path1, path2):
+    offset = 0
+    with open(path1, 'rb') as file1, open(path2, 'rb') as file2:
         while True:
-            data = f.read(16 * 4096 * 4096)
-            if not data:
-                break
-            h.update(data)
-    return h.hexdigest()
+            page1 = file1.read(0x1000)
+            if not page1:
+                return None
+            page2 = file2.read(0x1000)
+            if page1 != page2:
+                for i, (byte1, byte2) in enumerate(zip(page1, page2)):
+                    if byte1 != byte2:
+                        return (offset + i, byte1, byte2)
+            offset += 0x1000
 
 def build(build_type, comdat_permute_enable, verbose=False, jobs=1, target=None):
 
@@ -39,15 +42,14 @@ def build(build_type, comdat_permute_enable, verbose=False, jobs=1, target=None)
     else:
         ninja_args += ["build/th06.exe"]
         
-    original_hash = ""
-    if build_type == BuildType.BINARY_MATCHBUILD:
-        original_hash = get_sha256("resources/th06.exe")
-        
+    # best yet: 201
     comdat_permute = 0
+    best_match = comdat_permute
+    best_match_dist = 0
     
     while True:
         if comdat_permute_enable:
-            print("Building comdat attempt " + str(comdat_permute + 1), file=sys.stderr)
+            print("Building comdat attempt " + str(comdat_permute), file=sys.stderr)
         configure(build_type, comdat_permute)
 
         # Then, run the build. We use run_windows_program to automatically go through
@@ -68,13 +70,19 @@ def build(build_type, comdat_permute_enable, verbose=False, jobs=1, target=None)
                     "build/th06.exe",
                     "1038721275",  # 2002-12-01 06:41:15
                 ])
-            if comdat_permute_enable:
-                if original_hash == get_sha256("build/th06.exe"):
-                    print("Hash matches!", file=sys.stderr)
-                else:
+            diff = find_diff("resources/th06.exe", "build/th06.exe")
+            if diff == None:
+                print("Binary matches!", file=sys.stderr)
+            else:
+                print("Diff at byte " + hex(diff[0]) + ": " + hex(diff[1]) + " " + hex(diff[2]), file=sys.stderr)
+                if comdat_permute_enable:
+                    if diff[0] > best_match_dist:
+                        best_match_dist = diff[0]
+                        best_match = comdat_permute
                     comdat_permute += 1
-                    if comdat_permute != 100:
+                    if comdat_permute != 1000:
                         continue
+                    print("Giving up, best match was " + str(best_match) + " at " + hex(best_match_dist), file=sys.stderr)
         break
 
 def main():
