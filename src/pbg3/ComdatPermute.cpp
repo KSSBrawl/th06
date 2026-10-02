@@ -1,4 +1,5 @@
 #ifdef COMDAT_PERMUTE
+// clang-format off
 #if COMDAT_PERMUTE > 0
 void COMDAT_PERMUTE_1() {}
 #endif
@@ -2999,4 +3000,5 @@ void COMDAT_PERMUTE_999() {}
 #if COMDAT_PERMUTE > 999
 void COMDAT_PERMUTE_1000() {}
 #endif
+// clang-format on
 #endif
