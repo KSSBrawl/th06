@@ -104,6 +104,11 @@ def configure(build_type):
             "AnmManager",
             "MainMenu",
             "zwave",
+            "_dummyA",
+            "_dummyB",
+            "_dummyC",
+            "_dummyD",
+            "_dummyE",
         ]
 
         no_pch_sources = set(["EffectManager"])
