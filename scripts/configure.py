@@ -189,7 +189,7 @@ def configure(build_type, comdat_permute):
             flags = "$cl_flags_pbg3"
             if build_type == BuildType.BINARY_MATCHBUILD and rule == "FileAbstraction":
                 flags += " /DCOMDAT_PERMUTE=" + str(comdat_permute)
-                
+
             writer.build(
                 "$builddir/" + rule + ".obj",
                 "cc",

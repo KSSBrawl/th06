@@ -14,7 +14,7 @@ namespace th06
 FILE_BSS_SORT(K1); // This is necessary to position the guard variable for g_ItemSize
 
 DIFFABLE_STATIC_SORTED(K3, ItemManager, g_ItemManager);
-DIFFABLE_STATIC_SORTED(K4, ChainElem, g_ItemManagerCalcChain); // unused
+DIFFABLE_STATIC_SORTED(K4, ChainElem, g_ItemManagerCalcChain);                      // unused
 DIFFABLE_STATIC_SORTED(K2, __declspec(align(8)) ChainElem, g_ItemManagerDrawChain); // unused
 
 void ItemManager::SpawnItem(D3DXVECTOR3 *position, ItemType itemType, i32 state)

@@ -9,10 +9,11 @@ from configure import BuildType, configure
 from winhelpers import run_windows_program
 
 SCRIPTS_DIR = Path(__file__).parent
-    
+
+
 def find_diff(path1, path2):
     offset = 0
-    with open(path1, 'rb') as file1, open(path2, 'rb') as file2:
+    with open(path1, "rb") as file1, open(path2, "rb") as file2:
         while True:
             page1 = file1.read(0x1000)
             if not page1:
@@ -24,8 +25,8 @@ def find_diff(path1, path2):
                         return (offset + i, byte1, byte2)
             offset += 0x1000
 
-def build(build_type, comdat_permute_enable, verbose=False, jobs=1, target=None):
 
+def build(build_type, comdat_permute_enable, verbose=False, jobs=1, target=None):
     ninja_args = []
     if verbose:
         ninja_args += ["-v"]
@@ -41,12 +42,12 @@ def build(build_type, comdat_permute_enable, verbose=False, jobs=1, target=None)
         ninja_args += ["objdiff"]
     else:
         ninja_args += ["build/th06.exe"]
-        
+
     # best yet: 201
     comdat_permute = 0
     best_match = comdat_permute
     best_match_dist = 0
-    
+
     while True:
         if comdat_permute_enable:
             print("Building comdat attempt " + str(comdat_permute), file=sys.stderr)
@@ -64,17 +65,27 @@ def build(build_type, comdat_permute_enable, verbose=False, jobs=1, target=None)
         # working solution. If you can think of a better one, PRs welcome.
         if build_type == BuildType.BINARY_MATCHBUILD:
             if os.path.isfile("build/th06.exe"):
-                run_windows_program([
-                    sys.executable,
-                    str(SCRIPTS_DIR / "patch_timestamp.py"),
-                    "build/th06.exe",
-                    "1038721275",  # 2002-12-01 06:41:15
-                ])
+                run_windows_program(
+                    [
+                        sys.executable,
+                        str(SCRIPTS_DIR / "patch_timestamp.py"),
+                        "build/th06.exe",
+                        "1038721275",  # 2002-12-01 06:41:15
+                    ]
+                )
             diff = find_diff("resources/th06.exe", "build/th06.exe")
             if diff == None:
                 print("Binary matches!", file=sys.stderr)
             else:
-                print("Diff at byte " + hex(diff[0]) + ": " + hex(diff[1]) + " " + hex(diff[2]), file=sys.stderr)
+                print(
+                    "Diff at byte "
+                    + hex(diff[0])
+                    + ": "
+                    + hex(diff[1])
+                    + " "
+                    + hex(diff[2]),
+                    file=sys.stderr,
+                )
                 if comdat_permute_enable:
                     if diff[0] > best_match_dist:
                         best_match_dist = diff[0]
@@ -82,8 +93,15 @@ def build(build_type, comdat_permute_enable, verbose=False, jobs=1, target=None)
                     comdat_permute += 1
                     if comdat_permute != 1000:
                         continue
-                    print("Giving up, best match was " + str(best_match) + " at " + hex(best_match_dist), file=sys.stderr)
+                    print(
+                        "Giving up, best match was "
+                        + str(best_match)
+                        + " at "
+                        + hex(best_match_dist),
+                        file=sys.stderr,
+                    )
         break
+
 
 def main():
     parser = argparse.ArgumentParser(

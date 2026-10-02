@@ -80,17 +80,15 @@
 #define DIFFABLE_STATIC_ASSIGN(type, name) type name
 #define DIFFABLE_STATIC_ARRAY_ASSIGN(type, size, name) type name[size]
 #define DIFFABLE_STATIC_SORTED(sort, type, name)                                                                       \
-    __pragma(bss_seg(MACRO_STR(MACRO_CATW(.bss$, sort, name))))                                          \
-        __declspec(allocate(MACRO_STR(MACRO_CATW(.bss$, sort, name))))                                                \
+    __pragma(bss_seg(MACRO_STR(MACRO_CATW(.bss$, sort, name))))                                                        \
+        __declspec(allocate(MACRO_STR(MACRO_CATW(.bss$, sort, name))))                                                 \
         DIFFABLE_STATIC(type, name)
 #define DIFFABLE_STATIC_ARRAY_SORTED(sort, type, size, name)                                                           \
-    __pragma(bss_seg(MACRO_STR(MACRO_CATW(.bss$, sort, name))))                                          \
-        __declspec(allocate(MACRO_STR(MACRO_CATW(.bss$, sort, name))))                                                \
+    __pragma(bss_seg(MACRO_STR(MACRO_CATW(.bss$, sort, name))))                                                        \
+        __declspec(allocate(MACRO_STR(MACRO_CATW(.bss$, sort, name))))                                                 \
         DIFFABLE_STATIC_ARRAY(type, size, name)
-#define FILE_BSS_SORT(sort)                                                                                            \
-    __pragma(bss_seg(MACRO_STR(MACRO_CATW(.bss$, sort))))
-#define BSS_SORT(sort) \
-    __declspec(allocate(MACRO_STR(MACRO_CATW(.bss$, sort))))
+#define FILE_BSS_SORT(sort) __pragma(bss_seg(MACRO_STR(MACRO_CATW(.bss$, sort))))
+#define BSS_SORT(sort) __declspec(allocate(MACRO_STR(MACRO_CATW(.bss$, sort))))
 #endif
 
 // Using __COUNTER__ would be better but makes PCH *really* slow
