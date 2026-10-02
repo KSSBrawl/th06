@@ -24,6 +24,8 @@
 
 namespace th06
 {
+FILE_BSS_SORT(U1);
+
 enum GameState
 {
     STATE_STARTUP,
