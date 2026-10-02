@@ -107,6 +107,55 @@ HRESULT CSoundManager::SetPrimaryBufferFormat(DWORD dwPrimaryChannels, DWORD dwP
     return S_OK;
 }
 
+HRESULT CSoundManager::Create( CSound** ppSound, 
+                               LPTSTR strWaveFileName, 
+                               DWORD dwCreationFlags, 
+                               GUID guid3DAlgorithm,
+                               DWORD dwNumBuffers )
+{
+    LPDIRECTSOUNDBUFFER *apDSBuffer = new LPDIRECTSOUNDBUFFER[dwNumBuffers];
+    CWaveFile *pWaveFile = new CWaveFile();
+    pWaveFile->Open(strWaveFileName, NULL, WAVEFILE_READ);
+    DWORD dwDSBufferSize = pWaveFile->GetSize();
+    DSBUFFERDESC dsbd;
+    ZeroMemory(&dsbd, sizeof(DSBUFFERDESC));
+    dsbd.dwSize = sizeof(DSBUFFERDESC);
+    dsbd.dwFlags = dwCreationFlags;
+    dsbd.dwBufferBytes = dwDSBufferSize;
+    dsbd.guid3DAlgorithm = guid3DAlgorithm;
+    dsbd.lpwfxFormat = pWaveFile->m_pwfx;
+    m_pDS->CreateSoundBuffer(&dsbd, &apDSBuffer[0], NULL);
+    for (DWORD i = 1; i < dwNumBuffers; i++)
+        m_pDS->DuplicateSoundBuffer(apDSBuffer[0], &apDSBuffer[i]);
+    *ppSound = new CSound(apDSBuffer, dwDSBufferSize, dwNumBuffers, pWaveFile);
+    return S_OK;
+}
+
+HRESULT CSoundManager::CreateFromMemory( CSound** ppSound, 
+                                        BYTE* pbData,
+                                        ULONG  ulDataSize,
+                                        LPWAVEFORMATEX pwfx,
+                                        DWORD dwCreationFlags, 
+                                        GUID guid3DAlgorithm,
+                                        DWORD dwNumBuffers )
+{
+    LPDIRECTSOUNDBUFFER *apDSBuffer = new LPDIRECTSOUNDBUFFER[dwNumBuffers];
+    CWaveFile *pWaveFile = new CWaveFile();
+    pWaveFile->OpenFromMemory(pbData, ulDataSize, pwfx, WAVEFILE_READ);
+    DSBUFFERDESC dsbd;
+    ZeroMemory(&dsbd, sizeof(DSBUFFERDESC));
+    dsbd.dwSize = sizeof(DSBUFFERDESC);
+    dsbd.dwFlags = dwCreationFlags;
+    dsbd.dwBufferBytes = ulDataSize;
+    dsbd.guid3DAlgorithm = guid3DAlgorithm;
+    dsbd.lpwfxFormat = pwfx;
+    m_pDS->CreateSoundBuffer(&dsbd, &apDSBuffer[0], NULL);
+    for (DWORD i = 1; i < dwNumBuffers; i++)
+        m_pDS->DuplicateSoundBuffer(apDSBuffer[0], &apDSBuffer[i]);
+    *ppSound = new CSound(apDSBuffer, ulDataSize, dwNumBuffers, pWaveFile);
+    return S_OK;
+}
+
 //-----------------------------------------------------------------------------
 // Name: CSoundManager::CreateStreaming()
 // Desc:
@@ -378,6 +427,18 @@ LPDIRECTSOUNDBUFFER CSound::GetBuffer(DWORD dwIndex)
         return NULL;
 
     return m_apDSBuffer[dwIndex];
+}
+
+HRESULT CSound::Get3DBufferInterface( DWORD dwIndex, LPDIRECTSOUND3DBUFFER* ppDS3DBuffer )
+{
+    return m_apDSBuffer[dwIndex]->QueryInterface(IID_IDirectSound3DBuffer, (VOID **)ppDS3DBuffer);
+}
+
+BOOL CSound::IsSoundPlaying()
+{
+    DWORD dwStatus = 0;
+    m_apDSBuffer[0]->GetStatus(&dwStatus);
+    return (dwStatus & DSBSTATUS_PLAYING) != 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -891,6 +952,13 @@ HRESULT CWaveFile::ReadMMIO()
 DWORD CWaveFile::GetSize()
 {
     return m_dwSize;
+}
+
+HRESULT CWaveFile::Write(UINT size, BYTE *data, UINT *written)
+{
+    *written = 0;
+    LONG result = mmioWrite(m_hmmio, reinterpret_cast<HPSTR>(data), size);
+    return result == size ? S_OK : E_FAIL;
 }
 
 //-----------------------------------------------------------------------------
