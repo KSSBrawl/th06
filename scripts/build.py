@@ -1,8 +1,8 @@
 import argparse
+import hashlib
 from pathlib import Path
 import textwrap
 import sys
-import subprocess
 import os
 
 from configure import BuildType, configure
@@ -10,7 +10,16 @@ from winhelpers import run_windows_program
 
 SCRIPTS_DIR = Path(__file__).parent
 
-
+def get_sha256(path):
+    h = hashlib.new("sha256")
+    with open(path, "rb") as f:
+        while True:
+            data = f.read(16 * 4096 * 4096)
+            if not data:
+                break
+            h.update(data)
+    return h.hexdigest()
+    
 def find_diff(path1, path2):
     offset = 0
     with open(path1, "rb") as file1, open(path2, "rb") as file2:
@@ -44,7 +53,7 @@ def build(build_type, comdat_permute_enable, verbose=False, jobs=1, target=None)
         ninja_args += ["build/th06.exe"]
 
     # best yet: 201
-    comdat_permute = 0
+    comdat_permute = 201
     best_match = comdat_permute
     best_match_dist = 0
 
@@ -93,13 +102,9 @@ def build(build_type, comdat_permute_enable, verbose=False, jobs=1, target=None)
                     comdat_permute += 1
                     if comdat_permute != 1000:
                         continue
-                    print(
-                        "Giving up, best match was "
-                        + str(best_match)
-                        + " at "
-                        + hex(best_match_dist),
-                        file=sys.stderr,
-                    )
+                    print("Giving up, best match was " + str(best_match) + " at " + hex(best_match_dist), file=sys.stderr)
+                else:
+                    print("Exe hash: " + get_sha256("build/th06.exe"), file=sys.stderr)
         break
 
 
@@ -116,6 +121,7 @@ def main():
             "objdiffbuild",
             "binary_matchbuild",
             "binary_matchbuild_comdat",
+            "trial",
         ],
         default="normal",
     )
@@ -159,6 +165,8 @@ def main():
     elif args.build_type == "binary_matchbuild_comdat":
         build_type = BuildType.BINARY_MATCHBUILD
         comdat_permute = True
+    elif args.build_type == "trial":
+        build_type = BuildType.TRIAL
 
     if args.object_name is not None:
         object_name = Path(args.object_name).name
