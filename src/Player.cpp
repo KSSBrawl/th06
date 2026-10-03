@@ -802,32 +802,32 @@ ZunResult Player::HandlePlayerInputs()
     return ZUN_SUCCESS;
 }
 
+#pragma var_order(relY, relX)
 f32 Player::AngleFromPlayer(D3DXVECTOR3 *pos)
 {
-    ZunVec2 rel;
-
-    rel.x = pos->x - this->positionCenter.x;
-    rel.y = pos->y - this->positionCenter.y;
-    if (rel.y == 0.0f && rel.x == 0.0f)
+    // NOTE: This is *not* a ZunVec2
+    float relX = pos->x - this->positionCenter.x;
+    float relY = pos->y - this->positionCenter.y;
+    if (relY == 0.0f && relX == 0.0f)
     {
         return RADIANS(90.0f);
     }
-    return atan2f(rel.y, rel.x);
+    return atan2f(relY, relX);
 }
 
+#pragma var_order(relY, relX)
 f32 Player::AngleToPlayer(D3DXVECTOR3 *pos)
 {
-    ZunVec2 rel;
-
-    rel.x = this->positionCenter.x - pos->x;
-    rel.y = this->positionCenter.y - pos->y;
-    if (rel.y == 0.0f && rel.x == 0.0f)
+    // NOTE: This is *not* a ZunVec2
+    float relX = this->positionCenter.x - pos->x;
+    float relY = this->positionCenter.y - pos->y;
+    if (relY == 0.0f && relX == 0.0f)
     {
         // Shoot down. An angle of 0 means to the right, and the angle goes
         // clockwise.
         return RADIANS(90.0f);
     }
-    return atan2f(rel.y, rel.x);
+    return atan2f(relY, relX);
 }
 
 ZunResult Player::RegisterChain(u8 unk)
@@ -888,7 +888,7 @@ static void UpdatePlayerBullets(Player *player)
                     vector.x = player->positionOfLastEnemyHit.x - bullet->position.x;
                     vector.y = player->positionOfLastEnemyHit.y - bullet->position.y;
 
-                    vecLength = vector.VectorLength() / (bullet->speed / 4.0f);
+                    vecLength = sqrtf(vector.x * vector.x + vector.y * vector.y) / (bullet->speed / 4.0f);
                     if (vecLength < 1.0f)
                     {
                         vecLength = 1.0f;
@@ -897,7 +897,7 @@ static void UpdatePlayerBullets(Player *player)
                     vector.x = vector.x / vecLength + bullet->velocity.x;
                     vector.y = vector.y / vecLength + bullet->velocity.y;
 
-                    vecLength = vector.VectorLengthF64();
+                    vecLength = sqrtf(vector.x * vector.x + vector.y * vector.y);
 
                     bullet->speed = ZUN_MIN(vecLength, 10.0f);
 
@@ -916,7 +916,7 @@ static void UpdatePlayerBullets(Player *player)
                         bullet->speed += 0.33333333f;
                         vector.x = bullet->velocity.x;
                         vector.y = bullet->velocity.y;
-                        vecLength = vector.VectorLengthF64();
+                        vecLength = sqrtf(vector.x * vector.x + vector.y * vector.y);
                         bullet->velocity.x = vector.x * bullet->speed / vecLength;
                         bullet->velocity.y = vector.y * bullet->speed / vecLength;
                     }
@@ -1143,7 +1143,11 @@ ChainCallbackResult Player::OnUpdate(Player *p)
                     g_Gui.flags.flag0 = 2;
                     if (g_GameManager.difficulty < EXTRA && !g_GameManager.isInPracticeMode)
                     {
+#if !TRIALBUILD
                         g_GameManager.bombsRemaining = g_Supervisor.defaultConfig.bombCount;
+#else
+                        g_GameManager.bombsRemaining = g_Supervisor.cfg.bombCount;
+#endif
                     }
                     else
                     {

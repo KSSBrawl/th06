@@ -109,7 +109,7 @@ struct Supervisor
     static BOOL CALLBACK ControllerCallback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOID pvRef);
     static BOOL CALLBACK EnumGameControllersCb(LPCDIDEVICEINSTANCE pdidInstance, LPVOID pContext);
 
-    i32 LoadPbg3(i32 pbg3FileIdx, const char *filename);
+    BOOL LoadPbg3(i32 pbg3FileIdx, const char *filename);
     void ReleasePbg3(i32 pbg3FileIdx);
 
     ZunResult LoadConfig(const char *path);
@@ -214,14 +214,17 @@ struct Supervisor
     D3DVIEWPORT8 viewport;
     D3DPRESENT_PARAMETERS presentParameters;
     GameConfiguration cfg;
+#if !TRIALBUILD
+    // NOTE: This is not even close to a default config
     GameConfiguration defaultConfig;
+#endif
     i32 calcCount;
     i32 wantedState;
     i32 curState;
     i32 prevState;
 
     unreferenced_fields(0x4);
-    i32 unk198;
+    i32 forceRedrawFrames;
     ZunBool isInEnding;
 
     ZunBool vsyncEnabled;
@@ -245,7 +248,11 @@ struct Supervisor
     u32 startupTimeBeforeMenuMusic;
     D3DCAPS8 d3dCaps;
 };
+#if !TRIALBUILD
 ZUN_ASSERT_SIZE(Supervisor, 0x4d8);
+#else
+ZUN_ASSERT_SIZE(Supervisor, 0x4a0);
+#endif
 
 DIFFABLE_EXTERN(Supervisor, g_Supervisor);
 

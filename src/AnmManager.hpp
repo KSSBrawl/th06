@@ -128,17 +128,17 @@ struct AnmManager
 
     void TakeScreenshot(i32 textureId, i32 left, i32 top, i32 width, i32 height);
 
+    void InitializeAndSetSprite(AnmVm *vm, i32 spriteIdx)
+    {
+        vm->Initialize();
+        this->SetActiveSprite(vm, spriteIdx);
+    }
+
     void SetAndExecuteScript(AnmVm *vm, AnmRawInstr *beginingOfScript);
     void SetAndExecuteScriptIdx(AnmVm *vm, i32 anmFileIdx)
     {
         vm->anmFileIndex = anmFileIdx;
         this->SetAndExecuteScript(vm, this->scripts[anmFileIdx]);
-    }
-
-    void InitializeAndSetSprite(AnmVm *vm, i32 spriteIdx)
-    {
-        vm->Initialize();
-        this->SetActiveSprite(vm, spriteIdx);
     }
 
     void ClearScriptRange(i32 base, i32 range)
@@ -231,13 +231,14 @@ struct AnmManager
 
     void SetRenderStateForVm(AnmVm *vm);
 
-    void RequestScreenshot()
+    void RequestScreenshot(i32 textureId = 3, i32 left = GAME_REGION_LEFT, i32 top = GAME_REGION_TOP,
+                           i32 width = GAME_REGION_WIDTH, i32 height = GAME_REGION_HEIGHT)
     {
-        this->screenshotTextureId = 3;
-        this->screenshotLeft = GAME_REGION_LEFT;
-        this->screenshotTop = GAME_REGION_TOP;
-        this->screenshotWidth = GAME_REGION_WIDTH;
-        this->screenshotHeight = GAME_REGION_HEIGHT;
+        this->screenshotTextureId = textureId;
+        this->screenshotLeft = left;
+        this->screenshotTop = top;
+        this->screenshotWidth = width;
+        this->screenshotHeight = height;
     }
 
     AnmLoadedSprite sprites[MAX_ANM_SPRITES];

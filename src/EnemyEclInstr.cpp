@@ -226,7 +226,8 @@ void ExInsStage56Func4(Enemy *enemy, EclRawInstr *instr)
                     playerBulletOffset.x = (currentBullet->pos.x) - g_Player.positionCenter.x;
                     playerBulletOffset.y = (currentBullet->pos.y) - g_Player.positionCenter.y;
 
-                    if (playerBulletOffset.VectorLength() > 128.0f)
+                    if (sqrtf(playerBulletOffset.x * playerBulletOffset.x +
+                              playerBulletOffset.y * playerBulletOffset.y) > 128.0f)
                     {
                         currentBullet->angle =
                             g_Rng.GetRandomF32ZeroToOne() * ((ZUN_PI * 3.0f) / 4.0f) + (ZUN_PI / 4.0f);
@@ -268,7 +269,8 @@ void ExInsStage56Func4(Enemy *enemy, EclRawInstr *instr)
                     playerBulletOffset.x = (currentBullet->pos.x) - g_Player.positionCenter.x;
                     playerBulletOffset.y = (currentBullet->pos.y) - g_Player.positionCenter.y;
 
-                    if (playerBulletOffset.VectorLength() > 128.0f)
+                    if (sqrtf(playerBulletOffset.x * playerBulletOffset.x +
+                              playerBulletOffset.y * playerBulletOffset.y) > 128.0f)
                     {
                         currentBullet->angle = g_Rng.GetRandomF32ZeroToOne() * ZUN_2PI;
                     }

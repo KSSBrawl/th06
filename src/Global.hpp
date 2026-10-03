@@ -49,8 +49,19 @@ namespace th06
 namespace utils
 {
 ZunResult CheckForRunningGameInstance(void);
+
+// TODO: Properly make these a single static header func
+#if !TRIALBUILD
 void DebugPrint(const char *fmt, ...);
 void DebugPrint2(const char *fmt, ...);
+#else
+static void DebugPrint(const char *fmt, ...)
+{
+}
+static void DebugPrint2(const char *fmt, ...)
+{
+}
+#endif
 
 f32 AddNormalizeAngle(f32 a, f32 b);
 void Rotate(D3DXVECTOR3 *outVector, D3DXVECTOR3 *point, f32 angle);
@@ -201,7 +212,13 @@ DIFFABLE_EXTERN(HANDLE, g_ExclusiveMutex);
 struct GameErrorContext
 {
     char m_Buffer[0x800];
+#if TRIALBUILD
+    char m_DetailedBuffer[0x800];
+#endif
     char *m_BufferEnd;
+#if TRIALBUILD
+    char *m_DetailedBufferEnd;
+#endif
     i8 m_ShowMessageBox;
     alignment_padding(0x3);
 
@@ -210,6 +227,9 @@ struct GameErrorContext
         ResetContext();
         m_ShowMessageBox = false;
         Log(TH_ERR_LOGGER_START);
+#if TRIALBUILD
+        DetailedLog(""); // TODO: Add string
+#endif
     }
 
     ~GameErrorContext()
@@ -220,10 +240,17 @@ struct GameErrorContext
     {
         m_BufferEnd = m_Buffer;
         m_BufferEnd[0] = '\0';
+#if TRIALBUILD
+        m_DetailedBufferEnd = m_DetailedBuffer;
+        m_DetailedBufferEnd[0] = '\0';
+#endif
     }
 
     const char *Fatal(const char *fmt, ...);
     const char *Log(const char *fmt, ...);
+#if TRIALBUILD
+    const char *DetailedLog(const char *fmd, ...);
+#endif
 
     void Flush()
     {
@@ -245,7 +272,11 @@ struct GameErrorContext
         }
     }
 };
+#if !TRIALBUILD
 ZUN_ASSERT_TYPE(GameErrorContext, 0x808, 4);
+#else
+ZUN_ASSERT_TYPE(GameErrorContext, 0x100C, 4);
+#endif
 
 DIFFABLE_EXTERN(GameErrorContext, g_GameErrorContext);
 DIFFABLE_EXTERN(Pbg3Archive **, g_Pbg3Archives);

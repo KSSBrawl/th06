@@ -55,7 +55,7 @@ def build(build_type, comdat_permute_enable, verbose=False, jobs=1, target=None)
         ninja_args += ["build/th06.exe"]
 
     # best yet: 201
-    comdat_permute = 201
+    comdat_permute = 0
     best_match = comdat_permute
     best_match_dist = 0
 

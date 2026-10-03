@@ -197,6 +197,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
         }
         // no break
     case STATE_PRE_INPUT:
+#if !TRIALBUILD
         menu->idleFrames++;
         if ((g_CurFrameInput & 0xffff) != 0)
         {
@@ -206,11 +207,13 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
         {
             goto load_menu_rpy;
         }
+#endif
         if (menu->WeirdSecondInputCheck())
             break;
         menu->idleFrames = 0;
     case STATE_MAIN_MENU:
         menu->DrawStartMenu();
+#if !TRIALBUILD
         if ((g_CurFrameInput & 0xffff) != 0)
         {
             menu->idleFrames = 0;
@@ -229,6 +232,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
             g_Supervisor.curState = SUPERVISOR_STATE_GAMEMANAGER;
             return CHAIN_CALLBACK_RESULT_CONTINUE_AND_REMOVE_JOB;
         }
+#endif
         break;
     case STATE_REPLAY_LOAD:
     case STATE_REPLAY_ANIM:
@@ -1187,6 +1191,7 @@ ZunResult MainMenu::DrawStartMenu(void)
                 this->framesActive = 60;
                 g_SoundPlayer.PlaySoundByIdx(SOUND_SELECT);
                 break;
+#if !TRIALBUILD
             case 1:
                 if (!(!g_GameManager.HasReachedMaxClears(CHARA_REIMU, SHOT_TYPE_A) &&
                       !g_GameManager.HasReachedMaxClears(CHARA_REIMU, SHOT_TYPE_B) &&
@@ -1212,6 +1217,7 @@ ZunResult MainMenu::DrawStartMenu(void)
                     g_SoundPlayer.PlaySoundByIdx(SOUND_BACK);
                 }
                 break;
+#endif
             case 2:
                 g_GameManager.isInPracticeMode = true;
                 for (i = 0; i < ARRAY_SIZE_SIGNED(this->vm); i++)
@@ -2245,7 +2251,9 @@ ZunResult MainMenu_RegisterChain(ZunBool isDemo)
 
 ZunResult MainMenu::AddedCallback(MainMenu *menu)
 {
+#if !TRIALBUILD
     if (!g_GameManager.demoMode)
+#endif
     {
         g_Supervisor.SetupMidiPlayback("bgm/th06_01.mid");
     }

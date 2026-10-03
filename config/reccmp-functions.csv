@@ -37,7 +37,7 @@ th06::Stage::RenderObjects,0x404970,function
 th06::AnmManager::ExecuteAnmIdx,0x4051b0,function
 th06::BombData::BombReimuACalc,0x405260,function
 th06::BombData::BombReimuADraw,0x405c10,function
-th06::BombData::DarkenViewport,0x406020,function
+th06::DarkenViewport,0x406020,function
 th06::BombData::BombReimuBCalc,0x406160,function
 th06::BombData::BombReimuBDraw,0x4065e0,function
 th06::BombData::BombMarisaACalc,0x4066f0,function

@@ -261,7 +261,11 @@ ChainCallbackResult Gui::OnDraw(Gui *gui)
         stringPos.y += 16.0f;
         if (g_GameManager.difficulty < EXTRA && !g_GameManager.isInPracticeMode)
         {
+#if !TRIALBUILD
             switch (g_Supervisor.defaultConfig.lifeCount)
+#else
+            switch (g_Supervisor.cfg.lifeCount)
+#endif
             {
             case 3:
                 g_AsciiManager.color = COLOR_LIGHT_RED;
@@ -333,7 +337,9 @@ void Gui::ShowBombNamePortrait(u32 sprite, const char *bombName)
     g_AnmManager->DrawVmTextFmt(&this->impl->bombSpellcardName, COLOR_RGB(COLOR_BARELY_BLUE), COLOR_RGB(COLOR_BLACK),
                                 bombName);
     this->bombSpellcardBarLength = strlen(bombName) * 15 / 2.0f + 16.0f; // TODO: Is this 15 the font size?
-    g_Supervisor.unk198 = 3;
+#if !TRIALBUILD
+    g_Supervisor.forceRedrawFrames = 3;
+#endif
     g_SoundPlayer.PlaySoundByIdx(SOUND_BOMB);
 }
 
@@ -588,7 +594,9 @@ void Gui::FreeMsgFile()
 void Gui::MsgRead(i32 msgIdx)
 {
     this->impl->MsgRead(msgIdx);
-    g_Supervisor.unk198 = 3;
+#if !TRIALBUILD
+    g_Supervisor.forceRedrawFrames = 3;
+#endif
 }
 
 void GuiImpl::MsgRead(i32 msgIdx)
@@ -934,7 +942,7 @@ void Gui::UpdateStageElements()
                     this->bossUIOpacity = 0;
                 }
             }
-            if (2 <= this->impl->bossHealthBarState)
+            if (this->impl->bossHealthBarState >= 2)
             {
                 if (this->bossHealthBar1 > this->bossHealthBar2)
                 {
@@ -1043,7 +1051,11 @@ void Gui::UpdateStageElements()
             stageScore -= stageScore % 10;
             break;
         }
+#if !TRIALBUILD
         switch (g_Supervisor.defaultConfig.lifeCount)
+#else
+        switch (g_Supervisor.cfg.lifeCount)
+#endif
         {
         case 3:
             stageScore = stageScore * 5 / 10;
@@ -1126,7 +1138,8 @@ void Gui::DrawGameScene()
     g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
     vm = &this->impl->vms[6];
     if (!g_Supervisor.IsMinimumGraphicsMode() &&
-        (vm->currentInstruction != NULL || g_Supervisor.unk198 != 0 || g_Supervisor.ShouldForceBackbufferClear()))
+        (vm->currentInstruction != NULL || g_Supervisor.forceRedrawFrames != 0 ||
+         g_Supervisor.ShouldForceBackbufferClear()))
     {
         for (yPos = 0.0f; yPos < 464.0f; yPos += 32.0f)
         {

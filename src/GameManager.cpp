@@ -97,7 +97,9 @@ ChainCallbackResult GameManager::OnUpdate(GameManager *gameManager)
         g_GameManager.arcadeRegionTopLeftPos.y = GAME_REGION_TOP;
         g_GameManager.arcadeRegionSize.x = GAME_REGION_WIDTH;
         g_GameManager.arcadeRegionSize.y = GAME_REGION_HEIGHT;
-        g_Supervisor.unk198 = 3;
+#if !TRIALBUILD
+        g_Supervisor.forceRedrawFrames = 3;
+#endif
     }
 
     if (!gameManager->isInRetryMenu && !gameManager->isInGameMenu)
@@ -264,14 +266,15 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
     u32 catkCursor;
     i32 i;
     Catk *catk;
-    ZunBool failedToLoadReplay;
 
-    failedToLoadReplay = false;
+    ZunBool failedToLoadReplay = false;
     g_Supervisor.d3dDevice->ResourceManagerDiscardBytes(0);
     if (g_Supervisor.curState != SUPERVISOR_STATE_NEXT_STAGE)
     {
+#if !TRIALBUILD
         g_Supervisor.defaultConfig.bombCount = g_GameManager.bombsRemaining;
         g_Supervisor.defaultConfig.lifeCount = g_GameManager.livesRemaining;
+#endif
         mgr->arcadeRegionTopLeftPos.x = GAME_REGION_LEFT;
         mgr->arcadeRegionTopLeftPos.y = GAME_REGION_TOP;
         mgr->arcadeRegionSize.x = GAME_REGION_WIDTH;
@@ -450,11 +453,13 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
     mgr->score = 0;
     mgr->isGameCompleted = false;
     g_AsciiManager.InitializeVms();
+#if !TRIALBUILD
     if (failedToLoadReplay)
     {
         g_Supervisor.curState = SUPERVISOR_STATE_MAINMENU;
     }
-    g_Supervisor.unk198 = 3;
+    g_Supervisor.forceRedrawFrames = 3;
+#endif
     return ZUN_SUCCESS;
 }
 
@@ -505,7 +510,7 @@ void GameManager::SetupCameraStageBackground(f32 extraRenderDistance)
     viewportMiddleHeight = g_Supervisor.viewport.Height / 2.0f;
     aspectRatio = (f32)g_Supervisor.viewport.Width / (f32)g_Supervisor.viewport.Height;
     fov = D3DXToRadian(30.0f);
-    cameraDistance = viewportMiddleHeight / tanf(fov / 2.0f);
+    cameraDistance = viewportMiddleHeight / (f32)tan(fov / 2.0f);
     upVec.x = 0.0f;
     upVec.y = 1.0f;
     upVec.z = 0.0f;
@@ -544,7 +549,7 @@ void GameManager::SetupCamera(f32 extraRenderDistance)
     viewportMiddleHeight = g_Supervisor.viewport.Height / 2.0f;
     aspectRatio = (f32)g_Supervisor.viewport.Width / (f32)g_Supervisor.viewport.Height;
     fov = D3DXToRadian(30.0f);
-    cameraDistance = viewportMiddleHeight / tanf(fov / 2.0f);
+    cameraDistance = viewportMiddleHeight / (f32)tan(fov / 2.0f);
     upVec.x = 0.0f;
     upVec.y = 1.0f;
     upVec.z = 0.0f;

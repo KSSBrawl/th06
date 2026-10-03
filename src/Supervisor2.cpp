@@ -42,7 +42,7 @@ void Supervisor::ReleasePbg3(i32 pbg3FileIdx)
     ZUN_DELETE(this->pbg3Archives[pbg3FileIdx]);
 }
 
-i32 Supervisor::LoadPbg3(i32 pbg3FileIdx, const char *filename)
+BOOL Supervisor::LoadPbg3(i32 pbg3FileIdx, const char *filename)
 {
     if (this->pbg3Archives[pbg3FileIdx] == NULL || strcmp(filename, this->pbg3ArchiveNames[pbg3FileIdx]) != 0)
     {
@@ -59,7 +59,7 @@ i32 Supervisor::LoadPbg3(i32 pbg3FileIdx, const char *filename)
             if (res < 0)
             {
                 g_GameErrorContext.Fatal(TH_ERR_WRONG_DATA_VERSION);
-                return 1;
+                return TRUE;
             }
         }
         else
@@ -72,7 +72,7 @@ i32 Supervisor::LoadPbg3(i32 pbg3FileIdx, const char *filename)
             this->pbg3Archives[pbg3FileIdx] = NULL;
         }
     }
-    return 0;
+    return FALSE;
 }
 
 ZunResult Supervisor::LoadConfig(const char *path)
@@ -221,16 +221,11 @@ ZunBool Supervisor::ReadMidiFile(u32 midiFileIdx, const char *path)
 
 ZunBool Supervisor::PlayMidiFile(i32 midiFileIdx)
 {
-    MidiOutput *globalMidiController;
-
     if (g_Supervisor.cfg.musicMode == MIDI)
     {
         if (g_Supervisor.midiOutput != NULL)
         {
-            globalMidiController = g_Supervisor.midiOutput;
-            globalMidiController->StopPlayback();
-            globalMidiController->ParseFile(midiFileIdx);
-            globalMidiController->Play();
+            g_Supervisor.midiOutput->ParseAndPlay(midiFileIdx);
         }
 
         return FALSE;
@@ -264,10 +259,7 @@ ZunResult Supervisor::PlayAudio(const char *path)
     {
         if (g_Supervisor.midiOutput != NULL)
         {
-            MidiOutput *midiOutput = g_Supervisor.midiOutput;
-            midiOutput->StopPlayback();
-            midiOutput->LoadFile(path);
-            midiOutput->Play();
+            g_Supervisor.midiOutput->LoadAndPlay(path);
         }
     }
     else if (g_Supervisor.cfg.musicMode == WAV)

@@ -130,6 +130,19 @@ struct MidiOutput : MidiTimer
     ZunResult LoadFile(const char *midiPath);
     ZunResult Play();
 
+    ZunResult LoadAndPlay(const char *midiPath)
+    {
+        this->StopPlayback();
+        this->LoadFile(midiPath);
+        return this->Play();
+    }
+    ZunResult ParseAndPlay(i32 idx)
+    {
+        this->StopPlayback();
+        this->ParseFile(idx);
+        return this->Play();
+    }
+
     u32 SetFadeOut(u32 ms);
     void FadeOutSetVolume(i32 volume);
 
