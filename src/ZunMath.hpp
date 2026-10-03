@@ -7,16 +7,6 @@ struct ZunVec2
 {
     f32 x;
     f32 y;
-
-    f32 VectorLength()
-    {
-        return sqrt(this->x * this->x + this->y * this->y);
-    }
-
-    f64 VectorLengthF64()
-    {
-        return this->VectorLength();
-    }
 };
 ZUN_ASSERT_SIZE(ZunVec2, 0x8);
 

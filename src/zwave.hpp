@@ -111,6 +111,13 @@ class CSound
     HRESULT Play(DWORD dwPriority, DWORD dwFlags);
     HRESULT Stop();
     HRESULT Reset();
+
+    void StartFadeOut(float seconds)
+    {
+        this->m_dwIsFadingOut = TRUE;
+        this->m_dwCurFadeoutProgress = seconds * 60;
+        this->m_dwTotalFadeout = this->m_dwCurFadeoutProgress;
+    }
 };
 
 //-----------------------------------------------------------------------------

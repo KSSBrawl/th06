@@ -279,13 +279,14 @@ ZunResult Supervisor::RegisterChain()
 
 static ZunResult SetupDInput(Supervisor *supervisor)
 {
-    HINSTANCE hInst;
+    HINSTANCE hInst = (HINSTANCE)GetWindowLong(supervisor->hwndGameWindow, GWL_HINSTANCE);
 
-    hInst = (HINSTANCE)GetWindowLong(supervisor->hwndGameWindow, GWL_HINSTANCE);
+#if !TRIALBUILD
     if (supervisor->IsDInputDisabled())
     {
         return ZUN_ERROR;
     }
+#endif
 
     if (FAILED(DirectInput8Create(hInst, DIRECTINPUT_VERSION, IID_IDirectInput8, (LPVOID *)&supervisor->dinputIface,
                                   NULL)))
@@ -345,9 +346,7 @@ static ZunResult SetupDInput(Supervisor *supervisor)
 
 ZunResult Supervisor::AddedCallback(Supervisor *s)
 {
-    i32 i;
-
-    for (i = 0; i < ARRAY_SIZE_SIGNED(s->pbg3Archives); i++)
+    for (i32 i = 0; i < ARRAY_SIZE_SIGNED(s->pbg3Archives); i++)
     {
         s->pbg3Archives[i] = NULL;
     }
@@ -387,23 +386,23 @@ ZunResult Supervisor::AddedCallback(Supervisor *s)
         return ZUN_ERROR;
     }
 
-    s->unk198 = 0;
+    s->forceRedrawFrames = 0;
     g_AnmManager->SetupVertexBuffer();
     TextHelper::CreateTextBuffer();
     s->ReleasePbg3(IN_PBG3_INDEX);
-    if (g_Supervisor.LoadPbg3(MD_PBG3_INDEX, TH_MD_DAT_FILE) != 0)
+    if (g_Supervisor.LoadPbg3(MD_PBG3_INDEX, TH_MD_DAT_FILE))
+    {
         return ZUN_ERROR;
+    }
 
     return ZUN_SUCCESS;
 }
 
 BOOL CALLBACK Supervisor::EnumGameControllersCb(LPCDIDEVICEINSTANCE pdidInstance, LPVOID pContext)
 {
-    HRESULT result;
-
     if (!g_Supervisor.controller)
     {
-        result = g_Supervisor.dinputIface->CreateDevice(pdidInstance->guidInstance, &g_Supervisor.controller, NULL);
+        HRESULT result = g_Supervisor.dinputIface->CreateDevice(pdidInstance->guidInstance, &g_Supervisor.controller, NULL);
         if (FAILED(result))
         {
             return TRUE;
@@ -414,10 +413,8 @@ BOOL CALLBACK Supervisor::EnumGameControllersCb(LPCDIDEVICEINSTANCE pdidInstance
 
 ZunResult Supervisor::DeletedCallback(Supervisor *s)
 {
-    i32 pbg3Idx;
-
     g_AnmManager->ReleaseVertexBuffer();
-    for (pbg3Idx = 0; pbg3Idx < ARRAY_SIZE_SIGNED(s->pbg3Archives); pbg3Idx++)
+    for (i32 pbg3Idx = 0; pbg3Idx < ARRAY_SIZE_SIGNED(s->pbg3Archives); pbg3Idx++)
     {
         s->ReleasePbg3(pbg3Idx);
     }
@@ -459,6 +456,8 @@ void Supervisor::DrawFpsCounter()
 
     curTime = timeGetTime();
     g_NumFramesSinceLastTime = g_NumFramesSinceLastTime + 1 + (u32)g_Supervisor.cfg.frameskipConfig;
+    // NOTE: This compare is backwards to match
+    // known source ZUN based this on.
     if (500 <= curTime - g_LastTime)
     {
         elapsed = (curTime - g_LastTime) / 1000.0f;

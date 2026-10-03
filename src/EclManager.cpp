@@ -366,13 +366,13 @@ restart_sub_changed:
             shooter->sprite = args->sprite;
             shooter->aimMode = curInstr->opCode - ECL_OPCODE_BULLET_FAN_AIMED;
             shooter->count1 = *EnemyEclInstr::GetVar(enemy, &args->count1, NULL);
-            shooter->count1 += enemy->BulletRankAmount1(g_GameManager.rank);
+            shooter->count1 += g_GameManager.RankLerpInt(enemy->bulletRankAmount1Low, enemy->bulletRankAmount1High);
             if (shooter->count1 <= 0)
             {
                 shooter->count1 = 1;
             }
             shooter->count2 = *EnemyEclInstr::GetVar(enemy, &args->count2, NULL);
-            shooter->count2 += enemy->BulletRankAmount2(g_GameManager.rank);
+            shooter->count2 += g_GameManager.RankLerpInt(enemy->bulletRankAmount2Low, enemy->bulletRankAmount2High);
             if (shooter->count2 <= 0)
             {
                 shooter->count2 = 1;
@@ -383,7 +383,7 @@ restart_sub_changed:
             shooter->speed1 = *EnemyEclInstr::GetVarFloat(enemy, &args->speed1, NULL);
             if (shooter->speed1 != 0.0f)
             {
-                shooter->speed1 += enemy->BulletRankSpeed(g_GameManager.rank);
+                shooter->speed1 += g_GameManager.RankLerpFloat(enemy->bulletRankSpeedLow, enemy->bulletRankSpeedHigh);
                 if (shooter->speed1 < 0.3f)
                 {
                     shooter->speed1 = 0.3;
@@ -391,7 +391,7 @@ restart_sub_changed:
             }
             shooter->angle2 = *EnemyEclInstr::GetVarFloat(enemy, &args->angle2, NULL);
             shooter->speed2 = *EnemyEclInstr::GetVarFloat(enemy, &args->speed2, NULL);
-            shooter->speed2 += enemy->BulletRankSpeed(g_GameManager.rank) / 2.0f;
+            shooter->speed2 += g_GameManager.RankLerpFloat(enemy->bulletRankSpeedLow, enemy->bulletRankSpeedHigh) / 2.0f;
             if (shooter->speed2 < 0.3f)
             {
                 shooter->speed2 = 0.3f;
@@ -425,12 +425,12 @@ restart_sub_changed:
         }
         case ECL_OPCODE_SHOOT_INTERVAL:
             enemy->shootInterval = curInstr->args.setInt;
-            enemy->shootInterval += enemy->ShootInterval(g_GameManager.rank);
+            enemy->shootInterval += g_GameManager.RankLerpInt(enemy->shootInterval / 5, -enemy->shootInterval / 5);
             enemy->shootIntervalTimer = 0;
             break;
         case ECL_OPCODE_SHOOT_INTERVAL_DELAYED:
             enemy->shootInterval = curInstr->args.setInt;
-            enemy->shootInterval += enemy->ShootInterval(g_GameManager.rank);
+            enemy->shootInterval += g_GameManager.RankLerpInt(enemy->shootInterval / 5, -enemy->shootInterval / 5);
             if (enemy->shootInterval != 0)
             {
                 enemy->shootIntervalTimer = g_Rng.GetRandomU32InRange(enemy->shootInterval);
@@ -720,12 +720,7 @@ restart_sub_changed:
             g_BulletManager.TurnAllBulletsIntoPoints();
             g_Stage.spellcardState = RUNNING;
             g_Stage.ticksSinceSpellcardStarted = 0;
-            enemy->bulletRankSpeedLow = -0.5f;
-            enemy->bulletRankSpeedHigh = 0.5f;
-            enemy->bulletRankAmount1Low = 0;
-            enemy->bulletRankAmount1High = 0;
-            enemy->bulletRankAmount2Low = 0;
-            enemy->bulletRankAmount2High = 0;
+            enemy->ResetRank();
             Catk *catk = &g_GameManager.catk[g_EnemyManager.spellcardInfo.idx];
             i32 csum = 0;
             i32 length;

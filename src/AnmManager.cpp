@@ -1226,6 +1226,7 @@ break_parser:
         }
         i32 colorIdx;
         i32 colorInterp;
+        // TODO: Slightly different codegen here in trial?
         for (colorIdx = 0; colorIdx < 4; colorIdx++)
         {
             colorInterp = ((f32)COLOR_GET_COMPONENT(colorFinal, colorIdx) - (f32)COLOR_GET_COMPONENT(color, colorIdx)) *

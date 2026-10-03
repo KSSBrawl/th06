@@ -149,6 +149,15 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPST
         return 1;
     }
 
+#if TRIALBUILD
+    if (GetDXVersion() != 0x800)
+    {
+        g_GameErrorContext.Fatal(""); // TODO: string
+        g_GameErrorContext.Flush();
+        return -1;
+    }
+#endif
+
     g_Supervisor.hInstance = hInstance;
 
     if (g_Supervisor.LoadConfig(TH_CONFIG_FILE) != ZUN_SUCCESS)
@@ -227,7 +236,7 @@ restart:
                         break;
                     }
                     GameWindow::InitD3dDevice();
-                    g_Supervisor.unk198 = 3;
+                    g_Supervisor.forceRedrawFrames = 3;
                 }
             }
         }
@@ -412,12 +421,12 @@ void GameWindow::Present()
         g_AnmManager->ReleaseSurfaces();
         g_Supervisor.d3dDevice->Reset(&g_Supervisor.presentParameters);
         InitD3dDevice();
-        g_Supervisor.unk198 = 2;
+        g_Supervisor.forceRedrawFrames = 2;
     }
     g_AnmManager->TakeScreenshotIfRequested();
-    if (g_Supervisor.unk198 != 0)
+    if (g_Supervisor.forceRedrawFrames != 0)
     {
-        g_Supervisor.unk198--;
+        g_Supervisor.forceRedrawFrames--;
     }
 }
 

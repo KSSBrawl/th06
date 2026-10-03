@@ -1517,6 +1517,7 @@ ChainCallbackResult ResultScreen::OnUpdate(ResultScreen *resultScreen)
 
     case RESULT_SCREEN_STATE_BEST_SCORES_EXTRA:
 
+#if !TRIALBUILD
         if (IS_PRESSED(TH_BUTTON_FOCUS) || IS_PRESSED(TH_BUTTON_SKIP))
         {
             if (resultScreen->cheatCodeStep < 5)
@@ -1570,6 +1571,7 @@ ChainCallbackResult ResultScreen::OnUpdate(ResultScreen *resultScreen)
         {
             resultScreen->cheatCodeStep = 0;
         }
+#endif
     case RESULT_SCREEN_STATE_BEST_SCORES_EASY:
     case RESULT_SCREEN_STATE_BEST_SCORES_NORMAL:
     case RESULT_SCREEN_STATE_BEST_SCORES_HARD:
@@ -2158,6 +2160,7 @@ ZunResult ResultScreen::DeletedCallback(ResultScreen *resultScreen)
     return ZUN_SUCCESS;
 }
 
+#if !TRIALBUILD
 namespace utils
 {
 void DebugPrint(const char *fmt, ...)
@@ -2174,4 +2177,5 @@ void DebugPrint(const char *fmt, ...)
 #endif
 }
 } // namespace utils
+#endif
 } // namespace th06

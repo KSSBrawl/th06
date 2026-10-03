@@ -423,7 +423,7 @@ th06::BombData::BombMarisaACalc
 th06::BombData::BombMarisaADraw
 th06::BombData::BombMarisaBCalc
 th06::BombData::BombMarisaBDraw
-th06::BombData::DarkenViewport
+th06::DarkenViewport
 th06::Player::FireBulletReimuB
 th06::Player::FireBulletMarisaA
 th06::Player::FireBulletMarisaB

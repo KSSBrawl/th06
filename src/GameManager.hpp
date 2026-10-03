@@ -86,6 +86,16 @@ struct GameManager
         return g_GameManager.shotType + g_GameManager.character * SHOTTYPES_PER_CHARACTER;
     }
 
+    i32 RankLerpInt(i32 minVal, i32 maxVal)
+    {
+        return this->rank * (maxVal - minVal) / 32 + minVal;
+    }
+
+    float RankLerpFloat(float minVal, float maxVal)
+    {
+        return this->rank * (maxVal - minVal) / 32.0f + minVal;
+    }
+
     u32 guiScore;
     u32 score;
     u32 nextScoreIncrement;

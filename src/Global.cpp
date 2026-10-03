@@ -20,14 +20,21 @@
 
 namespace th06
 {
-
-DIFFABLE_STATIC_ASSIGN(ControllerMapping, g_ControllerMapping) = {0, 1, 2, 4, -1, -1, -1, -1, 3};
+DIFFABLE_STATIC_ASSIGN(ControllerMapping, g_ControllerMapping) = {
+#if !TRIALBUILD
+    0, 1, 2, 4, -1, -1, -1, -1, 3
+#else
+    0, 1, 0, -1, -1, -1, -1, -1, 0
+#endif
+};
 
 DIFFABLE_STATIC_SORTED(J1, Chain, g_Chain);
 
 // Controller
 DIFFABLE_STATIC_SORTED(J5, u8, g_ControllerData[128]);
+#if !TRIALBUILD
 DIFFABLE_STATIC_SORTED(I1, JOYCAPS, g_JoystickCaps);
+#endif
 DIFFABLE_STATIC_SORTED(I2, u16, g_FocusButtonConflictState);
 DIFFABLE_STATIC_SORTED(I6, u16, g_LastFrameInput);
 DIFFABLE_STATIC_SORTED(I7, u16, g_IsEigthFrameOfHeldInput);
@@ -91,9 +98,7 @@ Chain::Chain()
 
 int Chain::AddToCalcChain(ChainElem *elem, int priority)
 {
-    ChainElem *cur;
-
-    cur = &this->calcChain;
+    ChainElem *cur = &this->calcChain;
     utils::DebugPrint2("add calc chain (pri = %d)\n", priority);
     elem->priority = priority;
 
@@ -141,9 +146,7 @@ int Chain::AddToCalcChain(ChainElem *elem, int priority)
 
 int Chain::AddToDrawChain(ChainElem *elem, int priority)
 {
-    ChainElem *cur;
-
-    cur = &this->drawChain;
+    ChainElem *cur = &this->drawChain;
     utils::DebugPrint2("add draw chain (pri = %d)\n", priority);
     elem->priority = priority;
 
@@ -242,11 +245,9 @@ restart_from_first_job:
 int Chain::RunDrawChain(void)
 {
     ChainElem *tmp1;
-    ChainElem *current;
-    int updatedCount;
 
-    updatedCount = 0;
-    current = &this->drawChain;
+    int updatedCount = 0;
+    ChainElem *current = &this->drawChain;
 
     while (current != NULL)
     {
@@ -346,17 +347,14 @@ ChainElem *Chain::CreateElem(ChainCallback callback)
 
 void Chain::Cut(ChainElem *to_remove)
 {
-    ZunBool isDrawChain;
-    ChainElem *tmp;
-
-    isDrawChain = false;
+    ZunBool isDrawChain = false;
 
     if (to_remove == NULL)
     {
         return;
     }
 
-    tmp = &this->calcChain;
+    ChainElem *tmp = &this->calcChain;
 
     while (tmp != NULL)
     {
@@ -433,18 +431,23 @@ DIFFABLE_STATIC_SORTED(I9, u32, g_LastFileSize);
 
 u16 Controller::GetJoystickCaps(void)
 {
+    // NOTE: This isn't stubbed in trial 0.08.
+    // Current trial build is based on version 0.13.
+    // Why was winmm joystick API removed for that????
+#if !TRIALBUILD
     JOYINFOEX pji;
 
     pji.dwSize = sizeof(JOYINFOEX);
     pji.dwFlags = JOY_RETURNALL;
 
-    if (joyGetPosEx(0, &pji) != MMSYSERR_NOERROR)
+    if (joyGetPosEx(JOYSTICKID1, &pji) != JOYERR_NOERROR)
     {
         g_GameErrorContext.Log(TH_ERR_NO_PAD_FOUND);
         return 1;
     }
 
-    joyGetDevCaps(0, &g_JoystickCaps, sizeof(g_JoystickCaps));
+    joyGetDevCaps(JOYSTICKID1, &g_JoystickCaps, sizeof(g_JoystickCaps));
+#endif
     return 0;
 }
 
@@ -464,13 +467,14 @@ u16 Controller::GetControllerInput(u16 buttons)
     u32 a2;
     HRESULT aaa;
 
+#if !TRIALBUILD
     if (g_Supervisor.controller == NULL)
     {
         memset(&aa, 0, sizeof(aa));
         aa.dwSize = sizeof(JOYINFOEX);
         aa.dwFlags = JOY_RETURNALL;
 
-        if (joyGetPosEx(0, &aa) != MMSYSERR_NOERROR)
+        if (joyGetPosEx(JOYSTICKID1, &aa) != JOYERR_NOERROR)
         {
             return buttons;
         }
@@ -539,6 +543,7 @@ u16 Controller::GetControllerInput(u16 buttons)
         return buttons;
     }
     else
+#endif
     {
         // FIXME: Next if not matching.
         aaa = g_Supervisor.controller->Poll();
@@ -575,8 +580,14 @@ u16 Controller::GetControllerInput(u16 buttons)
                 return buttons;
             }
 
+            // TODO: Code below here doesn't quite match the trial still...
+
             a2 = SetButtonFromDirectInputJoystate(&buttons, g_Supervisor.cfg.controllerMapping.shootButton,
                                                   TH_BUTTON_SHOOT, a0.rgbButtons);
+#if TRIALBUILD
+            SetButtonFromDirectInputJoystate(&buttons, g_Supervisor.cfg.controllerMapping.bombButton, TH_BUTTON_BOMB,
+                                             a0.rgbButtons);
+#endif
 
             if (g_ControllerMapping.shootButton != g_ControllerMapping.focusButton)
             {
@@ -610,8 +621,10 @@ u16 Controller::GetControllerInput(u16 buttons)
                 }
             }
 
+#if !TRIALBUILD
             SetButtonFromDirectInputJoystate(&buttons, g_Supervisor.cfg.controllerMapping.bombButton, TH_BUTTON_BOMB,
                                              a0.rgbButtons);
+#endif
             SetButtonFromDirectInputJoystate(&buttons, g_Supervisor.cfg.controllerMapping.menuButton, TH_BUTTON_MENU,
                                              a0.rgbButtons);
             SetButtonFromDirectInputJoystate(&buttons, g_Supervisor.cfg.controllerMapping.upButton, TH_BUTTON_UP,
@@ -636,7 +649,7 @@ u16 Controller::GetControllerInput(u16 buttons)
 }
 
 u32 Controller::SetButtonFromDirectInputJoystate(u16 *outButtons, i16 controllerButtonToTest,
-                                                 enum TouhouButton touhouButton, u8 *inputButtons)
+                                                 TouhouButton touhouButton, u8 *inputButtons)
 {
     if (controllerButtonToTest < 0)
     {
@@ -649,41 +662,37 @@ u32 Controller::SetButtonFromDirectInputJoystate(u16 *outButtons, i16 controller
 }
 
 u32 Controller::SetButtonFromControllerInputs(u16 *outButtons, i16 controllerButtonToTest,
-                                              enum TouhouButton touhouButton, u32 inputButtons)
+                                              TouhouButton touhouButton, u32 inputButtons)
 {
-    DWORD mask;
-
     if (controllerButtonToTest < 0)
     {
         return 0;
     }
 
-    mask = 1 << controllerButtonToTest;
+    u32 mask = 1 << controllerButtonToTest;
 
     *outButtons |= (inputButtons & mask ? touhouButton & 0xFFFF : 0);
 
     return inputButtons & mask ? touhouButton & 0xFFFF : 0;
 }
 
-#pragma var_order(joyinfoex, joyButtonBit, joyButtonIndex, dires, dijoystate2, diRetryCount)
 // This is for rebinding keys
 u8 *th06::Controller::GetControllerState()
 {
-    JOYINFOEX joyinfoex;
-    u32 joyButtonBit;
-    u32 joyButtonIndex;
-
-    i32 dires;
-    DIJOYSTATE2 dijoystate2;
-    i32 diRetryCount;
-
     memset(&g_ControllerData, 0, sizeof(g_ControllerData));
+
+#if !TRIALBUILD
+#pragma var_order(joyinfoex, joyButtonBit, joyButtonIndex)
     if (g_Supervisor.controller == NULL)
     {
+        JOYINFOEX joyinfoex;
+        u32 joyButtonBit;
+        u32 joyButtonIndex;
+
         memset(&joyinfoex, 0, sizeof(JOYINFOEX));
         joyinfoex.dwSize = sizeof(JOYINFOEX);
         joyinfoex.dwFlags = JOY_RETURNALL;
-        if (joyGetPosEx(0, &joyinfoex) != JOYERR_NOERROR)
+        if (joyGetPosEx(JOYSTICKID1, &joyinfoex) != JOYERR_NOERROR)
         {
             return g_ControllerData;
         }
@@ -698,11 +707,15 @@ u8 *th06::Controller::GetControllerState()
         return g_ControllerData;
     }
     else
+#endif
+#pragma var_order(dires, dijoystate2)
     {
-        dires = g_Supervisor.controller->Poll();
+        DIJOYSTATE2 dijoystate2;
+
+        HRESULT dires = g_Supervisor.controller->Poll();
         if (FAILED(dires))
         {
-            diRetryCount = 0;
+            i32 diRetryCount = 0;
             utils::DebugPrint2("error : DIERR_INPUTLOST\n");
             dires = g_Supervisor.controller->Acquire();
             while (dires == DIERR_INPUTLOST)
@@ -731,9 +744,7 @@ u8 *th06::Controller::GetControllerState()
 u16 Controller::GetInput(void)
 {
     u8 keyboardState[256];
-    u16 buttons;
-
-    buttons = 0;
+    u16 buttons = 0;
 
     if (g_Supervisor.keyboard == NULL)
     {
@@ -882,11 +893,10 @@ u8 *FileSystem::OpenPath(const char *filepath, ZunBool isExternalResource)
     u8 *data;
     FILE *file;
     size_t fsize;
-    i32 entryIdx;
     const char *entryname;
     i32 pbg3Idx;
 
-    entryIdx = -1;
+    i32 entryIdx = -1;
     if (!isExternalResource)
     {
         entryname = strrchr(filepath, '\\');
@@ -957,9 +967,7 @@ u8 *FileSystem::OpenPath(const char *filepath, ZunBool isExternalResource)
 
 int FileSystem::WriteDataToFile(const char *path, const void *data, size_t size)
 {
-    FILE *f;
-
-    f = fopen(path, "wb");
+    FILE *f = fopen(path, "wb");
     if (f == NULL)
     {
         return -1;
@@ -1035,6 +1043,32 @@ const char *GameErrorContext::Fatal(const char *fmt, ...)
     return fmt;
 }
 
+#if TRIALBUILD
+const char *GameErrorContext::DetailedLog(const char *fmt, ...)
+{
+    char tmpBuffer[512];
+    size_t tmpBufferSize;
+    va_list args;
+
+    va_start(args, fmt);
+    vsprintf(tmpBuffer, fmt, args);
+
+    tmpBufferSize = strlen(tmpBuffer);
+
+    if (this->m_DetailedBufferEnd + tmpBufferSize < &this->m_DetailedBuffer[sizeof(this->m_DetailedBuffer) - 1])
+    {
+        strcpy(this->m_DetailedBufferEnd, tmpBuffer);
+
+        this->m_DetailedBufferEnd += tmpBufferSize;
+        *this->m_DetailedBufferEnd = '\0';
+    }
+
+    va_end(args);
+
+    return fmt;
+}
+#endif
+
 u16 Rng::GetRandomU16(void)
 {
     u16 a = (this->seed ^ 0x9630) - 0x6553;
@@ -1084,6 +1118,7 @@ void Rotate(D3DXVECTOR3 *outVector, D3DXVECTOR3 *point, f32 angle)
     outVector->y = cosOut * point->y - sinOut * point->x;
 }
 
+#if !TRIALBUILD
 void DebugPrint2(const char *fmt, ...)
 {
 #ifdef DEBUG
@@ -1097,5 +1132,6 @@ void DebugPrint2(const char *fmt, ...)
     printf("DEBUG2: %s\n", tmpBuffer);
 #endif
 }
+#endif
 } // namespace utils
 } // namespace th06

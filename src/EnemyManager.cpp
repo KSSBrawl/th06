@@ -287,10 +287,12 @@ void EnemyManager::RunEclTimeline()
                 if (g_GameManager.difficulty == EASY && g_GameManager.currentStage == 5 &&
                     this->timelineInstr->arg0 == 1)
                 {
+                    // TODO: Codegen here does not match trial
                     g_Gui.MsgRead(g_GameManager.character * 10 + 3);
                 }
                 else
                 {
+                    // TODO: Codegen here does not match trial
                     g_Gui.MsgRead(this->timelineInstr->arg0 + g_GameManager.character * 10);
                 }
                 break;
@@ -340,12 +342,7 @@ ZunBool Enemy::HandleLifeCallback()
         g_EclManager.CallEclSub(&this->currentContext, this->lifeCallbackSub);
         this->lifeCallbackThreshold = -1;
         this->timerCallbackSub = this->deathCallbackSub;
-        this->bulletRankSpeedLow = -0.5f;
-        this->bulletRankSpeedHigh = 0.5f;
-        this->bulletRankAmount1Low = 0;
-        this->bulletRankAmount1High = 0;
-        this->bulletRankAmount2Low = 0;
-        this->bulletRankAmount2High = 0;
+        this->ResetRank();
         this->stackDepth = 0;
 
         curEnemy = g_EnemyManager.enemies;
@@ -424,12 +421,7 @@ ZunBool Enemy::HandleTimerCallback()
                 curEnemy->deathCallbackSub = -1;
             }
         }
-        this->bulletRankSpeedLow = -0.5f;
-        this->bulletRankSpeedHigh = 0.5f;
-        this->bulletRankAmount1Low = 0;
-        this->bulletRankAmount1High = 0;
-        this->bulletRankAmount2Low = 0;
-        this->bulletRankAmount2High = 0;
+        this->ResetRank();
         this->stackDepth = 0;
         return true;
     }
@@ -691,12 +683,7 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
                 g_EffectManager.SpawnParticles(curEnemy->deathParticle2 + 4, &curEnemy->position, 4, COLOR_WHITE);
                 if (curEnemy->deathCallbackSub >= 0)
                 {
-                    curEnemy->bulletRankSpeedLow = -0.5f;
-                    curEnemy->bulletRankSpeedHigh = 0.5f;
-                    curEnemy->bulletRankAmount1Low = 0;
-                    curEnemy->bulletRankAmount1High = 0;
-                    curEnemy->bulletRankAmount2Low = 0;
-                    curEnemy->bulletRankAmount2High = 0;
+                    curEnemy->ResetRank();
                     curEnemy->stackDepth = 0;
                     g_EclManager.CallEclSub(&curEnemy->currentContext, curEnemy->deathCallbackSub);
                     curEnemy->deathCallbackSub = -1;
