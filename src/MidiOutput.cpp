@@ -710,4 +710,8 @@ void MidiOutput::FadeOutSetVolume(i32 volume)
     }
 }
 
+AnmManager::~AnmManager()
+{
+}
+
 }; // namespace th06

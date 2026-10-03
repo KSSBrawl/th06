@@ -24,6 +24,10 @@
 
 namespace th06
 {
+// This is the final section, so force it into the same group as
+// all the library stuff to prevent an extra 16 bytes of padding
+FILE_BSS_SORT(zzzzzzzzzz);
+
 enum GameState
 {
     STATE_STARTUP,

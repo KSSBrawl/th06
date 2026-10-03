@@ -71,6 +71,7 @@
 #define DIFFABLE_STATIC_SORTED(sort, type, name) DIFFABLE_STATIC(type, name)
 #define DIFFABLE_STATIC_ARRAY_SORTED(sort, type, size, name) DIFFABLE_STATIC_ARRAY(type, size, name)
 #define FILE_BSS_SORT(sort)
+#define BSS_SORT(sort)
 #else
 #define DIFFABLE_EXTERN(type, name) extern type name
 #define DIFFABLE_EXTERN_ARRAY(type, size, name) extern type name[size]
@@ -79,16 +80,15 @@
 #define DIFFABLE_STATIC_ASSIGN(type, name) type name
 #define DIFFABLE_STATIC_ARRAY_ASSIGN(type, size, name) type name[size]
 #define DIFFABLE_STATIC_SORTED(sort, type, name)                                                                       \
-    __pragma(section(MACRO_STR(MACRO_CATW(.data$, sort, name)), read, write))                                          \
-        __declspec(allocate(MACRO_STR(MACRO_CATW(.data$, sort, name))))                                                \
+    __pragma(bss_seg(MACRO_STR(MACRO_CATW(.bss$, sort, name))))                                                        \
+        __declspec(allocate(MACRO_STR(MACRO_CATW(.bss$, sort, name))))                                                 \
         DIFFABLE_STATIC(type, name)
 #define DIFFABLE_STATIC_ARRAY_SORTED(sort, type, size, name)                                                           \
-    __pragma(section(MACRO_STR(MACRO_CATW(.data$, sort, name)), read, write))                                          \
-        __declspec(allocate(MACRO_STR(MACRO_CATW(.data$, sort, name))))                                                \
+    __pragma(bss_seg(MACRO_STR(MACRO_CATW(.bss$, sort, name))))                                                        \
+        __declspec(allocate(MACRO_STR(MACRO_CATW(.bss$, sort, name))))                                                 \
         DIFFABLE_STATIC_ARRAY(type, size, name)
-#define FILE_BSS_SORT(sort)                                                                                            \
-    __pragma(section(MACRO_STR(MACRO_CATW(.data$, sort, __LINE__))))                                                   \
-        __pragma(bss_seg(MACRO_STR(MACRO_CATW(.data$, sort, __LINE__))))
+#define FILE_BSS_SORT(sort) __pragma(bss_seg(MACRO_STR(MACRO_CAT(.bss$, sort))))
+#define BSS_SORT(sort) __declspec(allocate(MACRO_STR(MACRO_CAT(.bss$, sort))))
 #endif
 
 // Using __COUNTER__ would be better but makes PCH *really* slow

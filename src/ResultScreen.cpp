@@ -39,19 +39,15 @@ struct ResultScreen
     static ZunResult AddedCallback(ResultScreen *r);
     static ZunResult DeletedCallback(ResultScreen *r);
 
-    static void WriteScore(ResultScreen *r);
     void FreeScore(i32 difficulty, i32 shottype);
 
     static void MoveCursor(ResultScreen *r, i32 len);
     static ZunBool MoveCursorHorizontally(ResultScreen *r, i32 len);
 
-    static void FreeAllScores(ScoreListNode *scores);
-
     i32 HandleResultKeyboard();
     i32 HandleReplaySaveKeyboard();
     ZunResult CheckConfirmButton();
 
-    static i32 LinkScore(ScoreListNode *, Hscr *);
     i32 LinkScoreEx(Hscr *out, i32 difficulty, i32 shottype);
     u32 DrawFinalStats();
 
@@ -172,68 +168,8 @@ ScoreDat *OpenScore(const char *path)
     return scoreData;
 }
 
-#pragma var_order(highScore, remainingSize, scoreData, dataScore, score)
-u32 GetHighScore(ScoreDat *scoreDat, ScoreListNode *node, u32 character, u32 difficulty)
-{
-    u32 score;
-    u32 dataScore;
-    i32 remainingSize;
-    Hscr *highScore;
-    ScoreDat *scoreData;
-
-    scoreData = scoreDat;
-
-    if (node == NULL)
-    {
-        ResultScreen::FreeAllScores(scoreData->scores);
-        scoreData->scores->next = NULL;
-        scoreData->scores->data = NULL;
-        scoreData->scores->prev = NULL;
-    }
-
-    remainingSize = scoreData->fileLen;
-    highScore = (Hscr *)((u8 *)scoreData + scoreData->dataOffset);
-    remainingSize -= scoreData->dataOffset;
-
-    while (remainingSize > 0)
-    {
-        if (highScore->base.magic == HSCR_MAGIC && highScore->base.version == TH6K_VERSION &&
-            highScore->character == character && highScore->difficulty == difficulty)
-        {
-            if (node != NULL)
-            {
-                ResultScreen::LinkScore(node, highScore);
-            }
-            else
-            {
-                ResultScreen::LinkScore(scoreData->scores, highScore);
-            }
-        }
-
-        remainingSize -= highScore->base.th6kLen;
-        highScore = (Hscr *)((u8 *)highScore + highScore->base.th6kLen);
-    }
-    if (scoreData->scores->next != NULL)
-    {
-        if (scoreData->scores->next->data->score > 1000000)
-        {
-            dataScore = scoreData->scores->next->data->score;
-        }
-        else
-        {
-            dataScore = 1000000;
-        }
-        score = dataScore;
-    }
-    else
-    {
-        score = 1000000;
-    }
-    return score;
-}
-
 #pragma var_order(scoresAmount, nextNode)
-i32 ResultScreen::LinkScore(ScoreListNode *prevNode, Hscr *newScore)
+static i32 LinkScore(ScoreListNode *prevNode, Hscr *newScore)
 {
     i32 scoresAmount;
     ScoreListNode *nextNode;
@@ -258,16 +194,74 @@ i32 ResultScreen::LinkScore(ScoreListNode *prevNode, Hscr *newScore)
     return scoresAmount;
 }
 
-void ResultScreen::FreeAllScores(ScoreListNode *scores)
+static void FreeAllScores(ScoreListNode *scores)
 {
-    ScoreListNode *next;
     scores = scores->next;
     while (scores != NULL)
     {
-        next = scores->next;
+        ScoreListNode *next = scores->next;
         ZUN_FREE(scores);
         scores = next;
     }
+}
+
+#pragma var_order(highScore, remainingSize, scoreData, dataScore, score)
+u32 GetHighScore(ScoreDat *scoreDat, ScoreListNode *node, u32 character, u32 difficulty)
+{
+    u32 score;
+    u32 dataScore;
+    i32 remainingSize;
+    Hscr *highScore;
+
+    ScoreDat *scoreData = scoreDat;
+
+    if (node == NULL)
+    {
+        FreeAllScores(scoreData->scores);
+        scoreData->scores->next = NULL;
+        scoreData->scores->data = NULL;
+        scoreData->scores->prev = NULL;
+    }
+
+    remainingSize = scoreData->fileLen;
+    highScore = (Hscr *)((u8 *)scoreData + scoreData->dataOffset);
+    remainingSize -= scoreData->dataOffset;
+
+    while (remainingSize > 0)
+    {
+        if (highScore->base.magic == HSCR_MAGIC && highScore->base.version == TH6K_VERSION &&
+            highScore->character == character && highScore->difficulty == difficulty)
+        {
+            if (node != NULL)
+            {
+                LinkScore(node, highScore);
+            }
+            else
+            {
+                LinkScore(scoreData->scores, highScore);
+            }
+        }
+
+        remainingSize -= highScore->base.th6kLen;
+        highScore = (Hscr *)((u8 *)highScore + highScore->base.th6kLen);
+    }
+    if (scoreData->scores->next != NULL)
+    {
+        if (scoreData->scores->next->data->score > 1000000)
+        {
+            dataScore = scoreData->scores->next->data->score;
+        }
+        else
+        {
+            dataScore = 1000000;
+        }
+        score = dataScore;
+    }
+    else
+    {
+        score = 1000000;
+    }
+    return score;
 }
 
 #pragma var_order(parsedCatk, cursor, sd)
@@ -407,14 +401,14 @@ ZunResult ParsePscr(ScoreDat *scoreDat, Pscr *outClrd)
 
 void ReleaseScoreDat(ScoreDat *scoreDat)
 {
-    ResultScreen::FreeAllScores(scoreDat->scores);
+    FreeAllScores(scoreDat->scores);
     ZUN_FREE(scoreDat->scores);
     ZUN_FREE(scoreDat);
 }
 
 #pragma var_order(difficulty, highScoreSlot, fileBuffer, sizeOfFile, scoreNode, shottype, clrd, catk, pscr, stage,     \
                   shotType, originalByte, remainingSize, xorValue, bytes, sd)
-void ResultScreen::WriteScore(ResultScreen *resultScreen)
+void WriteScore(ResultScreen *resultScreen)
 {
     u8 *fileBuffer;
     u8 originalByte;
@@ -554,12 +548,12 @@ void ResultScreen::WriteScore(ResultScreen *resultScreen)
 
 i32 ResultScreen::LinkScoreEx(Hscr *out, i32 difficulty, i32 shottype)
 {
-    return ResultScreen::LinkScore(&this->scores[difficulty][shottype], out);
+    return LinkScore(&this->scores[difficulty][shottype], out);
 }
 
 void ResultScreen::FreeScore(i32 difficulty, i32 shottype)
 {
-    ResultScreen::FreeAllScores(&this->scores[difficulty][shottype]);
+    FreeAllScores(&this->scores[difficulty][shottype]);
 }
 
 #pragma var_order(idx, sprite)
@@ -2137,7 +2131,7 @@ ZunResult ResultScreen::DeletedCallback(ResultScreen *resultScreen)
 {
     if (resultScreen->scoreDat != NULL)
     {
-        ResultScreen::WriteScore(resultScreen);
+        WriteScore(resultScreen);
         ReleaseScoreDat(resultScreen->scoreDat);
     }
 
