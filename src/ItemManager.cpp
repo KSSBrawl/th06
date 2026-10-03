@@ -73,7 +73,7 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(i32, 31, g_PowerItemScore) = {
 DIFFABLE_STATIC_ARRAY_ASSIGN(i32, 11, g_PowerUpThresholds) = {8, 16, 32, 48, 64, 80, 96, 128, 999, 1, 0};
 
 __forceinline i32 calculatePointScore(Item *curItem, i32 scoreAcquiredItemTop, i32 scoreAcquiredItemBottom,
-                                 i32 posMultiplier)
+                                      i32 posMultiplier)
 {
     return ((i32)curItem->currentPosition.y < 128)
                ? scoreAcquiredItemTop

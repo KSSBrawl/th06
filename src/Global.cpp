@@ -22,9 +22,11 @@ namespace th06
 {
 DIFFABLE_STATIC_ASSIGN(ControllerMapping, g_ControllerMapping) = {
 #if !TRIALBUILD
-    0, 1, 2, 4, -1, -1, -1, -1, 3
+    0,  1,  2,  4, -1,
+    -1, -1, -1, 3
 #else
-    0, 1, 0, -1, -1, -1, -1, -1, 0
+    0,  1,  0,  -1, -1,
+    -1, -1, -1, 0
 #endif
 };
 
@@ -648,8 +650,8 @@ u16 Controller::GetControllerInput(u16 buttons)
     return buttons;
 }
 
-u32 Controller::SetButtonFromDirectInputJoystate(u16 *outButtons, i16 controllerButtonToTest,
-                                                 TouhouButton touhouButton, u8 *inputButtons)
+u32 Controller::SetButtonFromDirectInputJoystate(u16 *outButtons, i16 controllerButtonToTest, TouhouButton touhouButton,
+                                                 u8 *inputButtons)
 {
     if (controllerButtonToTest < 0)
     {
@@ -661,8 +663,8 @@ u32 Controller::SetButtonFromDirectInputJoystate(u16 *outButtons, i16 controller
     return inputButtons[controllerButtonToTest] & 0x80 ? touhouButton & 0xFFFF : 0;
 }
 
-u32 Controller::SetButtonFromControllerInputs(u16 *outButtons, i16 controllerButtonToTest,
-                                              TouhouButton touhouButton, u32 inputButtons)
+u32 Controller::SetButtonFromControllerInputs(u16 *outButtons, i16 controllerButtonToTest, TouhouButton touhouButton,
+                                              u32 inputButtons)
 {
     if (controllerButtonToTest < 0)
     {

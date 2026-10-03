@@ -391,7 +391,8 @@ restart_sub_changed:
             }
             shooter->angle2 = *EnemyEclInstr::GetVarFloat(enemy, &args->angle2, NULL);
             shooter->speed2 = *EnemyEclInstr::GetVarFloat(enemy, &args->speed2, NULL);
-            shooter->speed2 += g_GameManager.RankLerpFloat(enemy->bulletRankSpeedLow, enemy->bulletRankSpeedHigh) / 2.0f;
+            shooter->speed2 +=
+                g_GameManager.RankLerpFloat(enemy->bulletRankSpeedLow, enemy->bulletRankSpeedHigh) / 2.0f;
             if (shooter->speed2 < 0.3f)
             {
                 shooter->speed2 = 0.3f;

@@ -402,7 +402,8 @@ BOOL CALLBACK Supervisor::EnumGameControllersCb(LPCDIDEVICEINSTANCE pdidInstance
 {
     if (!g_Supervisor.controller)
     {
-        HRESULT result = g_Supervisor.dinputIface->CreateDevice(pdidInstance->guidInstance, &g_Supervisor.controller, NULL);
+        HRESULT result =
+            g_Supervisor.dinputIface->CreateDevice(pdidInstance->guidInstance, &g_Supervisor.controller, NULL);
         if (FAILED(result))
         {
             return TRUE;
