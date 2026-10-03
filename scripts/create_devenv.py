@@ -740,8 +740,21 @@ def install_bss_patch(output_path):
         shutil.copyfile(str(VC7 / "BIN/LINK.EXE"), str(VC7 / "BIN/LINKOrig.EXE"))
     link_exe = open(str(VC7 / "BIN/LINK.EXE"), "r+b")
     link_exe.seek(0x1DC50)
+    # Patch a call instruction to reference the patch
     link_exe.write(b"\x41\x07\x00")
     link_exe.seek(0x91DB0)
+    # CMP BYTE PTR [ECX], '.'
+    # JNE original_func
+    # CMP BYTE PTR [ECX+1], 'b'
+    # JNE original_func
+    # CMP BYTE PTR [ECX+2], 's'
+    # JNE original_func
+    # CMP BYTE PTR [ECX+3], 's'
+    # JNE original_func
+    # CMP BYTE PTR [ECX+4], '\0'
+    # JNE original_func
+    # MOV ECX, ".bss$zzzzzzzzzz"
+    # JMP original_func
     link_exe.write(
         b".bss$zzzzzzzzzz\x00\x80\x39.\x0f\x85\xf7\xbb\xf8\xff\x80\x79\x01b\x0f\x85\xed\xbb\xf8\xff\x80\x79\x02s\x0f\x85\xe3\xbb\xf8\xff\x80\x79\x03s\x0f\x85\xd9\xbb\xf8\xff\x80\x79\x04\x00\x0f\x85\xcf\xbb\xf8\xff\x8b\x0c\x24\x81\xc1\x5d\x41\x07\x00\xe9\xc1\xbb\xf8\xff\xcc"
     )
