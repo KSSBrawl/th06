@@ -10,6 +10,7 @@ from winhelpers import run_windows_program
 
 SCRIPTS_DIR = Path(__file__).parent
 
+
 def get_sha256(path):
     h = hashlib.new("sha256")
     with open(path, "rb") as f:
@@ -19,7 +20,8 @@ def get_sha256(path):
                 break
             h.update(data)
     return h.hexdigest()
-    
+
+
 def find_diff(path1, path2):
     offset = 0
     with open(path1, "rb") as file1, open(path2, "rb") as file2:
@@ -102,7 +104,13 @@ def build(build_type, comdat_permute_enable, verbose=False, jobs=1, target=None)
                     comdat_permute += 1
                     if comdat_permute != 1000:
                         continue
-                    print("Giving up, best match was " + str(best_match) + " at " + hex(best_match_dist), file=sys.stderr)
+                    print(
+                        "Giving up, best match was "
+                        + str(best_match)
+                        + " at "
+                        + hex(best_match_dist),
+                        file=sys.stderr,
+                    )
                 else:
                     print("Exe hash: " + get_sha256("build/th06.exe"), file=sys.stderr)
         break

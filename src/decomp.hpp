@@ -87,10 +87,8 @@
     __pragma(bss_seg(MACRO_STR(MACRO_CATW(.bss$, sort, name))))                                                        \
         __declspec(allocate(MACRO_STR(MACRO_CATW(.bss$, sort, name))))                                                 \
         DIFFABLE_STATIC_ARRAY(type, size, name)
-#define FILE_BSS_SORT(sort)                                                                                            \
-    __pragma(bss_seg(MACRO_STR(MACRO_CAT(.bss$, sort))))
-#define BSS_SORT(sort) \
-    __declspec(allocate(MACRO_STR(MACRO_CAT(.bss$, sort))))
+#define FILE_BSS_SORT(sort) __pragma(bss_seg(MACRO_STR(MACRO_CAT(.bss$, sort))))
+#define BSS_SORT(sort) __declspec(allocate(MACRO_STR(MACRO_CAT(.bss$, sort))))
 #endif
 
 // Using __COUNTER__ would be better but makes PCH *really* slow
