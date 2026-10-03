@@ -70,6 +70,10 @@ AnmManager::AnmManager()
     this->screenshotTextureId = -1;
 }
 
+AnmManager::~AnmManager()
+{
+}
+
 void AnmManager::SetupVertexBuffer()
 {
     this->vertexBufferContents[0].position.x = this->vertexBufferContents[2].position.x = -128.0f;
@@ -1213,12 +1217,13 @@ break_parser:
         vm->scaleX = g_Supervisor.effectiveFramerateMultiplier * vm->scaleInterpFinalX + vm->scaleX;
     }
 
-#pragma var_order(colorFinal, color, alphaInterpVal, colorInterp, colorIdx)
+#pragma var_order(colors, alphaInterpVal, colorInterp, colorIdx)
     if (vm->alphaInterpEndTime > 0)
     {
         vm->alphaInterpTime++;
-        ZunColor color = vm->alphaInterpInitial;
-        ZunColor colorFinal = vm->alphaInterpFinal;
+        D3DCOLOR colors[2];
+        colors[0] = vm->alphaInterpInitial;
+        colors[1] = vm->alphaInterpFinal;
         float alphaInterpVal = vm->alphaInterpTime.AsFramesFloat() / (f32)vm->alphaInterpEndTime;
         if (alphaInterpVal >= 1.0f)
         {
@@ -1226,19 +1231,19 @@ break_parser:
         }
         i32 colorIdx;
         i32 colorInterp;
-        // TODO: Slightly different codegen here in trial?
         for (colorIdx = 0; colorIdx < 4; colorIdx++)
         {
-            colorInterp = ((f32)COLOR_GET_COMPONENT(colorFinal, colorIdx) - (f32)COLOR_GET_COMPONENT(color, colorIdx)) *
-                              alphaInterpVal +
-                          COLOR_GET_COMPONENT(color, colorIdx);
+            colorInterp =
+                ((f32)COLOR_GET_COMPONENT(colors[1], colorIdx) - (f32)COLOR_GET_COMPONENT(colors[0], colorIdx)) *
+                    alphaInterpVal +
+                COLOR_GET_COMPONENT(colors[0], colorIdx);
             if (colorInterp < 0)
             {
                 colorInterp = 0;
             }
-            COLOR_SET_COMPONENT(color, colorIdx, colorInterp >= 256 ? 255 : colorInterp);
+            COLOR_SET_COMPONENT(colors[0], colorIdx, colorInterp >= 256 ? 255 : colorInterp);
         }
-        vm->color = color;
+        vm->color = colors[0];
         if ((i32)vm->alphaInterpTime >= vm->alphaInterpEndTime)
         {
             vm->alphaInterpEndTime = 0;

@@ -494,12 +494,9 @@ void GameManager::CutChain()
     g_Chain.Cut(&g_GameManagerDrawChain);
 }
 
-#pragma var_order(cameraDistance, viewportMiddleHeight, viewportMiddleWidth, aspectRatio, fov, upVec, atVec, eyeVec)
+#pragma var_order(cameraDistance, viewportMiddleHeight, viewportMiddleWidth, aspectRatio, fov)
 void GameManager::SetupCameraStageBackground(f32 extraRenderDistance)
 {
-    D3DXVECTOR3 eyeVec;
-    D3DXVECTOR3 atVec;
-    D3DXVECTOR3 upVec;
     f32 fov;
     f32 aspectRatio;
     f32 viewportMiddleWidth;
@@ -511,16 +508,9 @@ void GameManager::SetupCameraStageBackground(f32 extraRenderDistance)
     aspectRatio = (f32)g_Supervisor.viewport.Width / (f32)g_Supervisor.viewport.Height;
     fov = D3DXToRadian(30.0f);
     cameraDistance = viewportMiddleHeight / (f32)tan(fov / 2.0f);
-    upVec.x = 0.0f;
-    upVec.y = 1.0f;
-    upVec.z = 0.0f;
-    atVec.x = viewportMiddleWidth;
-    atVec.y = -viewportMiddleHeight;
-    atVec.z = 0.0f;
-    eyeVec.x = viewportMiddleWidth;
-    eyeVec.y = -viewportMiddleHeight;
-    eyeVec.z = -cameraDistance;
-    D3DXMatrixLookAtLH(&g_Supervisor.viewMatrix, &eyeVec, &atVec, &upVec);
+    D3DXMatrixLookAtLH(&g_Supervisor.viewMatrix,
+                       &D3DXVECTOR3(viewportMiddleWidth, -viewportMiddleHeight, -cameraDistance),
+                       &D3DXVECTOR3(viewportMiddleWidth, -viewportMiddleHeight, 0.0f), &D3DXVECTOR3(0.0f, 1.0f, 0.0f));
     g_GameManager.cameraDistance = fabsf(cameraDistance);
     D3DXMatrixPerspectiveFovLH(&g_Supervisor.projectionMatrix, fov, aspectRatio, 100.0f,
                                10000.0f + extraRenderDistance);
@@ -528,41 +518,26 @@ void GameManager::SetupCameraStageBackground(f32 extraRenderDistance)
     g_Supervisor.d3dDevice->SetTransform(D3DTS_PROJECTION, &g_Supervisor.projectionMatrix);
 }
 
-#pragma var_order(cameraDistance, viewportMiddleHeight, viewportMiddleWidth, aspectRatio, fov, upVec, atVec, eyeVec,   \
-                  atVecY, atVecX, eyeVecZ)
+#pragma var_order(cameraDistance, viewportMiddleHeight, viewportMiddleWidth, aspectRatio, fov)
 void GameManager::SetupCamera(f32 extraRenderDistance)
 {
-    D3DXVECTOR3 eyeVec;
-    D3DXVECTOR3 atVec;
-    D3DXVECTOR3 upVec;
     f32 fov;
     f32 aspectRatio;
     f32 viewportMiddleWidth;
     f32 viewportMiddleHeight;
     f32 cameraDistance;
 
-    f32 atVecY;
-    f32 atVecX;
-    f32 eyeVecZ;
-
     viewportMiddleWidth = g_Supervisor.viewport.Width / 2.0f;
     viewportMiddleHeight = g_Supervisor.viewport.Height / 2.0f;
     aspectRatio = (f32)g_Supervisor.viewport.Width / (f32)g_Supervisor.viewport.Height;
     fov = D3DXToRadian(30.0f);
     cameraDistance = viewportMiddleHeight / (f32)tan(fov / 2.0f);
-    upVec.x = 0.0f;
-    upVec.y = 1.0f;
-    upVec.z = 0.0f;
-    atVecY = -viewportMiddleHeight + (f32)g_GameManager.stageCameraFacingDir.y;
-    atVecX = viewportMiddleWidth + (f32)g_GameManager.stageCameraFacingDir.x;
-    atVec.x = atVecX;
-    atVec.y = atVecY;
-    atVec.z = 0.0f;
-    eyeVecZ = -cameraDistance * (f32)g_GameManager.stageCameraFacingDir.z;
-    eyeVec.x = viewportMiddleWidth;
-    eyeVec.y = -viewportMiddleHeight;
-    eyeVec.z = eyeVecZ;
-    D3DXMatrixLookAtLH(&g_Supervisor.viewMatrix, &eyeVec, &atVec, &upVec);
+    D3DXMatrixLookAtLH(&g_Supervisor.viewMatrix,
+                       &D3DXVECTOR3(viewportMiddleWidth, -viewportMiddleHeight,
+                                    -cameraDistance * (f32)g_GameManager.stageCameraFacingDir.z),
+                       &D3DXVECTOR3(viewportMiddleWidth + (f32)g_GameManager.stageCameraFacingDir.x,
+                                    -viewportMiddleHeight + (f32)g_GameManager.stageCameraFacingDir.y, 0.0f),
+                       &D3DXVECTOR3(0.0f, 1.0f, 0.0f));
     g_GameManager.cameraDistance = fabsf(cameraDistance);
     D3DXMatrixPerspectiveFovLH(&g_Supervisor.projectionMatrix, fov, aspectRatio, 100.0f,
                                10000.0f + extraRenderDistance);
