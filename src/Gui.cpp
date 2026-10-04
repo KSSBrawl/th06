@@ -757,6 +757,7 @@ ZunResult GuiImpl::RunMsg()
                 g_Supervisor.curState = SUPERVISOR_STATE_RESULTSCREEN_FROMGAME;
                 goto break_skip_time;
             }
+#ifndef TRIALBUILD
             if (g_GameManager.currentStage < 5 || (g_GameManager.difficulty != EASY && g_GameManager.currentStage == 5))
             {
                 g_Supervisor.curState = SUPERVISOR_STATE_NEXT_STAGE;
@@ -779,6 +780,20 @@ ZunResult GuiImpl::RunMsg()
             {
                 g_Supervisor.curState = SUPERVISOR_STATE_MAINMENU_REPLAY;
             }
+#else
+            if (g_GameManager.currentStage < 3)
+            {
+                g_Supervisor.curState = SUPERVISOR_STATE_NEXT_STAGE;
+            }
+            else if (!g_GameManager.isInReplay)
+            {
+                g_Supervisor.curState = SUPERVISOR_STATE_RESULTSCREEN_FROMGAME;
+            }
+            else
+            {
+                g_Supervisor.curState = SUPERVISOR_STATE_MAINMENU_REPLAY;
+            }
+#endif
             goto break_skip_time;
         case MSG_OPCODE_MSG_FLAG_WAIT_SKIPPABLE:
             this->msg.dialogueSkippable = this->msg.currentInstr->args.dialogueSkippable;
@@ -982,8 +997,13 @@ void Gui::UpdateStageElements()
     {
         if (this->impl->bonusScore.timer < 30)
         {
+#ifndef TRIALBUILD
             this->impl->bonusScore.pos.x =
                 (this->impl->bonusScore.timer.AsFramesFloat() * -312.0f / 30.0f) + GAME_REGION_RIGHT;
+#else
+            this->impl->bonusScore.pos.x =
+                GAME_REGION_RIGHT - this->impl->bonusScore.timer.AsFramesFloat() * 312.0f / 30.0f;
+#endif
         }
         else
         {
@@ -999,8 +1019,13 @@ void Gui::UpdateStageElements()
     {
         if (this->impl->fullPowerMode.timer < 30)
         {
+#ifndef TRIALBUILD
             this->impl->fullPowerMode.pos.x =
                 (this->impl->fullPowerMode.timer.AsFramesFloat() * -312.0f / 30.0f) + GAME_REGION_RIGHT;
+#else
+            this->impl->fullPowerMode.pos.x =
+                GAME_REGION_RIGHT - this->impl->fullPowerMode.timer.AsFramesFloat() * 312.0f / 30.0f;
+#endif
         }
         else
         {

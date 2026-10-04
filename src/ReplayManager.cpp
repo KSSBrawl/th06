@@ -124,10 +124,10 @@ ZunResult ReplayManager::RegisterChain(ZunBool isDemo, const char *replayFile)
             AddedCallback(g_ReplayManager);
             break;
         case true:
-#if TRIALBUILD
-            AddedCallbackDemo(g_ReplayManager);
-#else
+#if !TRIALBUILD
             return AddedCallbackDemo(g_ReplayManager);
+#else
+            AddedCallbackDemo(g_ReplayManager);
 #endif
             break;
         }
@@ -333,20 +333,10 @@ void ReplayManager::StopRecording()
     }
 }
 
-#pragma var_order(stageIdx, mgr, slowDown, replayCopy, stageReplayPos, file, csumStagePos, checksum, checksumCursor,   \
-                  obfOffset, obfStagePos, obfuscateCursor)
+#pragma var_order(stageIdx, mgr, slowDown)
 void ReplayManager::SaveReplay(const char *replayPath, const char *replayName)
 {
     ReplayManager *mgr;
-    FILE *file;
-    u8 *checksumCursor;
-    ReplayData replayCopy;
-    u8 *obfuscateCursor;
-    i32 obfStagePos;
-    u8 obfOffset;
-    u32 checksum;
-    i32 csumStagePos;
-    size_t stageReplayPos;
     f32 slowDown;
     i32 stageIdx;
 
@@ -357,7 +347,17 @@ void ReplayManager::SaveReplay(const char *replayPath, const char *replayName)
         {
             if (replayPath != NULL)
             {
-                replayCopy = *mgr->replayData;
+#pragma var_order(replayCopy, stageReplayPos, file, csumStagePos, checksum, checksumCursor, obfOffset, obfStagePos,    \
+                  obfuscateCursor)
+                FILE *file;
+                u8 *checksumCursor;
+                u8 *obfuscateCursor;
+                i32 obfStagePos;
+                u8 obfOffset;
+                u32 checksum;
+                i32 csumStagePos;
+                size_t stageReplayPos;
+                ReplayData replayCopy = *mgr->replayData;
                 ReplayManager::StopRecording();
                 stageReplayPos = sizeof(ReplayData);
                 for (stageIdx = 0; stageIdx < ARRAY_SIZE_SIGNED(g_ReplayManager->replayData->stageReplayData);

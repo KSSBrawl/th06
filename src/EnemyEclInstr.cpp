@@ -188,13 +188,14 @@ void ExInsPatchouliShottypeSetVars(Enemy *enemy, EclRawInstr *instr)
     enemy->currentContext.int3 = g_PatchouliShottypeVars[g_GameManager.character][g_GameManager.shotType][2];
 }
 
-#pragma var_order(playerBulletOffset, bulletsLeft, i, currentBullet)
+#pragma var_order(playerBulletOffsetY, playerBulletOffsetX, bulletsLeft, i, currentBullet)
 void ExInsStage56Func4(Enemy *enemy, EclRawInstr *instr)
 {
     i32 bulletsLeft;
     Bullet *currentBullet;
     i32 i;
-    ZunVec2 playerBulletOffset;
+    f32 playerBulletOffsetX;
+    f32 playerBulletOffsetY;
 
     if (instr->args.exInstr.i32Param < 2)
     {
@@ -223,11 +224,11 @@ void ExInsStage56Func4(Enemy *enemy, EclRawInstr *instr)
                                                   currentBullet->sprites.spriteBullet.baseSpriteIndex +
                                                       currentBullet->spriteOffset);
 
-                    playerBulletOffset.x = (currentBullet->pos.x) - g_Player.positionCenter.x;
-                    playerBulletOffset.y = (currentBullet->pos.y) - g_Player.positionCenter.y;
+                    playerBulletOffsetX = (currentBullet->pos.x) - g_Player.positionCenter.x;
+                    playerBulletOffsetY = (currentBullet->pos.y) - g_Player.positionCenter.y;
 
-                    if (sqrtf(playerBulletOffset.x * playerBulletOffset.x +
-                              playerBulletOffset.y * playerBulletOffset.y) > 128.0f)
+                    if (sqrtf(playerBulletOffsetX * playerBulletOffsetX + playerBulletOffsetY * playerBulletOffsetY) >
+                        128.0f)
                     {
                         currentBullet->angle =
                             g_Rng.GetRandomF32ZeroToOne() * ((ZUN_PI * 3.0f) / 4.0f) + (ZUN_PI / 4.0f);
@@ -266,11 +267,11 @@ void ExInsStage56Func4(Enemy *enemy, EclRawInstr *instr)
                                                   currentBullet->sprites.spriteBullet.baseSpriteIndex +
                                                       currentBullet->spriteOffset);
 
-                    playerBulletOffset.x = (currentBullet->pos.x) - g_Player.positionCenter.x;
-                    playerBulletOffset.y = (currentBullet->pos.y) - g_Player.positionCenter.y;
+                    playerBulletOffsetX = (currentBullet->pos.x) - g_Player.positionCenter.x;
+                    playerBulletOffsetY = (currentBullet->pos.y) - g_Player.positionCenter.y;
 
-                    if (sqrtf(playerBulletOffset.x * playerBulletOffset.x +
-                              playerBulletOffset.y * playerBulletOffset.y) > 128.0f)
+                    if (sqrtf(playerBulletOffsetX * playerBulletOffsetX + playerBulletOffsetY * playerBulletOffsetY) >
+                        128.0f)
                     {
                         currentBullet->angle = g_Rng.GetRandomF32ZeroToOne() * ZUN_2PI;
                     }

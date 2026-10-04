@@ -468,10 +468,10 @@ u16 Controller::GetJoystickCaps(void)
 #define KEYBOARD_KEY_PRESSED(button, x) keyboardState[x] & 0x80 ? button : 0
 
 // The trial reads the shared mapping; release reads the loaded configuration.
-#if TRIALBUILD
-#define CONTROLLER_MAPPING g_ControllerMapping
-#else
+#if !TRIALBUILD
 #define CONTROLLER_MAPPING g_Supervisor.cfg.controllerMapping
+#else
+#define CONTROLLER_MAPPING g_ControllerMapping
 #endif
 
 u16 Controller::GetControllerInput(u16 buttons)
@@ -744,11 +744,11 @@ u8 *th06::Controller::GetControllerState()
             }
             return g_ControllerData;
         }
-#if TRIALBUILD
-        dires = g_Supervisor.controller->GetDeviceState(sizeof(DIJOYSTATE2), &dijoystate2);
-#else
+#if !TRIALBUILD
         // Release checks the earlier Poll result instead of the GetDeviceState result.
         g_Supervisor.controller->GetDeviceState(sizeof(DIJOYSTATE2), &dijoystate2);
+#else
+        dires = g_Supervisor.controller->GetDeviceState(sizeof(DIJOYSTATE2), &dijoystate2);
 #endif
         if (FAILED(dires))
         {
@@ -780,10 +780,10 @@ u16 Controller::GetInput(void)
         buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_UP_RIGHT, VK_NUMPAD9);
         buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_DOWN_LEFT, VK_NUMPAD1);
         buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_DOWN_RIGHT, VK_NUMPAD3);
-#if TRIALBUILD
-        buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_HOME, VK_F12);
-#else
+#if !TRIALBUILD
         buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_HOME, VK_HOME);
+#else
+        buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_HOME, VK_F12);
 #endif
         buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_SHOOT, 'Z');
         buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_BOMB, 'X');
@@ -819,10 +819,10 @@ u16 Controller::GetInput(void)
         buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_UP_RIGHT, DIK_NUMPAD9);
         buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_DOWN_LEFT, DIK_NUMPAD1);
         buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_DOWN_RIGHT, DIK_NUMPAD3);
-#if TRIALBUILD
-        buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_HOME, DIK_F12);
-#else
+#if !TRIALBUILD
         buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_HOME, DIK_HOME);
+#else
+        buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_HOME, DIK_F12);
 #endif
         buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_SHOOT, DIK_Z);
         buttons |= KEYBOARD_KEY_PRESSED(TH_BUTTON_BOMB, DIK_X);

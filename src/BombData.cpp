@@ -9,7 +9,7 @@
 namespace th06
 {
 
-#pragma var_order(angle, i, bombSprite, vecLength, bombPivot, bombIdx)
+#pragma var_order(angleY, angleX, i, bombSprite, vecLength, bombPivot, bombIdx)
 void BombData::BombReimuACalc(Player *player)
 {
     i32 i;
@@ -17,7 +17,8 @@ void BombData::BombReimuACalc(Player *player)
     i32 bombIdx;
     D3DXVECTOR3 bombPivot;
     AnmVm *bombSprite;
-    ZunVec2 angle;
+    f32 angleX;
+    f32 angleY;
 
     if (player->bombInfo.timer >= player->bombInfo.duration)
     {
@@ -52,13 +53,13 @@ void BombData::BombReimuACalc(Player *player)
             player->bombInfo.reimuABombProjectilesRelated[i] = 4.0f;
             player->bombInfo.bombRegionPositions[i] = player->positionCenter;
 
-            angle.x = g_Rng.GetRandomF32ZeroToOne() * ZUN_2PI - ZUN_PI;
+            angleX = g_Rng.GetRandomF32ZeroToOne() * ZUN_2PI - ZUN_PI;
 
             player->bombInfo.bombRegionVelocities[i].x =
-                cosf(angle.x) * player->bombInfo.reimuABombProjectilesRelated[i];
+                cosf(angleX) * player->bombInfo.reimuABombProjectilesRelated[i];
 
             player->bombInfo.bombRegionVelocities[i].y =
-                sinf(angle.x) * player->bombInfo.reimuABombProjectilesRelated[i];
+                sinf(angleX) * player->bombInfo.reimuABombProjectilesRelated[i];
             player->bombRegionTotalDamages[i] = 0;
 
             for (bombSprite = &player->bombInfo.sprites[0][i * 4], bombIdx = 0; bombIdx < 4; bombIdx++, bombSprite++)
@@ -87,18 +88,18 @@ void BombData::BombReimuACalc(Player *player)
                 {
                     bombPivot = player->positionCenter;
                 }
-                angle.x = bombPivot.x - player->bombInfo.bombRegionPositions[i].x;
-                angle.y = bombPivot.y - player->bombInfo.bombRegionPositions[i].y;
+                angleX = bombPivot.x - player->bombInfo.bombRegionPositions[i].x;
+                angleY = bombPivot.y - player->bombInfo.bombRegionPositions[i].y;
 
-                vecLength = sqrtf(angle.x * angle.x + angle.y * angle.y) /
+                vecLength = sqrtf(angleX * angleX + angleY * angleY) /
                             (player->bombInfo.reimuABombProjectilesRelated[i] / 8.0f);
                 if (vecLength < 1.0f)
                 {
                     vecLength = 1.0f;
                 }
-                angle.x = angle.x / vecLength + player->bombInfo.bombRegionVelocities[i].x;
-                angle.y = angle.y / vecLength + player->bombInfo.bombRegionVelocities[i].y;
-                vecLength = sqrtf(angle.x * angle.x + angle.y * angle.y);
+                angleX = angleX / vecLength + player->bombInfo.bombRegionVelocities[i].x;
+                angleY = angleY / vecLength + player->bombInfo.bombRegionVelocities[i].y;
+                vecLength = sqrtf(angleX * angleX + angleY * angleY);
 
                 player->bombInfo.reimuABombProjectilesRelated[i] = ZUN_MIN(vecLength, 10.0f);
 
@@ -108,9 +109,9 @@ void BombData::BombReimuACalc(Player *player)
                 }
 
                 player->bombInfo.bombRegionVelocities[i].x =
-                    (angle.x * player->bombInfo.reimuABombProjectilesRelated[i]) / vecLength;
+                    (angleX * player->bombInfo.reimuABombProjectilesRelated[i]) / vecLength;
                 player->bombInfo.bombRegionVelocities[i].y =
-                    (angle.y * player->bombInfo.reimuABombProjectilesRelated[i]) / vecLength;
+                    (angleY * player->bombInfo.reimuABombProjectilesRelated[i]) / vecLength;
 
                 player->bombRegionSizes[i].x = 48.0f;
                 player->bombRegionSizes[i].y = 48.0f;

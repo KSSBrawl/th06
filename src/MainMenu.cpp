@@ -593,25 +593,23 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
                 {
                     menu->cursor -= CHARACTER_COUNT;
                 }
+                goto here;
             }
-            else
+            g_SoundPlayer.PlaySoundByIdx(SOUND_MOVE_MENU);
+            vmList = &menu->vm[MENU_VMS_CHARACTER_SELECT];
+            for (i = 0; i < CHARACTER_COUNT; i++, vmList++)
             {
-                g_SoundPlayer.PlaySoundByIdx(SOUND_MOVE_MENU);
-                vmList = &menu->vm[MENU_VMS_CHARACTER_SELECT];
-                for (i = 0; i < CHARACTER_COUNT; i++, vmList++)
+                if (i == menu->cursor)
                 {
-                    if (i == menu->cursor)
-                    {
-                        vmList->pendingInterrupt = 10;
-                        vmList++;
-                        vmList->pendingInterrupt = 10;
-                    }
-                    else
-                    {
-                        vmList->pendingInterrupt = 11;
-                        vmList++;
-                        vmList->pendingInterrupt = 11;
-                    }
+                    vmList->pendingInterrupt = 10;
+                    vmList++;
+                    vmList->pendingInterrupt = 10;
+                }
+                else
+                {
+                    vmList->pendingInterrupt = 11;
+                    vmList++;
+                    vmList->pendingInterrupt = 11;
                 }
             }
         }
@@ -1152,6 +1150,7 @@ ZunResult MainMenu::DrawStartMenu(void)
 {
     i32 i;
     i = MoveCursor(this, 8);
+#ifndef TRIALBUILD
     if (this->cursor == 1 && !g_GameManager.HasReachedMaxClears(CHARA_REIMU, SHOT_TYPE_A) &&
         !g_GameManager.HasReachedMaxClears(CHARA_REIMU, SHOT_TYPE_B) &&
         !g_GameManager.HasReachedMaxClears(CHARA_MARISA, SHOT_TYPE_A) &&
@@ -1159,6 +1158,24 @@ ZunResult MainMenu::DrawStartMenu(void)
     {
         this->cursor += i;
     }
+#else
+    for (;;)
+    {
+        if (this->cursor == 1 && !g_GameManager.HasReachedMaxClears(CHARA_REIMU, SHOT_TYPE_A) &&
+            !g_GameManager.HasReachedMaxClears(CHARA_REIMU, SHOT_TYPE_B) &&
+            !g_GameManager.HasReachedMaxClears(CHARA_MARISA, SHOT_TYPE_A) &&
+            !g_GameManager.HasReachedMaxClears(CHARA_MARISA, SHOT_TYPE_B))
+        {
+            this->cursor += i;
+        }
+        // Practice is unavailable in the trial.
+        if (this->cursor != 2)
+        {
+            break;
+        }
+        this->cursor += i;
+    }
+#endif
     AnmVm *drawVm = this->vm;
     for (i = 0; i < 8; i++, drawVm++)
     {
@@ -1497,7 +1514,11 @@ i32 MainMenu::ReplayHandling()
                 }
             }
         }
-        if (WAS_PRESSED(TH_BUTTON_SELECTMENU) && this->currentReplay[this->cursor].stageReplayData)
+        if (WAS_PRESSED(TH_BUTTON_SELECTMENU) && this->currentReplay[this->cursor].stageReplayData
+#ifdef TRIALBUILD
+            && this->cursor < 3
+#endif
+        )
         {
             g_GameManager.isInReplay = true;
             g_Supervisor.framerateMultiplier = 1.0f;
@@ -1505,6 +1526,7 @@ i32 MainMenu::ReplayHandling()
             g_GameManager.difficulty = (Difficulty)this->currentReplay->difficulty;
             g_GameManager.character = this->currentReplay->shottypeChara / 2;
             g_GameManager.shotType = this->currentReplay->shottypeChara % 2;
+#ifndef TRIALBUILD
             cur = 0;
             while (this->currentReplay->stageReplayData[cur] == NULL)
             {
@@ -1512,6 +1534,7 @@ i32 MainMenu::ReplayHandling()
             }
             g_GameManager.livesRemaining = this->currentReplay->stageReplayData[cur]->livesRemaining;
             g_GameManager.bombsRemaining = this->currentReplay->stageReplayData[cur]->bombsRemaining;
+#endif
             ZUN_FREE(this->currentReplay);
             this->currentReplay = NULL;
             g_GameManager.currentStage = this->cursor;
@@ -1605,7 +1628,12 @@ ZunResult MainMenu::DrawReplayMenu()
         vmRef = &this->vm[114];
         g_AsciiManager.AddFormatText(&vmRef->pos, "Stage  LastScore");
 
+#ifndef TRIALBUILD
         for (i = 0; i < 7; i++)
+#else
+        // The trial predates the fix for stage details on later replay pages.
+        for (i = this->chosenReplay - this->chosenReplay % REPLAYS_PER_PAGE; i < 7; i++)
+#endif
         {
             vmRef++;
             if (!g_Supervisor.IsSoftwareTexturing())

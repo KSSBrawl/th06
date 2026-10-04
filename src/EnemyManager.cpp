@@ -311,12 +311,10 @@ void EnemyManager::RunEclTimeline()
                 if (g_GameManager.difficulty == EASY && g_GameManager.currentStage == 5 &&
                     this->timelineInstr->arg0 == 1)
                 {
-                    // TODO: Codegen here does not match trial
                     g_Gui.MsgRead(g_GameManager.character * 10 + 3);
                 }
                 else
                 {
-                    // TODO: Codegen here does not match trial
                     g_Gui.MsgRead(this->timelineInstr->arg0 + g_GameManager.character * 10);
                 }
                 break;
@@ -340,6 +338,7 @@ void EnemyManager::RunEclTimeline()
                     this->timelineTime--;
                     return;
                 }
+                break;
             }
         }
         else if (this->timelineTime < (i32)this->timelineInstr->time)
