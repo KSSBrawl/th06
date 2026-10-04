@@ -22,17 +22,27 @@
 
 namespace th06
 {
+static FireBulletResult Player_FireBulletMarisaB(Player *, PlayerBullet *, u32, u32);
+static FireBulletResult Player_FireBulletMarisaA(Player *, PlayerBullet *, u32, u32);
+static FireBulletResult Player_FireBulletReimuB(Player *, PlayerBullet *, u32, u32);
+static FireBulletResult Player_FireBulletReimuA(Player *, PlayerBullet *, u32, u32);
+static ZunResult Player_DeletedCallback(Player *p);
+static ZunResult Player_AddedCallback(Player *p);
+static ChainCallbackResult Player_OnDrawLowPrio(Player *p);
+static ChainCallbackResult Player_OnDrawHighPrio(Player *p);
+static ChainCallbackResult Player_OnUpdate(Player *p);
+
 DIFFABLE_STATIC_ARRAY_ASSIGN(BombData, 4, g_BombData) = {
-    /* ReimuA  */ {BombData::BombReimuACalc, BombData::BombReimuADraw},
-    /* ReimuB  */ {BombData::BombReimuBCalc, BombData::BombReimuBDraw},
-    /* MarisaA */ {BombData::BombMarisaACalc, BombData::BombMarisaADraw},
-    /* MarisaB */ {BombData::BombMarisaBCalc, BombData::BombMarisaBDraw},
+    /* ReimuA  */ {BombData_BombReimuACalc, BombData_BombReimuADraw},
+    /* ReimuB  */ {BombData_BombReimuBCalc, BombData_BombReimuBDraw},
+    /* MarisaA */ {BombData_BombMarisaACalc, BombData_BombMarisaADraw},
+    /* MarisaB */ {BombData_BombMarisaBCalc, BombData_BombMarisaBDraw},
 };
 DIFFABLE_STATIC_ARRAY_ASSIGN(CharacterData, 5, g_CharData) = {
-    /* ReimuA  */ {4.0f, 2.0f, 4.0f, 2.0f, Player::FireBulletReimuA, Player::FireBulletReimuA},
-    /* ReimuB  */ {4.0f, 2.0f, 4.0f, 2.0f, Player::FireBulletReimuB, Player::FireBulletReimuB},
-    /* MarisaA */ {5.0f, 2.5f, 5.0f, 2.5f, Player::FireBulletMarisaA, Player::FireBulletMarisaA},
-    /* MarisaB */ {5.0f, 2.5f, 5.0f, 2.5f, Player::FireBulletMarisaB, Player::FireBulletMarisaB},
+    /* ReimuA  */ {4.0f, 2.0f, 4.0f, 2.0f, Player_FireBulletReimuA, Player_FireBulletReimuA},
+    /* ReimuB  */ {4.0f, 2.0f, 4.0f, 2.0f, Player_FireBulletReimuB, Player_FireBulletReimuB},
+    /* MarisaA */ {5.0f, 2.5f, 5.0f, 2.5f, Player_FireBulletMarisaA, Player_FireBulletMarisaA},
+    /* MarisaB */ {5.0f, 2.5f, 5.0f, 2.5f, Player_FireBulletMarisaB, Player_FireBulletMarisaB},
     /* Rin???  */ {4.0f, 2.0f, 4.0f, 2.0f, NULL, NULL},
 };
 
@@ -118,26 +128,26 @@ static FireBulletResult FireSingleBullet(Player *player, PlayerBullet *bullet, i
     }
 }
 
-FireBulletResult Player::FireBulletReimuA(Player *player, PlayerBullet *bullet, u32 bulletIdx,
-                                          u32 framesSinceLastBullet)
+static FireBulletResult Player_FireBulletReimuA(Player *player, PlayerBullet *bullet, u32 bulletIdx,
+                                                u32 framesSinceLastBullet)
 {
     return FireSingleBullet(player, bullet, bulletIdx, framesSinceLastBullet, g_CharacterPowerDataReimuA);
 }
 
-FireBulletResult Player::FireBulletReimuB(Player *player, PlayerBullet *bullet, u32 bulletIdx,
-                                          u32 framesSinceLastBullet)
+static FireBulletResult Player_FireBulletReimuB(Player *player, PlayerBullet *bullet, u32 bulletIdx,
+                                                u32 framesSinceLastBullet)
 {
     return FireSingleBullet(player, bullet, bulletIdx, framesSinceLastBullet, g_CharacterPowerDataReimuB);
 }
 
-FireBulletResult Player::FireBulletMarisaA(Player *player, PlayerBullet *bullet, u32 bulletIdx,
-                                           u32 framesSinceLastBullet)
+static FireBulletResult Player_FireBulletMarisaA(Player *player, PlayerBullet *bullet, u32 bulletIdx,
+                                                 u32 framesSinceLastBullet)
 {
     return FireSingleBullet(player, bullet, bulletIdx, framesSinceLastBullet, g_CharacterPowerDataMarisaA);
 }
 
-FireBulletResult Player::FireBulletMarisaB(Player *player, PlayerBullet *bullet, u32 bulletIdx,
-                                           u32 framesSinceLastBullet)
+static FireBulletResult Player_FireBulletMarisaB(Player *player, PlayerBullet *bullet, u32 bulletIdx,
+                                                 u32 framesSinceLastBullet)
 {
     return FireSingleBullet(player, bullet, bulletIdx, framesSinceLastBullet, g_CharacterPowerDataMarisaB);
 }
@@ -156,7 +166,7 @@ i32 Player::CalcDamageToEnemy(D3DXVECTOR3 *enemyPos, D3DXVECTOR3 *enemyHitboxSiz
 
     damage = 0;
 
-    ZunVec3::SetVecCorners(&enemyTopLeft, &enemyBottomRight, enemyPos, enemyHitboxSize);
+    ZunVec3_SetVecCorners(&enemyTopLeft, &enemyBottomRight, enemyPos, enemyHitboxSize);
     bullet = &this->bullets[0];
     if (hitByBomb)
     {
@@ -170,7 +180,7 @@ i32 Player::CalcDamageToEnemy(D3DXVECTOR3 *enemyPos, D3DXVECTOR3 *enemyHitboxSiz
             continue;
         }
 
-        ZunVec3::SetVecCorners(&bulletTopLeft, &bulletBottomRight, &bullet->position, &bullet->size);
+        ZunVec3_SetVecCorners(&bulletTopLeft, &bulletBottomRight, &bullet->position, &bullet->size);
 
         if (bulletTopLeft.y > enemyBottomRight.y || bulletTopLeft.x > enemyBottomRight.x ||
             bulletBottomRight.y < enemyTopLeft.y || bulletBottomRight.x < enemyTopLeft.x)
@@ -831,21 +841,21 @@ f32 Player::AngleToPlayer(D3DXVECTOR3 *pos)
     return atan2f(relY, relX);
 }
 
-ZunResult Player::RegisterChain(u8 unk)
+ZunResult Player_RegisterChain(u8 unk)
 {
     Player *p = &g_Player;
     memset(p, 0, sizeof(Player));
 
     p->invulnerabilityTimer = 0;
     p->unk_9e1 = unk;
-    p->chainCalc = g_Chain.CreateElem((ChainCallback)Player::OnUpdate);
-    p->chainDraw1 = g_Chain.CreateElem((ChainCallback)Player::OnDrawHighPrio);
-    p->chainDraw2 = g_Chain.CreateElem((ChainCallback)Player::OnDrawLowPrio);
+    p->chainCalc = g_Chain.CreateElem((ChainCallback)Player_OnUpdate);
+    p->chainDraw1 = g_Chain.CreateElem((ChainCallback)Player_OnDrawHighPrio);
+    p->chainDraw2 = g_Chain.CreateElem((ChainCallback)Player_OnDrawLowPrio);
     p->chainCalc->arg = p;
     p->chainDraw1->arg = p;
     p->chainDraw2->arg = p;
-    p->chainCalc->addedCallback = (ChainAddedCallback)Player::AddedCallback;
-    p->chainCalc->deletedCallback = (ChainDeletedCallback)Player::DeletedCallback;
+    p->chainCalc->addedCallback = (ChainAddedCallback)Player_AddedCallback;
+    p->chainCalc->deletedCallback = (ChainDeletedCallback)Player_DeletedCallback;
     if (g_Chain.AddToCalcChain(p->chainCalc, TH_CHAIN_PRIO_CALC_PLAYER) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
@@ -1042,7 +1052,7 @@ static ZunResult UpdateFireBulletsTimer(Player *p)
     return ZUN_SUCCESS;
 }
 
-ChainCallbackResult Player::OnUpdate(Player *p)
+static ChainCallbackResult Player_OnUpdate(Player *p)
 {
     i32 idx;
 
@@ -1247,7 +1257,7 @@ static void DrawBullets(Player *p)
     }
 }
 
-ChainCallbackResult Player::OnDrawHighPrio(Player *p)
+static ChainCallbackResult Player_OnDrawHighPrio(Player *p)
 {
     DrawBullets(p);
     if (p->bombInfo.isInUse && p->bombInfo.draw != NULL)
@@ -1298,13 +1308,13 @@ static void DrawBulletExplosions(Player *p)
     }
 }
 
-ChainCallbackResult Player::OnDrawLowPrio(Player *p)
+static ChainCallbackResult Player_OnDrawLowPrio(Player *p)
 {
     DrawBulletExplosions(p);
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ZunResult Player::AddedCallback(Player *p)
+static ZunResult Player_AddedCallback(Player *p)
 {
     PlayerBullet *curBullet;
     i32 idx;
@@ -1344,7 +1354,7 @@ ZunResult Player::AddedCallback(Player *p)
     p->grabItemSize.y = 12.0f;
     p->grabItemSize.z = 5.0f;
     p->playerDirection = MOVEMENT_NONE;
-    p->characterData = g_CharData[g_GameManager.CharacterShotType()];
+    p->characterData = g_CharData[GameManager_CharacterShotType()];
     p->characterData.diagonalMovementSpeed = p->characterData.orthogonalMovementSpeed / sqrtf(2.0f);
     p->characterData.diagonalMovementSpeedFocus = p->characterData.orthogonalMovementSpeedFocus / sqrtf(2.0f);
     p->fireBulletCallback = p->characterData.fireBulletCallback;
@@ -1359,8 +1369,8 @@ ZunResult Player::AddedCallback(Player *p)
         curBullet->bulletState = 0;
     }
     p->fireBulletTimer = -1;
-    p->bombInfo.calc = g_BombData[g_GameManager.CharacterShotType()].calc;
-    p->bombInfo.draw = g_BombData[g_GameManager.CharacterShotType()].draw;
+    p->bombInfo.calc = g_BombData[GameManager_CharacterShotType()].calc;
+    p->bombInfo.draw = g_BombData[GameManager_CharacterShotType()].draw;
     p->bombInfo.isInUse = false;
     for (idx = 0; idx < ARRAY_SIZE_SIGNED(p->laserTimer); idx++)
     {
@@ -1371,7 +1381,7 @@ ZunResult Player::AddedCallback(Player *p)
     return ZUN_SUCCESS;
 }
 
-ZunResult Player::DeletedCallback(Player *p)
+static ZunResult Player_DeletedCallback(Player *p)
 {
     if (g_Supervisor.IsNotLoadingNextStage())
     {
@@ -1380,7 +1390,7 @@ ZunResult Player::DeletedCallback(Player *p)
     return ZUN_SUCCESS;
 }
 
-void Player::CutChain()
+void Player_CutChain()
 {
     g_Chain.Cut(g_Player.chainCalc);
     g_Player.chainCalc = NULL;

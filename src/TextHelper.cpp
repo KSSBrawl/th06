@@ -240,13 +240,13 @@ bool TextHelper::CopyTextToSurface(LPDIRECT3DSURFACE8 outSurface)
 }
 
 #define TEXT_BUFFER_HEIGHT 64
-void TextHelper::CreateTextBuffer()
+void TextHelper_CreateTextBuffer()
 {
     g_Supervisor.d3dDevice->CreateImageSurface(GAME_WINDOW_WIDTH, TEXT_BUFFER_HEIGHT, D3DFMT_A1R5G5B5,
                                                &g_TextBufferSurface);
 }
 
-void TextHelper::ReleaseTextBuffer()
+void TextHelper_ReleaseTextBuffer()
 {
     SAFE_RELEASE(g_TextBufferSurface);
 }
@@ -262,9 +262,9 @@ void Fake_TextOutA_SetBkMode_SetTextColor_CxxThrowException()
 }
 
 #pragma var_order(hdc, font, textSurfaceDesc, h, textHelper, hdc, srcRect, destRect, destSurface)
-void TextHelper::RenderTextToTexture(i32 xPos, i32 yPos, i32 spriteWidth, i32 spriteHeight, i32 fontHeight,
-                                     i32 fontWidth, ZunColor textColor, ZunColor shadowColor, const char *string,
-                                     LPDIRECT3DTEXTURE8 outTexture)
+void TextHelper_RenderTextToTexture(i32 xPos, i32 yPos, i32 spriteWidth, i32 spriteHeight, i32 fontHeight,
+                                    i32 fontWidth, ZunColor textColor, ZunColor shadowColor, const char *string,
+                                    LPDIRECT3DTEXTURE8 outTexture)
 {
     HGDIOBJ h;
     RECT destRect;

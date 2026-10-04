@@ -45,24 +45,23 @@ struct EffectManager
         this->Reset();
     }
 
-    static ZunResult RegisterChain();
-    static void CutChain();
-    static ChainCallbackResult OnUpdate(EffectManager *mgr);
-    static ZunResult AddedCallback(EffectManager *mgr);
-    static ZunResult DeletedCallback(EffectManager *mgr);
-
-    static EffectCallbackResult EffectCallbackRandomSplash(Effect *);
-    static EffectCallbackResult EffectCallbackRandomSplashBig(Effect *);
-    static EffectCallbackResult EffectCallbackStill(Effect *);
-    static EffectCallbackResult EffectUpdateCallback4(Effect *);
-    static EffectCallbackResult EffectCallbackAttract(Effect *);
-    static EffectCallbackResult EffectCallbackAttractSlow(Effect *);
-
-    static ChainCallbackResult OnDraw(EffectManager *mgr);
     void Reset();
     Effect *SpawnParticles(i32 effectIdx, D3DXVECTOR3 *pos, i32 count, ZunColor color);
 };
 ZUN_ASSERT_TYPE(EffectManager, 0x2f984, 4);
+
+ZunResult EffectManager_RegisterChain();
+void EffectManager_CutChain();
+ChainCallbackResult EffectManager_OnUpdate(EffectManager *mgr);
+ZunResult EffectManager_AddedCallback(EffectManager *mgr);
+ZunResult EffectManager_DeletedCallback(EffectManager *mgr);
+EffectCallbackResult Effect_RandomSplash(Effect *);
+EffectCallbackResult Effect_RandomSplashBig(Effect *);
+EffectCallbackResult Effect_Still(Effect *);
+EffectCallbackResult EffectManager_UpdateCallback4(Effect *);
+EffectCallbackResult Effect_Attract(Effect *);
+EffectCallbackResult Effect_AttractSlow(Effect *);
+ChainCallbackResult EffectManager_OnDraw(EffectManager *mgr);
 
 DIFFABLE_EXTERN(EffectManager, g_EffectManager);
 } // namespace th06

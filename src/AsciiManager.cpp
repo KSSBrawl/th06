@@ -18,8 +18,7 @@ DIFFABLE_STATIC_SORTED(A3, AsciiManager, g_AsciiManager);
 DIFFABLE_STATIC_SORTED(A4, ChainElem, g_AsciiManagerCalcChain);
 DIFFABLE_STATIC_SORTED(A2, ChainElem, g_AsciiManagerOnDrawMenusChain);
 DIFFABLE_STATIC_SORTED(A5, ChainElem, g_AsciiManagerOnDrawPopupsChain);
-
-ChainCallbackResult AsciiManager::OnUpdate(AsciiManager *mgr)
+ChainCallbackResult AsciiManager_OnUpdate(AsciiManager *mgr)
 {
     if (!g_GameManager.isInGameMenu && !g_GameManager.isInRetryMenu)
     {
@@ -52,7 +51,7 @@ ChainCallbackResult AsciiManager::OnUpdate(AsciiManager *mgr)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ChainCallbackResult AsciiManager::OnDrawMenus(AsciiManager *mgr)
+ChainCallbackResult AsciiManager_OnDrawMenus(AsciiManager *mgr)
 {
     mgr->DrawStrings();
     mgr->numStrings = 0;
@@ -61,7 +60,7 @@ ChainCallbackResult AsciiManager::OnDrawMenus(AsciiManager *mgr)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ChainCallbackResult AsciiManager::OnDrawPopups(AsciiManager *mgr)
+ChainCallbackResult AsciiManager_OnDrawPopups(AsciiManager *mgr)
 {
     if (g_Supervisor.hasD3dHardwareVertexProcessing)
     {
@@ -74,31 +73,31 @@ ChainCallbackResult AsciiManager::OnDrawPopups(AsciiManager *mgr)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ZunResult AsciiManager::RegisterChain()
+ZunResult AsciiManager_RegisterChain()
 {
     AsciiManager *mgr = &g_AsciiManager;
 
-    g_AsciiManagerCalcChain.SetCallback((ChainCallback)AsciiManager::OnUpdate);
-    g_AsciiManagerCalcChain.addedCallback = (ChainAddedCallback)AsciiManager::AddedCallback;
-    g_AsciiManagerCalcChain.deletedCallback = (ChainDeletedCallback)AsciiManager::DeletedCallback;
+    g_AsciiManagerCalcChain.SetCallback((ChainCallback)AsciiManager_OnUpdate);
+    g_AsciiManagerCalcChain.addedCallback = (ChainAddedCallback)AsciiManager_AddedCallback;
+    g_AsciiManagerCalcChain.deletedCallback = (ChainDeletedCallback)AsciiManager_DeletedCallback;
     g_AsciiManagerCalcChain.arg = mgr;
     if (g_Chain.AddToCalcChain(&g_AsciiManagerCalcChain, TH_CHAIN_PRIO_CALC_ASCIIMANAGER) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
     }
 
-    g_AsciiManagerOnDrawMenusChain.SetCallback((ChainCallback)OnDrawMenus);
+    g_AsciiManagerOnDrawMenusChain.SetCallback((ChainCallback)AsciiManager_OnDrawMenus);
     g_AsciiManagerOnDrawMenusChain.arg = mgr;
     g_Chain.AddToDrawChain(&g_AsciiManagerOnDrawMenusChain, TH_CHAIN_PRIO_DRAW_ASCIIMANAGER_MENUS);
 
-    g_AsciiManagerOnDrawPopupsChain.SetCallback((ChainCallback)OnDrawPopups);
+    g_AsciiManagerOnDrawPopupsChain.SetCallback((ChainCallback)AsciiManager_OnDrawPopups);
     g_AsciiManagerOnDrawPopupsChain.arg = mgr;
     g_Chain.AddToDrawChain(&g_AsciiManagerOnDrawPopupsChain, TH_CHAIN_PRIO_DRAW_ASCIIMANAGER_POPUPS);
 
     return ZUN_SUCCESS;
 }
 
-ZunResult AsciiManager::AddedCallback(AsciiManager *s)
+ZunResult AsciiManager_AddedCallback(AsciiManager *s)
 {
     if (g_AnmManager->LoadAnm(ANM_FILE_ASCII, "data/ascii.anm", ANM_OFFSET_ASCII) != ZUN_SUCCESS)
     {
@@ -134,7 +133,7 @@ inline void AsciiManager::InitializeVms()
     this->isSelected = false;
 }
 
-ZunResult AsciiManager::DeletedCallback(AsciiManager *s)
+ZunResult AsciiManager_DeletedCallback(AsciiManager *s)
 {
     g_AnmManager->ReleaseAnm(ANM_FILE_ASCII);
     g_AnmManager->ReleaseAnm(ANM_FILE_ASCIIS);
@@ -142,7 +141,7 @@ ZunResult AsciiManager::DeletedCallback(AsciiManager *s)
     return ZUN_SUCCESS;
 }
 
-void AsciiManager::CutChain()
+void AsciiManager_CutChain()
 {
     g_Chain.Cut(&g_AsciiManagerCalcChain);
     g_Chain.Cut(&g_AsciiManagerOnDrawMenusChain);

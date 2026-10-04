@@ -84,8 +84,6 @@ struct SoundPlayer
         }
     }
 
-    static DWORD WINAPI BackgroundMusicPlayerThread(LPVOID lpThreadParameter);
-
     ZunResult LoadWav(char *path);
     ZunResult LoadPos(const char *path);
 
@@ -105,6 +103,7 @@ struct SoundPlayer
     HANDLE backgroundMusicUpdateEvent;
     BOOL isLooping;
 };
+
 ZUN_ASSERT_TYPE(SoundPlayer, 0x638, 4);
 
 DIFFABLE_EXTERN(SoundEffectData, g_SoundBufferIdxVol[32]);

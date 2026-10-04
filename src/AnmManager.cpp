@@ -1305,8 +1305,8 @@ void AnmManager::DrawTextToSprite(u32 textureDstIdx, i32 xPos, i32 yPos, i32 spr
     {
         fontHeight = DEFAULT_ANM_FONT_SIZE;
     }
-    TextHelper::RenderTextToTexture(xPos, yPos, spriteWidth, spriteHeight, fontWidth, fontHeight, textColor,
-                                    shadowColor, strToPrint, this->textures[textureDstIdx]);
+    TextHelper_RenderTextToTexture(xPos, yPos, spriteWidth, spriteHeight, fontWidth, fontHeight, textColor, shadowColor,
+                                   strToPrint, this->textures[textureDstIdx]);
 }
 
 #pragma var_order(args, buffer, fontWidth)

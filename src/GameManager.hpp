@@ -61,14 +61,6 @@ DIFFABLE_EXTERN(GameManager, g_GameManager);
 struct GameManager
 {
     GameManager();
-    static ZunResult RegisterChain();
-    static void CutChain();
-    static ChainCallbackResult OnUpdate(GameManager *gameManager);
-    static ChainCallbackResult OnDraw(GameManager *gameManager);
-    static ZunResult AddedCallback(GameManager *gameManager);
-    static ZunResult DeletedCallback(GameManager *gameManager);
-    static void SetupCamera(f32 extraRenderDistance);
-    static void SetupCameraStageBackground(f32 extraRenderDistance);
 
     ZunBool HasReachedMaxClears(i32 character, i32 shottype)
     {
@@ -85,11 +77,6 @@ struct GameManager
     void AddScore(i32 points)
     {
         this->score += points;
-    }
-
-    static i32 CharacterShotType()
-    {
-        return g_GameManager.shotType + g_GameManager.character * SHOTTYPES_PER_CHARACTER;
     }
 
     i32 RankLerpInt(i32 minVal, i32 maxVal)
@@ -154,5 +141,19 @@ struct GameManager
     i32 minRank;
     i32 subRank;
 };
+ZunResult GameManager_RegisterChain();
+void GameManager_CutChain();
+ChainCallbackResult GameManager_OnUpdate(GameManager *gameManager);
+ChainCallbackResult GameManager_OnDraw(GameManager *gameManager);
+ZunResult GameManager_AddedCallback(GameManager *gameManager);
+ZunResult GameManager_DeletedCallback(GameManager *gameManager);
+void GameManager_SetupCamera(f32 extraRenderDistance);
+void GameManager_SetupCameraStageBackground(f32 extraRenderDistance);
+
+inline i32 GameManager_CharacterShotType()
+{
+    return g_GameManager.shotType + g_GameManager.character * SHOTTYPES_PER_CHARACTER;
+}
+
 ZUN_ASSERT_TYPE(GameManager, 0x1a80, 4);
 } // namespace th06

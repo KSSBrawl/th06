@@ -33,12 +33,6 @@ struct ResultScreen
         ZUN_FREE(this->scoreDat);
     }
 
-    static ZunResult RegisterChain(i32 unk);
-    static ChainCallbackResult OnUpdate(ResultScreen *r);
-    static ChainCallbackResult OnDraw(ResultScreen *r);
-    static ZunResult AddedCallback(ResultScreen *r);
-    static ZunResult DeletedCallback(ResultScreen *r);
-
     void FreeScore(i32 difficulty, i32 shottype);
 
     i32 HandleResultKeyboard();
@@ -76,6 +70,11 @@ struct ResultScreen
     ReplayData defaultReplay;
 };
 ZUN_ASSERT_TYPE(ResultScreen, 0x56b0, 4);
+
+static ChainCallbackResult ResultScreen_OnUpdate(ResultScreen *r);
+static ChainCallbackResult ResultScreen_OnDraw(ResultScreen *r);
+static ZunResult ResultScreen_AddedCallback(ResultScreen *r);
+static ZunResult ResultScreen_DeletedCallback(ResultScreen *r);
 
 static void MoveResultCursor(ResultScreen *r, i32 len);
 static ZunBool MoveResultCursorHorizontally(ResultScreen *r, i32 len);
@@ -871,7 +870,7 @@ i32 ResultScreen::HandleReplaySaveKeyboard()
                     continue;
                 }
 
-                if (ReplayManager::ValidateReplayData(replayLoaded, g_LastFileSize) == ZUN_SUCCESS)
+                if (ReplayManager_ValidateReplayData(replayLoaded, g_LastFileSize) == ZUN_SUCCESS)
                 {
                     this->replays[idx] = *replayLoaded;
                 }
@@ -1019,7 +1018,7 @@ i32 ResultScreen::HandleReplaySaveKeyboard()
             {
                 char replayPath[64];
                 sprintf(replayPath, "./replay/th6_%.2d.rpy", this->replayNumber + 1);
-                ReplayManager::SaveReplay(replayPath, this->replayName);
+                ReplayManager_SaveReplay(replayPath, this->replayName);
                 this->frameTimer = 0;
                 this->resultScreenState = RESULT_SCREEN_STATE_EXITING;
                 sprite = &this->unk_40[0];
@@ -1315,9 +1314,9 @@ ZunResult ResultScreen_RegisterChain(i32 unk)
 
     utils::DebugPrint(TH_DBG_RESULTSCREEN_COUNAT, g_GameManager.counat);
 
-    resultScreen->calcChain = g_Chain.CreateElem((ChainCallback)ResultScreen::OnUpdate);
-    resultScreen->calcChain->addedCallback = (ChainAddedCallback)ResultScreen::AddedCallback;
-    resultScreen->calcChain->deletedCallback = (ChainDeletedCallback)ResultScreen::DeletedCallback;
+    resultScreen->calcChain = g_Chain.CreateElem((ChainCallback)ResultScreen_OnUpdate);
+    resultScreen->calcChain->addedCallback = (ChainAddedCallback)ResultScreen_AddedCallback;
+    resultScreen->calcChain->deletedCallback = (ChainDeletedCallback)ResultScreen_DeletedCallback;
     resultScreen->calcChain->arg = resultScreen;
 
     if (unk)
@@ -1337,7 +1336,7 @@ ZunResult ResultScreen_RegisterChain(i32 unk)
         return ZUN_ERROR;
     }
 
-    resultScreen->drawChain = g_Chain.CreateElem((ChainCallback)ResultScreen::OnDraw);
+    resultScreen->drawChain = g_Chain.CreateElem((ChainCallback)ResultScreen_OnDraw);
     resultScreen->drawChain->arg = resultScreen;
     g_Chain.AddToDrawChain(resultScreen->drawChain, TH_CHAIN_PRIO_DRAW_RESULTSCREEN);
 
@@ -1345,7 +1344,7 @@ ZunResult ResultScreen_RegisterChain(i32 unk)
 }
 
 #pragma var_order(i, vm)
-ChainCallbackResult ResultScreen::OnUpdate(ResultScreen *resultScreen)
+static ChainCallbackResult ResultScreen_OnUpdate(ResultScreen *resultScreen)
 {
     AnmVm *vm;
     i32 i;
@@ -1691,7 +1690,7 @@ ChainCallbackResult ResultScreen::OnUpdate(ResultScreen *resultScreen)
 
 #pragma var_order(strPos, row, name, sprite, ShootScoreListNodeA, column, ShootScoreListNodeB, spritePos,              \
                   spellcardIdx, charPosY, charPosX, keyboardCharacter)
-ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
+static ChainCallbackResult ResultScreen_OnDraw(ResultScreen *resultScreen)
 {
     static const char *g_ShortCharacterList2[] = {"ReimuA ", "ReimuB ", "MarisaA", "MarisaB"};
 
@@ -1984,7 +1983,7 @@ ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
             {
                 g_AsciiManager.AddFormatText(&spritePos, "No.%.2d %8s %8s %7s %9d", row + 1, resultScreen->replayName,
                                              resultScreen->defaultReplay.date,
-                                             g_ShortCharacterList2[g_GameManager.CharacterShotType()],
+                                             g_ShortCharacterList2[GameManager_CharacterShotType()],
                                              resultScreen->defaultReplay.score);
                 g_AsciiManager.color = COLOR_BARELY_BLUE;
 
@@ -2016,7 +2015,7 @@ ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
 }
 
 #pragma var_order(i, sprite, shottype)
-ZunResult ResultScreen::AddedCallback(ResultScreen *resultScreen)
+static ZunResult ResultScreen_AddedCallback(ResultScreen *resultScreen)
 {
     i32 shottype;
     AnmVm *sprite;
@@ -2115,10 +2114,10 @@ ZunResult ResultScreen::AddedCallback(ResultScreen *resultScreen)
     }
 
     if (resultScreen->resultScreenState == RESULT_SCREEN_STATE_EXIT &&
-        g_GameManager.pscr[g_GameManager.CharacterShotType()][g_GameManager.currentStage - 1][g_GameManager.difficulty]
+        g_GameManager.pscr[GameManager_CharacterShotType()][g_GameManager.currentStage - 1][g_GameManager.difficulty]
                 .score < g_GameManager.score)
     {
-        g_GameManager.pscr[g_GameManager.CharacterShotType()][g_GameManager.currentStage - 1][g_GameManager.difficulty]
+        g_GameManager.pscr[GameManager_CharacterShotType()][g_GameManager.currentStage - 1][g_GameManager.difficulty]
             .score = g_GameManager.score;
     }
 
@@ -2127,7 +2126,7 @@ ZunResult ResultScreen::AddedCallback(ResultScreen *resultScreen)
     return ZUN_SUCCESS;
 }
 
-ZunResult ResultScreen::DeletedCallback(ResultScreen *resultScreen)
+static ZunResult ResultScreen_DeletedCallback(ResultScreen *resultScreen)
 {
     if (resultScreen->scoreDat != NULL)
     {

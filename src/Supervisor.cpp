@@ -32,8 +32,7 @@ namespace th06
 FILE_BSS_SORT(M1);
 
 BSS_SORT(M1) DIFFABLE_STATIC(Supervisor, g_Supervisor);
-
-ChainCallbackResult Supervisor::OnUpdate(Supervisor *s)
+ChainCallbackResult Supervisor_OnUpdate(Supervisor *s)
 {
     if (g_SoundPlayer.backgroundMusic != NULL)
     {
@@ -82,7 +81,7 @@ ChainCallbackResult Supervisor::OnUpdate(Supervisor *s)
             case SUPERVISOR_STATE_EXITSUCCESS:
                 return CHAIN_CALLBACK_RESULT_EXIT_GAME_SUCCESS;
             case SUPERVISOR_STATE_GAMEMANAGER:
-                if (GameManager::RegisterChain() != ZUN_SUCCESS)
+                if (GameManager_RegisterChain() != ZUN_SUCCESS)
                 {
                     return CHAIN_CALLBACK_RESULT_EXIT_GAME_SUCCESS;
                 }
@@ -102,7 +101,7 @@ ChainCallbackResult Supervisor::OnUpdate(Supervisor *s)
                 }
                 break;
             case SUPERVISOR_STATE_ENDING:
-                GameManager::CutChain();
+                GameManager_CutChain();
                 if (Ending_RegisterChain() != ZUN_SUCCESS)
                 {
                     return CHAIN_CALLBACK_RESULT_EXIT_GAME_SUCCESS;
@@ -129,21 +128,21 @@ ChainCallbackResult Supervisor::OnUpdate(Supervisor *s)
 
             case SUPERVISOR_STATE_MAINMENU:
             RETURN_TO_MENU_FROM_GAME:
-                GameManager::CutChain();
+                GameManager_CutChain();
                 s->curState = SUPERVISOR_STATE_INIT;
-                ReplayManager::SaveReplay(NULL, NULL);
+                ReplayManager_SaveReplay(NULL, NULL);
                 goto REINIT_MAINMENU;
 
             case SUPERVISOR_STATE_RESULTSCREEN_FROMGAME:
-                GameManager::CutChain();
+                GameManager_CutChain();
                 if (ResultScreen_RegisterChain(true) != ZUN_SUCCESS)
                 {
                     return CHAIN_CALLBACK_RESULT_EXIT_GAME_SUCCESS;
                 }
                 break;
             case SUPERVISOR_STATE_NEXT_STAGE:
-                GameManager::CutChain();
-                if (GameManager::RegisterChain() != ZUN_SUCCESS)
+                GameManager_CutChain();
+                if (GameManager_RegisterChain() != ZUN_SUCCESS)
                 {
                     return CHAIN_CALLBACK_RESULT_EXIT_GAME_SUCCESS;
                 }
@@ -156,9 +155,9 @@ ChainCallbackResult Supervisor::OnUpdate(Supervisor *s)
                 s->curState = SUPERVISOR_STATE_GAMEMANAGER;
                 break;
             case SUPERVISOR_STATE_MAINMENU_REPLAY:
-                GameManager::CutChain();
+                GameManager_CutChain();
                 s->curState = SUPERVISOR_STATE_INIT;
-                ReplayManager::SaveReplay(NULL, NULL);
+                ReplayManager_SaveReplay(NULL, NULL);
                 s->curState = SUPERVISOR_STATE_MAINMENU;
                 g_Supervisor.d3dDevice->ResourceManagerDiscardBytes(0);
                 if (MainMenu_RegisterChain(true) != ZUN_SUCCESS)
@@ -168,7 +167,7 @@ ChainCallbackResult Supervisor::OnUpdate(Supervisor *s)
                 break;
 
             case 10:
-                GameManager::CutChain();
+                GameManager_CutChain();
                 if (Ending_RegisterChain() != ZUN_SUCCESS)
                 {
                     return CHAIN_CALLBACK_RESULT_EXIT_GAME_SUCCESS;
@@ -180,11 +179,11 @@ ChainCallbackResult Supervisor::OnUpdate(Supervisor *s)
             switch (s->curState)
             {
             case SUPERVISOR_STATE_EXITSUCCESS:
-                ReplayManager::SaveReplay(NULL, NULL);
+                ReplayManager_SaveReplay(NULL, NULL);
                 return CHAIN_CALLBACK_RESULT_EXIT_GAME_SUCCESS;
             case SUPERVISOR_STATE_MAINMENU:
                 s->curState = SUPERVISOR_STATE_INIT;
-                ReplayManager::SaveReplay(NULL, NULL);
+                ReplayManager_SaveReplay(NULL, NULL);
                 goto REINIT_MAINMENU;
             }
             break;
@@ -223,7 +222,7 @@ ChainCallbackResult Supervisor::OnUpdate(Supervisor *s)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ChainCallbackResult Supervisor::OnDraw(Supervisor *s)
+ChainCallbackResult Supervisor_OnDraw(Supervisor *s)
 {
     g_AnmManager->SetCurrentVertexShader(AnmVertexShader_NotSet);
     g_AnmManager->SetCurrentSprite(NULL);
@@ -232,12 +231,12 @@ ChainCallbackResult Supervisor::OnDraw(Supervisor *s)
     g_AnmManager->SetCurrentBlendMode(AnmBlendMode_NotSet);
     g_AnmManager->SetCurrentZWriteDisable(AnmZWriteState_NotSet);
 
-    Supervisor::DrawFpsCounter();
+    Supervisor_DrawFpsCounter();
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
 #pragma var_order(diprange, pvRefBackup)
-BOOL CALLBACK Supervisor::ControllerCallback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOID pvRef)
+BOOL CALLBACK Supervisor_ControllerCallback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOID pvRef)
 {
     DIPROPRANGE diprange;
     LPVOID pvRefBackup = pvRef;
@@ -260,7 +259,7 @@ BOOL CALLBACK Supervisor::ControllerCallback(LPCDIDEVICEOBJECTINSTANCE lpddoi, L
 }
 
 #pragma var_order(chain, supervisor)
-ZunResult Supervisor::RegisterChain()
+ZunResult Supervisor_RegisterChain()
 {
     ChainElem *chain;
     Supervisor *supervisor = &g_Supervisor;
@@ -269,16 +268,16 @@ ZunResult Supervisor::RegisterChain()
     supervisor->curState = -1;
     supervisor->calcCount = 0;
 
-    chain = g_Chain.CreateElem((ChainCallback)Supervisor::OnUpdate);
+    chain = g_Chain.CreateElem((ChainCallback)Supervisor_OnUpdate);
     chain->arg = supervisor;
-    chain->addedCallback = (ChainAddedCallback)Supervisor::AddedCallback;
-    chain->deletedCallback = (ChainDeletedCallback)Supervisor::DeletedCallback;
+    chain->addedCallback = (ChainAddedCallback)Supervisor_AddedCallback;
+    chain->deletedCallback = (ChainDeletedCallback)Supervisor_DeletedCallback;
     if (g_Chain.AddToCalcChain(chain, TH_CHAIN_PRIO_CALC_SUPERVISOR) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
     }
 
-    chain = g_Chain.CreateElem((ChainCallback)Supervisor::OnDraw);
+    chain = g_Chain.CreateElem((ChainCallback)Supervisor_OnDraw);
     chain->arg = supervisor;
     g_Chain.AddToDrawChain(chain, TH_CHAIN_PRIO_DRAW_SUPERVISOR);
 
@@ -335,7 +334,7 @@ static ZunResult SetupDInput(Supervisor *supervisor)
     supervisor->keyboard->Acquire();
     g_GameErrorContext.Log(TH_ERR_DIRECTINPUT_INITIALIZED);
 
-    supervisor->dinputIface->EnumDevices(DI8DEVCLASS_GAMECTRL, Supervisor::EnumGameControllersCb, NULL,
+    supervisor->dinputIface->EnumDevices(DI8DEVCLASS_GAMECTRL, Supervisor_EnumGameControllersCb, NULL,
                                          DIEDFL_ATTACHEDONLY);
     if (supervisor->controller)
     {
@@ -345,14 +344,14 @@ static ZunResult SetupDInput(Supervisor *supervisor)
         g_Supervisor.controllerCaps.dwSize = sizeof(g_Supervisor.controllerCaps);
 
         supervisor->controller->GetCapabilities(&g_Supervisor.controllerCaps);
-        supervisor->controller->EnumObjects(Supervisor::ControllerCallback, NULL, DIDFT_ALL);
+        supervisor->controller->EnumObjects(Supervisor_ControllerCallback, NULL, DIDFT_ALL);
 
         g_GameErrorContext.Log(TH_ERR_PAD_FOUND);
     }
     return ZUN_SUCCESS;
 }
 
-ZunResult Supervisor::AddedCallback(Supervisor *s)
+ZunResult Supervisor_AddedCallback(Supervisor *s)
 {
     for (i32 i = 0; i < ARRAY_SIZE_SIGNED(s->pbg3Archives); i++)
     {
@@ -388,7 +387,7 @@ ZunResult Supervisor::AddedCallback(Supervisor *s)
         return ZUN_ERROR;
     }
 
-    if (AsciiManager::RegisterChain() != ZUN_SUCCESS)
+    if (AsciiManager_RegisterChain() != ZUN_SUCCESS)
     {
         g_GameErrorContext.Log(TH_ERR_ASCIIMANAGER_INIT_FAILED);
         return ZUN_ERROR;
@@ -396,7 +395,7 @@ ZunResult Supervisor::AddedCallback(Supervisor *s)
 
     s->forceRedrawFrames = 0;
     g_AnmManager->SetupVertexBuffer();
-    TextHelper::CreateTextBuffer();
+    TextHelper_CreateTextBuffer();
     s->ReleasePbg3(IN_PBG3_INDEX);
     if (g_Supervisor.LoadPbg3(MD_PBG3_INDEX, TH_MD_DAT_FILE))
     {
@@ -406,7 +405,7 @@ ZunResult Supervisor::AddedCallback(Supervisor *s)
     return ZUN_SUCCESS;
 }
 
-BOOL CALLBACK Supervisor::EnumGameControllersCb(LPCDIDEVICEINSTANCE pdidInstance, LPVOID pContext)
+BOOL CALLBACK Supervisor_EnumGameControllersCb(LPCDIDEVICEINSTANCE pdidInstance, LPVOID pContext)
 {
     if (!g_Supervisor.controller)
     {
@@ -420,7 +419,7 @@ BOOL CALLBACK Supervisor::EnumGameControllersCb(LPCDIDEVICEINSTANCE pdidInstance
     return FALSE;
 }
 
-ZunResult Supervisor::DeletedCallback(Supervisor *s)
+ZunResult Supervisor_DeletedCallback(Supervisor *s)
 {
     g_AnmManager->ReleaseVertexBuffer();
     for (i32 pbg3Idx = 0; pbg3Idx < ARRAY_SIZE_SIGNED(s->pbg3Archives); pbg3Idx++)
@@ -428,15 +427,15 @@ ZunResult Supervisor::DeletedCallback(Supervisor *s)
         s->ReleasePbg3(pbg3Idx);
     }
     g_AnmManager->ReleaseAnm(0);
-    AsciiManager::CutChain();
+    AsciiManager_CutChain();
     g_SoundPlayer.StopBGM();
     if (s->midiOutput != NULL)
     {
         s->midiOutput->StopPlayback();
         ZUN_DELETE(s->midiOutput);
     }
-    ReplayManager::SaveReplay(NULL, NULL);
-    TextHelper::ReleaseTextBuffer();
+    ReplayManager_SaveReplay(NULL, NULL);
+    TextHelper_ReleaseTextBuffer();
     if (s->keyboard != NULL)
     {
         s->keyboard->Unacquire();
@@ -452,7 +451,7 @@ ZunResult Supervisor::DeletedCallback(Supervisor *s)
 }
 
 #pragma var_order(curTime, framerate, fps, elapsed)
-void Supervisor::DrawFpsCounter()
+void Supervisor_DrawFpsCounter()
 {
     DWORD curTime;
     float framerate;

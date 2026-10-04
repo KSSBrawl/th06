@@ -106,12 +106,6 @@ ZUN_ASSERT_TYPE(Laser, 0x270, 4);
 struct BulletManager
 {
     BulletManager();
-    static ZunResult RegisterChain(const char *bulletAnmPath);
-    static void CutChain();
-    static ZunResult AddedCallback(BulletManager *mgr);
-    static ZunResult DeletedCallback(BulletManager *mgr);
-    static ChainCallbackResult OnUpdate(BulletManager *mgr);
-    static ChainCallbackResult OnDraw(BulletManager *mgr);
 
     void RemoveAllBullets(ZunBool turnIntoItem);
     void InitializeToZero();
@@ -132,6 +126,9 @@ struct BulletManager
     const char *bulletAnmPath;
 };
 ZUN_ASSERT_TYPE(BulletManager, 0xf5c18, 4);
+
+ZunResult BulletManager_RegisterChain(const char *bulletAnmPath);
+void BulletManager_CutChain();
 
 DIFFABLE_EXTERN(u32 *, g_EffectsColor);
 DIFFABLE_EXTERN(BulletManager, g_BulletManager);

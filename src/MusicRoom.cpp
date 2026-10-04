@@ -30,12 +30,8 @@ struct MusicRoom
         memset(this, 0, sizeof(MusicRoom));
     }
 
-    static ZunResult AddedCallback(MusicRoom *musicRoom);
-    static ZunResult DeletedCallback(MusicRoom *musicRoom);
     ZunBool ProcessInput();
     ZunResult CheckInputEnable();
-    static ChainCallbackResult OnDraw(MusicRoom *musicRoom);
-    static ChainCallbackResult OnUpdate(MusicRoom *musicRoom);
 
     ChainElem *calc_chain;
     ChainElem *draw_chain;
@@ -51,6 +47,11 @@ struct MusicRoom
     AnmVm descriptionSprites[16];
 };
 ZUN_ASSERT_TYPE(MusicRoom, 0x3434, 4);
+
+static ZunResult MusicRoom_AddedCallback(MusicRoom *musicRoom);
+static ZunResult MusicRoom_DeletedCallback(MusicRoom *musicRoom);
+static ChainCallbackResult MusicRoom_OnDraw(MusicRoom *musicRoom);
+static ChainCallbackResult MusicRoom_OnUpdate(MusicRoom *musicRoom);
 
 ZunResult MusicRoom::CheckInputEnable()
 {
@@ -163,24 +164,24 @@ ZunResult MusicRoom_RegisterChain()
     musicRoom = &g_MusicRoom;
     memset(musicRoom, 0, sizeof(MusicRoom));
 
-    musicRoom->calc_chain = g_Chain.CreateElem((ChainCallback)MusicRoom::OnUpdate);
+    musicRoom->calc_chain = g_Chain.CreateElem((ChainCallback)MusicRoom_OnUpdate);
     musicRoom->calc_chain->arg = musicRoom;
-    musicRoom->calc_chain->addedCallback = (ChainAddedCallback)MusicRoom::AddedCallback;
-    musicRoom->calc_chain->deletedCallback = (ChainDeletedCallback)MusicRoom::DeletedCallback;
+    musicRoom->calc_chain->addedCallback = (ChainAddedCallback)MusicRoom_AddedCallback;
+    musicRoom->calc_chain->deletedCallback = (ChainDeletedCallback)MusicRoom_DeletedCallback;
 
     if (g_Chain.AddToCalcChain(musicRoom->calc_chain, TH_CHAIN_PRIO_CALC_MAINMENU) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
     }
 
-    musicRoom->draw_chain = g_Chain.CreateElem((ChainCallback)MusicRoom::OnDraw);
+    musicRoom->draw_chain = g_Chain.CreateElem((ChainCallback)MusicRoom_OnDraw);
     musicRoom->draw_chain->arg = musicRoom;
     g_Chain.AddToDrawChain(musicRoom->draw_chain, TH_CHAIN_PRIO_DRAW_MAINMENU);
 
     return ZUN_SUCCESS;
 }
 
-ChainCallbackResult MusicRoom::OnUpdate(MusicRoom *musicRoom)
+static ChainCallbackResult MusicRoom_OnUpdate(MusicRoom *musicRoom)
 {
     ZunBool oldInputSetting = musicRoom->enableInput;
     for (;;)
@@ -216,7 +217,7 @@ ChainCallbackResult MusicRoom::OnUpdate(MusicRoom *musicRoom)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ChainCallbackResult MusicRoom::OnDraw(MusicRoom *musicRoom)
+static ChainCallbackResult MusicRoom_OnDraw(MusicRoom *musicRoom)
 {
     i32 i;
     D3DXVECTOR3 textPos;
@@ -273,7 +274,7 @@ ChainCallbackResult MusicRoom::OnDraw(MusicRoom *musicRoom)
 }
 
 #pragma var_order(i, lineIndex, currChar, charIndex, fileBase)
-ZunResult MusicRoom::AddedCallback(MusicRoom *musicRoom)
+static ZunResult MusicRoom_AddedCallback(MusicRoom *musicRoom)
 {
     u32 charIndex;
     char *currChar;
@@ -451,7 +452,7 @@ finishMusiccmtRead:
     return ZUN_SUCCESS;
 }
 
-ZunResult MusicRoom::DeletedCallback(MusicRoom *musicRoom)
+static ZunResult MusicRoom_DeletedCallback(MusicRoom *musicRoom)
 {
     ZUN_DELETE(musicRoom->trackDescriptors);
 

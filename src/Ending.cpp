@@ -63,11 +63,6 @@ struct Ending
         this->backgroundScrollSpeed = 0.0f;
     }
 
-    static ChainCallbackResult OnUpdate(Ending *ending);
-    static ChainCallbackResult OnDraw(Ending *ending);
-    static ZunResult AddedCallback(Ending *ending);
-    static ZunResult DeletedCallback(Ending *ending);
-
     i32 ReadEndFileParameter();
 
     ZunResult ParseEndFile();
@@ -99,6 +94,11 @@ struct Ending
     const char *endFileDataPtr;
 };
 ZUN_ASSERT_TYPE(Ending, 0x1170, 4);
+
+static ChainCallbackResult Ending_OnUpdate(Ending *ending);
+static ChainCallbackResult Ending_OnDraw(Ending *ending);
+static ZunResult Ending_AddedCallback(Ending *ending);
+static ZunResult Ending_DeletedCallback(Ending *ending);
 
 i32 Ending::ReadEndFileParameter()
 {
@@ -187,7 +187,7 @@ void Ending::FadingEffect()
     }
     if ((this->fadeColor & COLOR_ALPHA_MASK) != COLOR_TRANSPARENT)
     {
-        ScreenEffect::DrawSquare(&endingRect, this->fadeColor);
+        ScreenEffect_DrawSquare(&endingRect, this->fadeColor);
     }
 }
 
@@ -509,16 +509,16 @@ ZunResult Ending::LoadEnding(const char *endFilePath)
 ZunResult Ending_RegisterChain()
 {
     Ending *ending = ZUN_NEW(Ending);
-    ending->calcChain = g_Chain.CreateElem((ChainCallback)Ending::OnUpdate);
+    ending->calcChain = g_Chain.CreateElem((ChainCallback)Ending_OnUpdate);
     ending->calcChain->arg = ending;
-    ending->calcChain->addedCallback = (ChainAddedCallback)Ending::AddedCallback;
-    ending->calcChain->deletedCallback = (ChainDeletedCallback)Ending::DeletedCallback;
+    ending->calcChain->addedCallback = (ChainAddedCallback)Ending_AddedCallback;
+    ending->calcChain->deletedCallback = (ChainDeletedCallback)Ending_DeletedCallback;
     if (g_Chain.AddToCalcChain(ending->calcChain, TH_CHAIN_PRIO_CALC_ENDING) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
     }
 
-    ending->drawChain = g_Chain.CreateElem((ChainCallback)Ending::OnDraw);
+    ending->drawChain = g_Chain.CreateElem((ChainCallback)Ending_OnDraw);
     ending->drawChain->arg = ending;
     g_Chain.AddToDrawChain(ending->drawChain, TH_CHAIN_PRIO_DRAW_ENDING);
 
@@ -526,7 +526,7 @@ ZunResult Ending_RegisterChain()
 }
 
 #pragma var_order(framesPressed, idx)
-ChainCallbackResult Ending::OnUpdate(Ending *ending)
+static ChainCallbackResult Ending_OnUpdate(Ending *ending)
 {
     i32 framesSkipped = 0;
 skipping:
@@ -549,7 +549,7 @@ skipping:
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ChainCallbackResult Ending::OnDraw(Ending *ending)
+static ChainCallbackResult Ending_OnDraw(Ending *ending)
 {
     g_AnmManager->DrawEndingRect(0, 0, 0, ending->backgroundPos.x, ending->backgroundPos.y, GAME_WINDOW_WIDTH,
                                  GAME_WINDOW_HEIGHT);
@@ -565,7 +565,7 @@ ChainCallbackResult Ending::OnDraw(Ending *ending)
 }
 
 #pragma var_order(unusedshotTypeAndCharacter, shotTypeAndCharacter)
-ZunResult Ending::AddedCallback(Ending *ending)
+static ZunResult Ending_AddedCallback(Ending *ending)
 {
     i32 shotTypeAndCharacter;
     i32 unusedshotTypeAndCharacter;
@@ -662,7 +662,7 @@ ZunResult Ending::AddedCallback(Ending *ending)
     return ZUN_SUCCESS;
 }
 
-ZunResult Ending::DeletedCallback(Ending *ending)
+static ZunResult Ending_DeletedCallback(Ending *ending)
 {
     g_AnmManager->ReleaseAnm(ANM_FILE_STAFF01);
     g_AnmManager->ReleaseAnm(ANM_FILE_STAFF02);

@@ -28,25 +28,6 @@ enum ScreenEffects
 
 struct ScreenEffect
 {
-    // In fade effects, effectParam1 is an RGB color to fade to
-    // In shake effects, effectParam1 controls the "base" view offset, and effectParam2 controls the shakiness
-    // multiplier over time
-    static ScreenEffect *RegisterChain(i32 effect, u32 ticks, u32 effectParam1, u32 effectParam2,
-                                       u32 unusedEffectParam);
-
-    static ZunResult AddedCallback(ScreenEffect *effect);
-    static ZunResult DeletedCallback(ScreenEffect *effect);
-
-    static ChainCallbackResult DrawFadeIn(ScreenEffect *effect);
-    static ChainCallbackResult CalcFadeIn(ScreenEffect *effect);
-    static ChainCallbackResult ShakeScreen(ScreenEffect *effect);
-    static ChainCallbackResult DrawFadeOut(ScreenEffect *effect);
-    static ChainCallbackResult CalcFadeOut(ScreenEffect *effect);
-
-    static void DrawSquare(ZunRect *rect, D3DCOLOR rectColor);
-    static void Clear(D3DCOLOR color);
-    static void SetViewport(D3DCOLOR color);
-
     ScreenEffects usedEffect;
     ChainElem *calcChainElement;
     ChainElem *drawChainElement;
@@ -59,4 +40,21 @@ struct ScreenEffect
     ZunTimer timer;
 };
 ZUN_ASSERT_TYPE(ScreenEffect, 0x30, 4);
+
+// In fade effects, effectParam1 is an RGB color to fade to
+// In shake effects, effectParam1 controls the "base" view offset, and effectParam2 controls the shakiness
+// multiplier over time
+ScreenEffect *ScreenEffect_RegisterChain(i32 effect, u32 ticks, u32 effectParam1, u32 effectParam2,
+                                         u32 unusedEffectParam);
+ZunResult ScreenEffect_AddedCallback(ScreenEffect *effect);
+ZunResult ScreenEffect_DeletedCallback(ScreenEffect *effect);
+ChainCallbackResult ScreenEffect_DrawFadeIn(ScreenEffect *effect);
+ChainCallbackResult ScreenEffect_CalcFadeIn(ScreenEffect *effect);
+ChainCallbackResult ScreenEffect_ShakeScreen(ScreenEffect *effect);
+ChainCallbackResult ScreenEffect_DrawFadeOut(ScreenEffect *effect);
+ChainCallbackResult ScreenEffect_CalcFadeOut(ScreenEffect *effect);
+void ScreenEffect_DrawSquare(ZunRect *rect, D3DCOLOR rectColor);
+void ScreenEffect_Clear(D3DCOLOR color);
+void ScreenEffect_SetViewport(D3DCOLOR color);
+
 } // namespace th06

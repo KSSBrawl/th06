@@ -185,8 +185,6 @@ struct Enemy
     ZunBool HandleTimerCallback();
     void Despawn();
 
-    static void ResetEffectArray(Enemy *enemy);
-
     f32 LifePercent()
     {
         return (f32)this->life / (f32)this->maxLife;
@@ -273,4 +271,7 @@ struct Enemy
     ZunTimer exInsFunc6Timer;
 };
 ZUN_ASSERT_TYPE(Enemy, 0xec8, 4);
+
+void Enemy_ResetEffectArray(Enemy *enemy);
+
 } // namespace th06

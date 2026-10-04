@@ -181,7 +181,7 @@ void Gui::ShowSpellcardBonus(u32 spellcardScore)
     this->impl->spellCardBonus.fmtArg = spellcardScore;
 }
 
-ChainCallbackResult Gui::OnUpdate(Gui *gui)
+ChainCallbackResult Gui_OnUpdate(Gui *gui)
 {
     if (g_GameManager.isTimeStopped)
     {
@@ -192,7 +192,7 @@ ChainCallbackResult Gui::OnUpdate(Gui *gui)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ChainCallbackResult Gui::OnDraw(Gui *gui)
+ChainCallbackResult Gui_OnDraw(Gui *gui)
 {
     g_Supervisor.d3dDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS);
     if (gui->impl->finishedStage)
@@ -1432,12 +1432,12 @@ void Gui::DrawStageElements()
     }
 }
 
-ZunResult Gui::AddedCallback(Gui *gui)
+ZunResult Gui_AddedCallback(Gui *gui)
 {
     return gui->ActualAddedCallback();
 }
 
-ZunResult Gui::DeletedCallback(Gui *gui)
+ZunResult Gui_DeletedCallback(Gui *gui)
 {
     g_AnmManager->ReleaseAnm(ANM_FILE_FACE_STAGE_A);
     g_AnmManager->ReleaseAnm(ANM_FILE_FACE_STAGE_B);
@@ -1455,7 +1455,7 @@ ZunResult Gui::DeletedCallback(Gui *gui)
     return ZUN_SUCCESS;
 }
 
-ZunResult Gui::RegisterChain()
+ZunResult Gui_RegisterChain()
 {
     Gui *gui = &g_Gui;
     if (g_Supervisor.IsNotLoadingNextStage())
@@ -1463,21 +1463,21 @@ ZunResult Gui::RegisterChain()
         memset(gui, 0, sizeof(Gui));
         gui->impl = ZUN_NEW(GuiImpl);
     }
-    g_GuiCalcChain.SetCallback((ChainCallback)OnUpdate);
-    g_GuiCalcChain.addedCallback = (ChainAddedCallback)Gui::AddedCallback;
-    g_GuiCalcChain.deletedCallback = (ChainDeletedCallback)Gui::DeletedCallback;
+    g_GuiCalcChain.SetCallback((ChainCallback)Gui_OnUpdate);
+    g_GuiCalcChain.addedCallback = (ChainAddedCallback)Gui_AddedCallback;
+    g_GuiCalcChain.deletedCallback = (ChainDeletedCallback)Gui_DeletedCallback;
     g_GuiCalcChain.arg = gui;
     if (g_Chain.AddToCalcChain(&g_GuiCalcChain, TH_CHAIN_PRIO_CALC_GUI) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
     }
-    g_GuiDrawChain.SetCallback((ChainCallback)OnDraw);
+    g_GuiDrawChain.SetCallback((ChainCallback)Gui_OnDraw);
     g_GuiDrawChain.arg = gui;
     g_Chain.AddToDrawChain(&g_GuiDrawChain, TH_CHAIN_PRIO_DRAW_GUI);
     return ZUN_SUCCESS;
 }
 
-void Gui::CutChain()
+void Gui_CutChain()
 {
     g_Chain.Cut(&g_GuiCalcChain);
     g_Chain.Cut(&g_GuiDrawChain);

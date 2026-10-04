@@ -10,7 +10,7 @@ namespace th06
 {
 
 #pragma var_order(angleY, angleX, i, bombSprite, vecLength, bombPivot, bombIdx)
-void BombData::BombReimuACalc(Player *player)
+void BombData_BombReimuACalc(Player *player)
 {
     i32 i;
     f32 vecLength;
@@ -150,7 +150,7 @@ void BombData::BombReimuACalc(Player *player)
                     player->bombInfo.bombRegionVelocities[i] / 8.0f; // ZUN moment
 
                     g_SoundPlayer.PlaySoundByIdx(SOUND_F);
-                    ScreenEffect::RegisterChain(SCREEN_EFFECT_SHAKE, 16, 8, 0, 0);
+                    ScreenEffect_RegisterChain(SCREEN_EFFECT_SHAKE, 16, 8, 0, 0);
                 }
             }
         }
@@ -202,11 +202,11 @@ static void DarkenViewport(Player *player)
         darknessLevel = 176;
     }
 
-    ScreenEffect::DrawSquare(&viewport, darknessLevel << 24);
+    ScreenEffect_DrawSquare(&viewport, darknessLevel << 24);
 }
 
 #pragma var_order(bombSprite, idx)
-void BombData::BombReimuADraw(Player *player)
+void BombData_BombReimuADraw(Player *player)
 {
     i32 idx;
     AnmVm *bombSprite;
@@ -244,7 +244,7 @@ void BombData::BombReimuADraw(Player *player)
 }
 
 #pragma var_order(i, bombSprite, unusedVector)
-void BombData::BombReimuBCalc(Player *player)
+void BombData_BombReimuBCalc(Player *player)
 {
     AnmVm *bombSprite;
     i32 i;
@@ -283,13 +283,13 @@ void BombData::BombReimuBCalc(Player *player)
         player->bombInfo.bombRegionPositions[3].x = GAME_REGION_WIDTH / 2.0f;
         player->bombInfo.bombRegionPositions[3].y = player->positionCenter.y;
         player->bombInfo.bombRegionPositions[3].z = 0.405f;
-        ScreenEffect::RegisterChain(SCREEN_EFFECT_SHAKE, 60, 2, 6, 0);
+        ScreenEffect_RegisterChain(SCREEN_EFFECT_SHAKE, 60, 2, 6, 0);
     }
     else
     {
         if (player->bombInfo.timer == 60)
         {
-            ScreenEffect::RegisterChain(SCREEN_EFFECT_SHAKE, 80, 20, 0, 0);
+            ScreenEffect_RegisterChain(SCREEN_EFFECT_SHAKE, 80, 20, 0, 0);
         }
 
         player->bombProjectiles[0].size.x = 62.0f;
@@ -324,7 +324,7 @@ void BombData::BombReimuBCalc(Player *player)
 }
 
 #pragma var_order(bombSprite, i)
-void BombData::BombReimuBDraw(Player *player)
+void BombData_BombReimuBDraw(Player *player)
 {
     AnmVm *bombSprite;
     i32 i;
@@ -342,7 +342,7 @@ void BombData::BombReimuBDraw(Player *player)
 }
 
 #pragma var_order(i, starSprite, pad)
-void BombData::BombMarisaACalc(Player *player)
+void BombData_BombMarisaACalc(Player *player)
 {
     i32 pad[3];
     AnmVm *starSprite;
@@ -376,7 +376,7 @@ void BombData::BombMarisaACalc(Player *player)
             player->bombInfo.bombRegionVelocities[i].z = 0.0f;
         }
         g_SoundPlayer.PlaySoundByIdx(SOUND_BOMB_REIMARI);
-        ScreenEffect::RegisterChain(SCREEN_EFFECT_SHAKE, 120, 4, 1, 0);
+        ScreenEffect_RegisterChain(SCREEN_EFFECT_SHAKE, 120, 4, 1, 0);
     }
     else
     {
@@ -405,7 +405,7 @@ void BombData::BombMarisaACalc(Player *player)
 }
 
 #pragma var_order(bombSprite, idx)
-void BombData::BombMarisaADraw(Player *player)
+void BombData_BombMarisaADraw(Player *player)
 {
     AnmVm *bombSprite;
     i32 idx;
@@ -447,7 +447,7 @@ void BombData::BombMarisaADraw(Player *player)
 }
 
 #pragma var_order(i, bombSprite, unusedVector)
-void BombData::BombMarisaBCalc(Player *player)
+void BombData_BombMarisaBCalc(Player *player)
 {
     AnmVm *bombSprite;
     i32 i;
@@ -480,11 +480,11 @@ void BombData::BombMarisaBCalc(Player *player)
     {
         if (player->bombInfo.timer == 60)
         {
-            ScreenEffect::RegisterChain(SCREEN_EFFECT_SHAKE, 60, 1, 7, 0);
+            ScreenEffect_RegisterChain(SCREEN_EFFECT_SHAKE, 60, 1, 7, 0);
         }
         else if (player->bombInfo.timer == 120)
         {
-            ScreenEffect::RegisterChain(SCREEN_EFFECT_SHAKE, 200, 24, 0, 0);
+            ScreenEffect_RegisterChain(SCREEN_EFFECT_SHAKE, 200, 24, 0, 0);
         }
 
         if (player->bombInfo.timer.HasTicked() && player->bombInfo.timer % 4 != 0)
@@ -511,7 +511,7 @@ void BombData::BombMarisaBCalc(Player *player)
 }
 
 #pragma var_order(bombSprite, i)
-void BombData::BombMarisaBDraw(Player *player)
+void BombData_BombMarisaBDraw(Player *player)
 {
     AnmVm *bombSprite;
     i32 i;

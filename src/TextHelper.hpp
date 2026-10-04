@@ -19,12 +19,6 @@ struct FormatInfo
 // TODO: Move type into the cpp file
 struct TextHelper
 {
-    static void CreateTextBuffer();
-    static void ReleaseTextBuffer();
-    static void RenderTextToTexture(i32 xPos, i32 yPos, i32 spriteWidth, i32 spriteHeight, i32 fontHeight,
-                                    i32 fontWidth, ZunColor textColor, ZunColor shadowColor, const char *string,
-                                    LPDIRECT3DTEXTURE8 outTexture);
-
     TextHelper();
     ~TextHelper();
     bool AllocateBufferWithFallback(i32 width, i32 height, D3DFORMAT format);
@@ -80,4 +74,11 @@ struct TextHelper
     void *buffer;
 };
 ZUN_ASSERT_TYPE(TextHelper, 0x24, 4);
+
+void TextHelper_CreateTextBuffer();
+void TextHelper_ReleaseTextBuffer();
+void TextHelper_RenderTextToTexture(i32 xPos, i32 yPos, i32 spriteWidth, i32 spriteHeight, i32 fontHeight,
+                                    i32 fontWidth, ZunColor textColor, ZunColor shadowColor, const char *string,
+                                    LPDIRECT3DTEXTURE8 outTexture);
+
 } // namespace th06

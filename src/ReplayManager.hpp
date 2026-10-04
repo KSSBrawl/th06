@@ -11,18 +11,6 @@ namespace th06
 // TODO: Move struct def into cpp file
 struct ReplayManager
 {
-    static ZunResult RegisterChain(ZunBool isDemo, const char *replayFile);
-    static ChainCallbackResult OnUpdate(ReplayManager *mgr);
-    static ChainCallbackResult OnUpdateDemoHighPrio(ReplayManager *mgr);
-    static ChainCallbackResult OnUpdateDemoLowPrio(ReplayManager *mgr);
-    static ChainCallbackResult OnDraw(ReplayManager *mgr);
-    static ZunResult AddedCallback(ReplayManager *mgr);
-    static ZunResult AddedCallbackDemo(ReplayManager *mgr);
-    static ZunResult DeletedCallback(ReplayManager *mgr);
-    static void StopRecording();
-    static void SaveReplay(const char *replay_path, const char *param_2);
-    static ZunResult ValidateReplayData(ReplayData *data, i32 fileSize);
-
     ReplayManager()
     {
     }
@@ -46,4 +34,11 @@ struct ReplayManager
     ChainElem *calcChainDemoHighPrio;
 };
 ZUN_ASSERT_TYPE(ReplayManager, 0x74, 4);
+
+ZunResult ReplayManager_RegisterChain(ZunBool isDemo, const char *replayFile);
+
+void ReplayManager_StopRecording();
+void ReplayManager_SaveReplay(const char *replay_path, const char *param_2);
+ZunResult ReplayManager_ValidateReplayData(ReplayData *data, i32 fileSize);
+
 } // namespace th06

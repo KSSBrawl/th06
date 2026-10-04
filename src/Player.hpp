@@ -171,18 +171,6 @@ ZUN_ASSERT_TYPE(CharacterPowerData, 0xc, 4);
 
 struct Player
 {
-    static ZunResult RegisterChain(u8 unk);
-    static void CutChain();
-    static ChainCallbackResult OnUpdate(Player *p);
-    static ChainCallbackResult OnDrawHighPrio(Player *p);
-    static ChainCallbackResult OnDrawLowPrio(Player *p);
-    static ZunResult AddedCallback(Player *p);
-    static ZunResult DeletedCallback(Player *p);
-
-    static FireBulletResult FireBulletReimuA(Player *, PlayerBullet *, u32, u32);
-    static FireBulletResult FireBulletReimuB(Player *, PlayerBullet *, u32, u32);
-    static FireBulletResult FireBulletMarisaA(Player *, PlayerBullet *, u32, u32);
-    static FireBulletResult FireBulletMarisaB(Player *, PlayerBullet *, u32, u32);
 
     ZunResult HandlePlayerInputs();
 
@@ -249,6 +237,9 @@ struct Player
     }
 };
 ZUN_ASSERT_TYPE(Player, 0x98f0, 4);
+
+ZunResult Player_RegisterChain(u8 unk);
+void Player_CutChain();
 
 DIFFABLE_EXTERN(Player, g_Player);
 } // namespace th06

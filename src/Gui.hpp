@@ -21,12 +21,6 @@ ZUN_ASSERT_TYPE(GuiFlags, 0x4, 4);
 
 struct Gui
 {
-    static ZunResult RegisterChain();
-    static void CutChain();
-    static ZunResult AddedCallback(Gui *);
-    static ZunResult DeletedCallback(Gui *);
-    static ChainCallbackResult OnUpdate(Gui *);
-    static ChainCallbackResult OnDraw(Gui *);
 
     ZunResult ActualAddedCallback();
     ZunResult LoadMsg(const char *path);
@@ -92,6 +86,13 @@ struct Gui
     f32 bossHealthBar2;
 };
 ZUN_ASSERT_TYPE(Gui, 0x2c, 4);
+
+ZunResult Gui_RegisterChain();
+void Gui_CutChain();
+ZunResult Gui_AddedCallback(Gui *);
+ZunResult Gui_DeletedCallback(Gui *);
+ChainCallbackResult Gui_OnUpdate(Gui *);
+ChainCallbackResult Gui_OnDraw(Gui *);
 
 DIFFABLE_EXTERN(Gui, g_Gui);
 } // namespace th06
