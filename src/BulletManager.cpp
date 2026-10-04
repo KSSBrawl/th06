@@ -114,7 +114,8 @@ u32 BulletManager::SpawnSingleBullet(EnemyBulletShooter *bulletProps, i32 bullet
     }
 
     f32 bulletAngle = 0.0f;
-    f32 bulletSpeed = bulletProps->speed1 - (bulletProps->speed1 - bulletProps->speed2) * bulletIdx2 / bulletProps->count2;
+    f32 bulletSpeed =
+        bulletProps->speed1 - (bulletProps->speed1 - bulletProps->speed2) * bulletIdx2 / bulletProps->count2;
     switch (bulletProps->aimMode)
     {
     case FAN_AIMED:

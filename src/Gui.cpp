@@ -839,9 +839,8 @@ ZunResult GuiImpl::DrawDialogue()
         dialogueBoxHeight = 48.0f;
     }
     VertexDiffuseXyzrwh vertices[4];
-    vertices[0].position =
-        D3DXVECTOR3(g_GameManager.gameRegionScreenPos.x + (g_GameManager.gameRegionSize.x - 256.0f) / 2.0f - 16.0f,
-                    384.0f, 0.0f);
+    vertices[0].position = D3DXVECTOR3(
+        g_GameManager.gameRegionScreenPos.x + (g_GameManager.gameRegionSize.x - 256.0f) / 2.0f - 16.0f, 384.0f, 0.0f);
 
     vertices[1].position = D3DXVECTOR3(g_GameManager.gameRegionScreenPos.x +
                                            (g_GameManager.gameRegionSize.x - 256.0f) / 2.0f + 256.0f + 16.0f,
