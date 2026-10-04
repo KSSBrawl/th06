@@ -2098,27 +2098,27 @@ ZunResult MainMenu::LoadTitleAnm(MainMenu *menu)
     {
         g_AnmManager->ReleaseAnm(i);
     }
-    if (g_AnmManager->LoadAnm(ANM_FILE_TITLE01, "data/title01.anm", ANM_OFFSET_TITLE01))
+    if (g_AnmManager->LoadAnm(ANM_FILE_TITLE01, "data/title01.anm", ANM_OFFSET_TITLE01) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
     }
-    if (g_AnmManager->LoadAnm(ANM_FILE_TITLE02, "data/title02.anm", ANM_OFFSET_TITLE02))
+    if (g_AnmManager->LoadAnm(ANM_FILE_TITLE02, "data/title02.anm", ANM_OFFSET_TITLE02) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
     }
-    if (g_AnmManager->LoadAnm(ANM_FILE_TITLE03, "data/title03.anm", ANM_OFFSET_TITLE03))
+    if (g_AnmManager->LoadAnm(ANM_FILE_TITLE03, "data/title03.anm", ANM_OFFSET_TITLE03) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
     }
-    if (g_AnmManager->LoadAnm(ANM_FILE_TITLE04, "data/title04.anm", ANM_OFFSET_TITLE04))
+    if (g_AnmManager->LoadAnm(ANM_FILE_TITLE04, "data/title04.anm", ANM_OFFSET_TITLE04) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
     }
-    if (g_AnmManager->LoadAnm(ANM_FILE_TITLE01S, "data/title01s.anm", ANM_OFFSET_TITLE01S))
+    if (g_AnmManager->LoadAnm(ANM_FILE_TITLE01S, "data/title01s.anm", ANM_OFFSET_TITLE01S) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
     }
-    if (g_AnmManager->LoadAnm(ANM_FILE_TITLE04S, "data/title04s.anm", ANM_OFFSET_TITLE04S))
+    if (g_AnmManager->LoadAnm(ANM_FILE_TITLE04S, "data/title04s.anm", ANM_OFFSET_TITLE04S) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
     }
@@ -2265,7 +2265,7 @@ ZunResult MainMenu_RegisterChain(ZunBool isDemo)
     menu->chainCalc->addedCallback = (ChainAddedCallback)MainMenu::AddedCallback;
     menu->chainCalc->deletedCallback = (ChainDeletedCallback)MainMenu::DeletedCallback;
     menu->stateTimer = 0;
-    if (g_Chain.AddToCalcChain(menu->chainCalc, TH_CHAIN_PRIO_CALC_MAINMENU) != 0)
+    if (g_Chain.AddToCalcChain(menu->chainCalc, TH_CHAIN_PRIO_CALC_MAINMENU) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
     }

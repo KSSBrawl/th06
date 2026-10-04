@@ -28,7 +28,7 @@ struct Item
     ZunTimer timer;
     i8 itemType;
     i8 isInUse;
-    i8 flag_142;
+    i8 isIndicatorHidden;
     i8 state;
 };
 ZUN_ASSERT_TYPE(Item, 0x144, 4);

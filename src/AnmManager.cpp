@@ -1196,11 +1196,9 @@ break_parser:
         else
         {
             vm->scaleX = (vm->scaleInterpFinalX - vm->scaleInterpInitialX) * vm->scaleInterpTime.AsFramesFloat() /
-                             vm->scaleInterpEndTime +
-                         vm->scaleInterpInitialX;
+                             vm->scaleInterpEndTime + vm->scaleInterpInitialX;
             vm->scaleY = (vm->scaleInterpFinalY - vm->scaleInterpInitialY) * vm->scaleInterpTime.AsFramesFloat() /
-                             vm->scaleInterpEndTime +
-                         vm->scaleInterpInitialY;
+                             vm->scaleInterpEndTime + vm->scaleInterpInitialY;
         }
         if (vm->flags.flip & AnmVmMirror_X)
         {

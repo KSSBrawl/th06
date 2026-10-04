@@ -47,19 +47,19 @@ DIFFABLE_STATIC_SORTED(H3, ChainElem, g_GameManagerDrawChain);
 
 ZunBool GameManager::IsInBounds(f32 x, f32 y, f32 width, f32 height)
 {
-    if (width / 2.0f + x < 0.0f)
+    if (width / 2.0f + x < GAME_REGION_LEFT)
     {
         return false;
     }
-    if ((x - width / 2.0f) > g_GameManager.arcadeRegionSize.x)
+    if ((x - width / 2.0f) > /*GAME_REGION_LEFT +*/ g_GameManager.gameRegionSize.x)
     {
         return false;
     }
-    if (height / 2.0f + y < 0.0f)
+    if (height / 2.0f + y < GAME_REGION_TOP)
     {
         return false;
     }
-    if (y - height / 2.0f > g_GameManager.arcadeRegionSize.y)
+    if (y - height / 2.0f > /*GAME_REGION_TOP +*/ g_GameManager.gameRegionSize.y)
     {
         return false;
     }
@@ -93,10 +93,10 @@ ChainCallbackResult GameManager::OnUpdate(GameManager *gameManager)
         WAS_PRESSED(TH_BUTTON_MENU))
     {
         gameManager->isInGameMenu = 1;
-        g_GameManager.arcadeRegionTopLeftPos.x = GAME_REGION_LEFT;
-        g_GameManager.arcadeRegionTopLeftPos.y = GAME_REGION_TOP;
-        g_GameManager.arcadeRegionSize.x = GAME_REGION_WIDTH;
-        g_GameManager.arcadeRegionSize.y = GAME_REGION_HEIGHT;
+        g_GameManager.gameRegionScreenPos.x = GAME_REGION_POS_X;
+        g_GameManager.gameRegionScreenPos.y = GAME_REGION_POS_Y;
+        g_GameManager.gameRegionSize.x = GAME_REGION_WIDTH;
+        g_GameManager.gameRegionSize.y = GAME_REGION_HEIGHT;
 #if !TRIALBUILD
         g_Supervisor.forceRedrawFrames = 3;
 #endif
@@ -113,10 +113,10 @@ ChainCallbackResult GameManager::OnUpdate(GameManager *gameManager)
 
     gameManager->isInMenu = isInMenu;
 
-    g_Supervisor.viewport.X = gameManager->arcadeRegionTopLeftPos.x;
-    g_Supervisor.viewport.Y = gameManager->arcadeRegionTopLeftPos.y;
-    g_Supervisor.viewport.Width = gameManager->arcadeRegionSize.x;
-    g_Supervisor.viewport.Height = gameManager->arcadeRegionSize.y;
+    g_Supervisor.viewport.X = gameManager->gameRegionScreenPos.x;
+    g_Supervisor.viewport.Y = gameManager->gameRegionScreenPos.y;
+    g_Supervisor.viewport.Width = gameManager->gameRegionSize.x;
+    g_Supervisor.viewport.Height = gameManager->gameRegionSize.y;
     g_Supervisor.viewport.MinZ = 0.5f;
     g_Supervisor.viewport.MaxZ = 1.0f;
 
@@ -208,7 +208,7 @@ ZunResult GameManager::RegisterChain()
 
     mgr->gameFrames = 0;
 
-    if (g_Chain.AddToCalcChain(&g_GameManagerCalcChain, TH_CHAIN_PRIO_CALC_GAMEMANAGER))
+    if (g_Chain.AddToCalcChain(&g_GameManagerCalcChain, TH_CHAIN_PRIO_CALC_GAMEMANAGER) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
     }
@@ -275,14 +275,14 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
         g_Supervisor.defaultConfig.bombCount = g_GameManager.bombsRemaining;
         g_Supervisor.defaultConfig.lifeCount = g_GameManager.livesRemaining;
 #endif
-        mgr->arcadeRegionTopLeftPos.x = GAME_REGION_LEFT;
-        mgr->arcadeRegionTopLeftPos.y = GAME_REGION_TOP;
-        mgr->arcadeRegionSize.x = GAME_REGION_WIDTH;
-        mgr->arcadeRegionSize.y = GAME_REGION_HEIGHT;
-        mgr->playerMovementAreaTopLeftPos.x = 8.0f;
-        mgr->playerMovementAreaTopLeftPos.y = 16.0f;
-        mgr->playerMovementAreaSize.x = 368.0f;
-        mgr->playerMovementAreaSize.y = 416.0f;
+        mgr->gameRegionScreenPos.x = GAME_REGION_POS_X;
+        mgr->gameRegionScreenPos.y = GAME_REGION_POS_Y;
+        mgr->gameRegionSize.x = GAME_REGION_WIDTH;
+        mgr->gameRegionSize.y = GAME_REGION_HEIGHT;
+        mgr->playerMovementAreaTopLeftPos.x = GAME_REGION_LEFT + 8.0f;
+        mgr->playerMovementAreaTopLeftPos.y = GAME_REGION_TOP + 16.0f;
+        mgr->playerMovementAreaSize.x = GAME_REGION_WIDTH - 8.0f * 2.0f;
+        mgr->playerMovementAreaSize.y = GAME_REGION_HEIGHT - 16.0f * 2.0f;
         mgr->counat = 0;
         mgr->guiScore = 0;
         mgr->score = 0;
@@ -577,9 +577,9 @@ GameManager::GameManager()
 {
     memset(this, 0, sizeof(GameManager));
 
-    this->arcadeRegionTopLeftPos.x = GAME_REGION_LEFT;
-    this->arcadeRegionTopLeftPos.y = GAME_REGION_TOP;
-    this->arcadeRegionSize.x = GAME_REGION_WIDTH;
-    this->arcadeRegionSize.y = GAME_REGION_HEIGHT;
+    this->gameRegionScreenPos.x = GAME_REGION_POS_X;
+    this->gameRegionScreenPos.y = GAME_REGION_POS_Y;
+    this->gameRegionSize.x = GAME_REGION_WIDTH;
+    this->gameRegionSize.y = GAME_REGION_HEIGHT;
 }
 } // namespace th06

@@ -252,10 +252,10 @@ ChainCallbackResult Stage::OnDrawLowPrio(Stage *stage)
             if (stage->spellcardState == RUNNING)
             {
                 ZunRect gameRegion;
-                gameRegion.left = GAME_REGION_LEFT;
-                gameRegion.top = GAME_REGION_TOP;
-                gameRegion.right = GAME_REGION_RIGHT;
-                gameRegion.bottom = GAME_REGION_BOTTOM;
+                gameRegion.left = GAME_REGION_POS_X;
+                gameRegion.top = GAME_REGION_POS_Y;
+                gameRegion.right = GAME_REGION_POS_RIGHT;
+                gameRegion.bottom = GAME_REGION_POS_BOTTOM;
                 stageToSpellcardBackgroundAlpha = (stage->ticksSinceSpellcardStarted * 255) / 60;
                 ScreenEffect::DrawSquare(&gameRegion, stageToSpellcardBackgroundAlpha << 24);
             }
@@ -331,7 +331,7 @@ ZunResult Stage::RegisterChain(u32 stage)
     g_StageCalcChain.deletedCallback = (ChainDeletedCallback)Stage::DeletedCallback;
     g_StageCalcChain.arg = stg;
 
-    if (g_Chain.AddToCalcChain(&g_StageCalcChain, TH_CHAIN_PRIO_CALC_STAGE))
+    if (g_Chain.AddToCalcChain(&g_StageCalcChain, TH_CHAIN_PRIO_CALC_STAGE) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
     }

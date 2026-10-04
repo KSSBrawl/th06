@@ -1332,7 +1332,7 @@ ZunResult ResultScreen_RegisterChain(i32 unk)
         }
     }
 
-    if (g_Chain.AddToCalcChain(resultScreen->calcChain, TH_CHAIN_PRIO_CALC_RESULTSCREEN))
+    if (g_Chain.AddToCalcChain(resultScreen->calcChain, TH_CHAIN_PRIO_CALC_RESULTSCREEN) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
     }

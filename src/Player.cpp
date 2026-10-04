@@ -846,7 +846,7 @@ ZunResult Player::RegisterChain(u8 unk)
     p->chainDraw2->arg = p;
     p->chainCalc->addedCallback = (ChainAddedCallback)Player::AddedCallback;
     p->chainCalc->deletedCallback = (ChainDeletedCallback)Player::DeletedCallback;
-    if (g_Chain.AddToCalcChain(p->chainCalc, TH_CHAIN_PRIO_CALC_PLAYER))
+    if (g_Chain.AddToCalcChain(p->chainCalc, TH_CHAIN_PRIO_CALC_PLAYER) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
     }
@@ -1129,8 +1129,8 @@ ChainCallbackResult Player::OnUpdate(Player *p)
             if ((i32)p->invulnerabilityTimer >= 30)
             {
                 p->playerState = PLAYER_STATE_SPAWNING;
-                p->positionCenter.x = g_GameManager.arcadeRegionSize.x / 2.0f;
-                p->positionCenter.y = g_GameManager.arcadeRegionSize.y - 64.0f;
+                p->positionCenter.x = g_GameManager.gameRegionSize.x / 2.0f;
+                p->positionCenter.y = g_GameManager.gameRegionSize.y - 64.0f;
                 p->positionCenter.z = 0.2f;
                 p->invulnerabilityTimer = 0;
                 p->playerSprite.scaleY = p->playerSprite.scaleX = 3.0f;
@@ -1254,8 +1254,8 @@ ChainCallbackResult Player::OnDrawHighPrio(Player *p)
     {
         p->bombInfo.draw(p);
     }
-    p->playerSprite.pos.x = g_GameManager.arcadeRegionTopLeftPos.x + p->positionCenter.x;
-    p->playerSprite.pos.y = g_GameManager.arcadeRegionTopLeftPos.y + p->positionCenter.y;
+    p->playerSprite.pos.x = g_GameManager.gameRegionScreenPos.x + p->positionCenter.x;
+    p->playerSprite.pos.y = g_GameManager.gameRegionScreenPos.y + p->positionCenter.y;
     p->playerSprite.pos.z = 0.49f;
     if (!g_GameManager.isInRetryMenu)
     {
@@ -1265,10 +1265,10 @@ ChainCallbackResult Player::OnDrawHighPrio(Player *p)
         {
             p->orbsSprite[0].pos = p->orbsPosition[0];
             p->orbsSprite[1].pos = p->orbsPosition[1];
-            p->orbsSprite[0].pos[0] += g_GameManager.arcadeRegionTopLeftPos.x;
-            p->orbsSprite[0].pos[1] += g_GameManager.arcadeRegionTopLeftPos.y;
-            p->orbsSprite[1].pos[0] += g_GameManager.arcadeRegionTopLeftPos.x;
-            p->orbsSprite[1].pos[1] += g_GameManager.arcadeRegionTopLeftPos.y;
+            p->orbsSprite[0].pos[0] += g_GameManager.gameRegionScreenPos.x;
+            p->orbsSprite[0].pos[1] += g_GameManager.gameRegionScreenPos.y;
+            p->orbsSprite[1].pos[0] += g_GameManager.gameRegionScreenPos.x;
+            p->orbsSprite[1].pos[1] += g_GameManager.gameRegionScreenPos.y;
             p->orbsSprite[0].pos.z = 0.491f;
             p->orbsSprite[1].pos.z = 0.491f;
             g_AnmManager->Draw(&p->orbsSprite[0]);
@@ -1328,8 +1328,8 @@ ZunResult Player::AddedCallback(Player *p)
         g_AnmManager->SetAndExecuteScriptIdx(&p->playerSprite, ANM_SCRIPT_PLAYER_IDLE);
         break;
     }
-    p->positionCenter.x = g_GameManager.arcadeRegionSize.x / 2.0f;
-    p->positionCenter.y = g_GameManager.arcadeRegionSize.y - 64.0f;
+    p->positionCenter.x = g_GameManager.gameRegionSize.x / 2.0f;
+    p->positionCenter.y = g_GameManager.gameRegionSize.y - 64.0f;
     p->positionCenter.z = 0.49f;
     p->orbsPosition[0].z = 0.49f;
     p->orbsPosition[1].z = 0.49f;

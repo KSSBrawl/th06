@@ -92,7 +92,7 @@ ZunResult ReplayManager::RegisterChain(ZunBool isDemo, const char *replayFile)
             replayMgr->calcChain->deletedCallback = (ChainDeletedCallback)DeletedCallback;
             replayMgr->drawChain = g_Chain.CreateElem((ChainCallback)ReplayManager::OnDraw);
             replayMgr->calcChain->arg = replayMgr;
-            if (g_Chain.AddToCalcChain(replayMgr->calcChain, TH_CHAIN_PRIO_CALC_REPLAYMANAGER))
+            if (g_Chain.AddToCalcChain(replayMgr->calcChain, TH_CHAIN_PRIO_CALC_REPLAYMANAGER) != ZUN_SUCCESS)
             {
                 return ZUN_ERROR;
             }
@@ -104,7 +104,7 @@ ZunResult ReplayManager::RegisterChain(ZunBool isDemo, const char *replayFile)
             replayMgr->calcChain->deletedCallback = (ChainDeletedCallback)DeletedCallback;
             replayMgr->drawChain = g_Chain.CreateElem((ChainCallback)ReplayManager::OnDraw);
             replayMgr->calcChain->arg = replayMgr;
-            if (g_Chain.AddToCalcChain(replayMgr->calcChain, TH_CHAIN_PRIO_CALC_LOW_PRIO_REPLAYMANAGER_DEMO))
+            if (g_Chain.AddToCalcChain(replayMgr->calcChain, TH_CHAIN_PRIO_CALC_LOW_PRIO_REPLAYMANAGER_DEMO) != ZUN_SUCCESS)
             {
                 return ZUN_ERROR;
             }

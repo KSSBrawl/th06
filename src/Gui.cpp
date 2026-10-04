@@ -197,7 +197,7 @@ ChainCallbackResult Gui::OnDraw(Gui *gui)
     g_Supervisor.d3dDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS);
     if (gui->impl->finishedStage)
     {
-        D3DXVECTOR3 stringPos(GAME_REGION_LEFT + 42.0f, GAME_REGION_TOP + 112.0f, 0.0f);
+        D3DXVECTOR3 stringPos(GAME_REGION_POS_X + 42.0f, GAME_REGION_POS_Y + 112.0f, 0.0f);
         g_AsciiManager.color = COLOR_SUNSHINEYELLOW;
         if (g_GameManager.currentStage < EXTRA_STAGE)
         {
@@ -306,15 +306,15 @@ ChainCallbackResult Gui::OnDraw(Gui *gui)
         g_AsciiManager.color = COLOR_RED;
 
         gui->impl->spellCardBonus.pos.x =
-            (GAME_REGION_WIDTH - (f32)strlen("Spell Card Bonus!") * 16.0f) / 2.0f + GAME_REGION_LEFT;
-        gui->impl->spellCardBonus.pos.y = GAME_REGION_TOP + 64.0f;
+            (GAME_REGION_WIDTH - (f32)strlen("Spell Card Bonus!") * 16.0f) / 2.0f + GAME_REGION_POS_X;
+        gui->impl->spellCardBonus.pos.y = GAME_REGION_POS_Y + 64.0f;
         g_AsciiManager.AddFormatText(&gui->impl->spellCardBonus.pos, "Spell Card Bonus!");
 
         gui->impl->spellCardBonus.pos.y += 16.0f;
         char spellCardBonusStr[32];
         sprintf(spellCardBonusStr, "+%d", gui->impl->spellCardBonus.fmtArg);
         gui->impl->spellCardBonus.pos.x =
-            (GAME_REGION_WIDTH - (f32)strlen(spellCardBonusStr) * 32.0f) / 2.0f + GAME_REGION_LEFT;
+            (GAME_REGION_WIDTH - (f32)strlen(spellCardBonusStr) * 32.0f) / 2.0f + GAME_REGION_POS_X;
         g_AsciiManager.scale.x = 2.0f;
         g_AsciiManager.scale.y = 2.0f;
         g_AsciiManager.color = COLOR_LIGHT_RED;
@@ -840,19 +840,19 @@ ZunResult GuiImpl::DrawDialogue()
     }
     VertexDiffuseXyzrwh vertices[4];
     vertices[0].position =
-        D3DXVECTOR3(g_GameManager.arcadeRegionTopLeftPos.x + (g_GameManager.arcadeRegionSize.x - 256.0f) / 2.0f - 16.0f,
+        D3DXVECTOR3(g_GameManager.gameRegionScreenPos.x + (g_GameManager.gameRegionSize.x - 256.0f) / 2.0f - 16.0f,
                     384.0f, 0.0f);
 
-    vertices[1].position = D3DXVECTOR3(g_GameManager.arcadeRegionTopLeftPos.x +
-                                           (g_GameManager.arcadeRegionSize.x - 256.0f) / 2.0f + 256.0f + 16.0f,
+    vertices[1].position = D3DXVECTOR3(g_GameManager.gameRegionScreenPos.x +
+                                           (g_GameManager.gameRegionSize.x - 256.0f) / 2.0f + 256.0f + 16.0f,
                                        384.0f, 0.0f);
 
     vertices[2].position =
-        D3DXVECTOR3(g_GameManager.arcadeRegionTopLeftPos.x + (g_GameManager.arcadeRegionSize.x - 256.0f) / 2.0f - 16.0f,
+        D3DXVECTOR3(g_GameManager.gameRegionScreenPos.x + (g_GameManager.gameRegionSize.x - 256.0f) / 2.0f - 16.0f,
                     384.0f + dialogueBoxHeight, 0.0f);
 
-    vertices[3].position = D3DXVECTOR3(g_GameManager.arcadeRegionTopLeftPos.x +
-                                           (g_GameManager.arcadeRegionSize.x - 256.0f) / 2.0f + 256.0f + 16.0f,
+    vertices[3].position = D3DXVECTOR3(g_GameManager.gameRegionScreenPos.x +
+                                           (g_GameManager.gameRegionSize.x - 256.0f) / 2.0f + 256.0f + 16.0f,
                                        384.0f + dialogueBoxHeight, 0.0f);
 
     vertices[0].diffuse = vertices[1].diffuse = 0xd0000000;
@@ -997,13 +997,8 @@ void Gui::UpdateStageElements()
     {
         if (this->impl->bonusScore.timer < 30)
         {
-#ifndef TRIALBUILD
             this->impl->bonusScore.pos.x =
-                (this->impl->bonusScore.timer.AsFramesFloat() * -312.0f / 30.0f) + GAME_REGION_RIGHT;
-#else
-            this->impl->bonusScore.pos.x =
-                GAME_REGION_RIGHT - this->impl->bonusScore.timer.AsFramesFloat() * 312.0f / 30.0f;
-#endif
+                GAME_REGION_POS_RIGHT + -312.0f * this->impl->bonusScore.timer.AsFramesFloat() / 30.0f;
         }
         else
         {
@@ -1019,13 +1014,8 @@ void Gui::UpdateStageElements()
     {
         if (this->impl->fullPowerMode.timer < 30)
         {
-#ifndef TRIALBUILD
             this->impl->fullPowerMode.pos.x =
-                (this->impl->fullPowerMode.timer.AsFramesFloat() * -312.0f / 30.0f) + GAME_REGION_RIGHT;
-#else
-            this->impl->fullPowerMode.pos.x =
-                GAME_REGION_RIGHT - this->impl->fullPowerMode.timer.AsFramesFloat() * 312.0f / 30.0f;
-#endif
+                GAME_REGION_POS_RIGHT + -312.0f * this->impl->fullPowerMode.timer.AsFramesFloat() / 30.0f;
         }
         else
         {
@@ -1110,9 +1100,9 @@ void Gui::DrawGameScene()
     f32 xPos;
     f32 yPos;
 
+#pragma var_order(cappedSpellcardSecondsRemaining, bossLivesColor, textPos)
     if (this->impl->msg.currentMsgIdx < 0 && (this->bossPresent + this->impl->bossHealthBarState) > 0)
     {
-#pragma var_order(cappedSpellcardSecondsRemaining, bossLivesColor, textPos)
         vm = &this->impl->vms[19];
         g_AnmManager->DrawNoRotation(vm);
         vm = &this->impl->vms[21];
@@ -1433,11 +1423,10 @@ void Gui::DrawStageElements()
     }
     if (this->impl->loadingScreenSprite.activeSpriteIndex >= 0)
     {
-        g_Supervisor.viewport.X = g_GameManager.arcadeRegionTopLeftPos.x;
-        g_Supervisor.viewport.Y = g_GameManager.arcadeRegionTopLeftPos.y;
-
-        g_Supervisor.viewport.Width = g_GameManager.arcadeRegionSize.x;
-        g_Supervisor.viewport.Height = g_GameManager.arcadeRegionSize.y;
+        g_Supervisor.viewport.X = g_GameManager.gameRegionScreenPos.x;
+        g_Supervisor.viewport.Y = g_GameManager.gameRegionScreenPos.y;
+        g_Supervisor.viewport.Width = g_GameManager.gameRegionSize.x;
+        g_Supervisor.viewport.Height = g_GameManager.gameRegionSize.y;
 
         g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
         g_AnmManager->DrawNoRotation(&this->impl->loadingScreenSprite);

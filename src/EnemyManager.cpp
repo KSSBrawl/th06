@@ -507,7 +507,7 @@ ZunResult EnemyManager::RegisterChain(const char *stgEnm1, const char *stgEnm2)
     g_EnemyManagerCalcChain.addedCallback = (ChainAddedCallback)mgr->AddedCallback;
     g_EnemyManagerCalcChain.deletedCallback = (ChainAddedCallback)mgr->DeletedCallback;
     g_EnemyManagerCalcChain.arg = mgr;
-    if (g_Chain.AddToCalcChain(&g_EnemyManagerCalcChain, TH_CHAIN_PRIO_CALC_ENEMYMANAGER))
+    if (g_Chain.AddToCalcChain(&g_EnemyManagerCalcChain, TH_CHAIN_PRIO_CALC_ENEMYMANAGER) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
     }
@@ -515,7 +515,7 @@ ZunResult EnemyManager::RegisterChain(const char *stgEnm1, const char *stgEnm2)
     g_EnemyManagerDrawChain.addedCallback = NULL;
     g_EnemyManagerDrawChain.deletedCallback = NULL;
     g_EnemyManagerDrawChain.arg = mgr;
-    if (g_Chain.AddToDrawChain(&g_EnemyManagerDrawChain, TH_CHAIN_PRIO_DRAW_ENEMYMANAGER))
+    if (g_Chain.AddToDrawChain(&g_EnemyManagerDrawChain, TH_CHAIN_PRIO_DRAW_ENEMYMANAGER) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
     }

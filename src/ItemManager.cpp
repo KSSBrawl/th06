@@ -62,7 +62,7 @@ void ItemManager::SpawnItem(D3DXVECTOR3 *position, ItemType itemType, i32 state)
         }
         g_AnmManager->SetAndExecuteScriptIdx(&item->sprite, ANM_SCRIPT_BULLET3_ITEMS_START + itemType);
         item->sprite.color = COLOR_WHITE;
-        item->flag_142 = true;
+        item->isIndicatorHidden = true;
         return;
     }
 }
@@ -72,12 +72,15 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(i32, 31, g_PowerItemScore) = {
     800, 900, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000, 51200};
 DIFFABLE_STATIC_ARRAY_ASSIGN(i32, 11, g_PowerUpThresholds) = {8, 16, 32, 48, 64, 80, 96, 128, 999, 1, 0};
 
+#define PIV_LINE 128
+#define ITEM_SPRITE_SIZE 16.0f
+
 __forceinline i32 calculatePointScore(Item *curItem, i32 scoreAcquiredItemTop, i32 scoreAcquiredItemBottom,
                                       i32 posMultiplier)
 {
-    return ((i32)curItem->currentPosition.y < 128)
+    return ((i32)curItem->currentPosition.y < PIV_LINE)
                ? scoreAcquiredItemTop
-               : (scoreAcquiredItemBottom - (((i32)curItem->currentPosition.y - 128) * posMultiplier));
+               : (scoreAcquiredItemBottom - (((i32)curItem->currentPosition.y - PIV_LINE) * posMultiplier));
 }
 
 #pragma var_order(idx, itemScore, playerAngle, itemAcquired, curItem)
@@ -117,7 +120,8 @@ void ItemManager::OnUpdate()
         }
         else
         {
-            if (curItem->state == 1 || (g_GameManager.currentPower >= MAX_POWER && g_Player.positionCenter.y < 128.0f))
+            if (curItem->state == 1 ||
+                (g_GameManager.currentPower >= MAX_POWER && g_Player.positionCenter.y < PIV_LINE))
             {
                 playerAngle = g_Player.AngleToPlayer(&curItem->currentPosition);
                 sincosmul(&curItem->startPosition, playerAngle, 8.0f);
@@ -134,7 +138,7 @@ void ItemManager::OnUpdate()
             }
         }
         curItem->currentPosition += curItem->startPosition * g_Supervisor.effectiveFramerateMultiplier;
-        if (g_GameManager.arcadeRegionSize.y + GAME_REGION_TOP <= curItem->currentPosition.y)
+        if (g_GameManager.gameRegionSize.y + ITEM_SPRITE_SIZE <= curItem->currentPosition.y)
         {
             curItem->isInUse = false;
             g_GameManager.DecreaseSubrank(3);
@@ -230,7 +234,7 @@ void ItemManager::OnUpdate()
                 g_GameManager.pointItemsCollectedInStage++;
                 g_GameManager.pointItemsCollected++;
                 g_Gui.flags.flag4 = 2;
-                if (curItem->currentPosition.y < 128.0f)
+                if (curItem->currentPosition.y < PIV_LINE)
                 {
                     g_GameManager.IncreaseSubrank(30);
                 }
@@ -357,29 +361,28 @@ void ItemManager::RemoveAllItems()
 #pragma var_order(itemAlpha, idx, curItem)
 void ItemManager::OnDraw()
 {
-    Item *curItem;
     i32 idx;
     i32 itemAlpha;
 
-    curItem = &this->items[0];
+    Item *curItem = &this->items[0];
     for (idx = 0; idx < MAX_ITEMS; idx++, curItem++)
     {
         if (!curItem->isInUse)
         {
             continue;
         }
-        curItem->sprite.pos.x = g_GameManager.arcadeRegionTopLeftPos.x + curItem->currentPosition.x;
-        curItem->sprite.pos.y = g_GameManager.arcadeRegionTopLeftPos.y + curItem->currentPosition.y;
+        curItem->sprite.pos.x = g_GameManager.gameRegionScreenPos.x + curItem->currentPosition.x;
+        curItem->sprite.pos.y = g_GameManager.gameRegionScreenPos.y + curItem->currentPosition.y;
         curItem->sprite.pos.z = 0.01f;
-        if (curItem->currentPosition.y < -8.0f)
+        if (curItem->currentPosition.y < -(ITEM_SPRITE_SIZE / 2.0f))
         {
-            curItem->sprite.pos.y = 8.0f + g_GameManager.arcadeRegionTopLeftPos.y;
-            if (curItem->flag_142)
+            curItem->sprite.pos.y = (ITEM_SPRITE_SIZE / 2.0f) + g_GameManager.gameRegionScreenPos.y;
+            if (curItem->isIndicatorHidden)
             {
-                g_AnmManager->SetActiveSprite(&curItem->sprite, curItem->itemType + 519);
-                curItem->flag_142 = false;
+                g_AnmManager->SetActiveSprite(&curItem->sprite, curItem->itemType + ANM_SPRITE_ITEM_INDICATORS_START);
+                curItem->isIndicatorHidden = false;
             }
-            itemAlpha = 255 - (i32)(((8.0f - curItem->currentPosition.y) * 255.0f) / 128.0f);
+            itemAlpha = 255 - (i32)((((ITEM_SPRITE_SIZE / 2.0f) - curItem->currentPosition.y) * 255.0f) / 128.0f);
             if (itemAlpha < 0x40)
             {
                 itemAlpha = 0x40;
@@ -388,10 +391,10 @@ void ItemManager::OnDraw()
         }
         else
         {
-            if (!curItem->flag_142)
+            if (!curItem->isIndicatorHidden)
             {
-                g_AnmManager->SetActiveSprite(&curItem->sprite, curItem->itemType + 512);
-                curItem->flag_142 = true;
+                g_AnmManager->SetActiveSprite(&curItem->sprite, curItem->itemType + ANM_SPRITE_ITEMS_START);
+                curItem->isIndicatorHidden = true;
                 curItem->sprite.color = COLOR_WHITE;
             }
         }

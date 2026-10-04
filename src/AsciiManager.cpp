@@ -189,15 +189,13 @@ void AsciiManager::AddFormatText(D3DXVECTOR3 *position, const char *fmt, ...)
     va_end(args);
 }
 
-#pragma var_order(charWidth, i, string, text, guiString, padding_1, padding_2, padding_3)
+#pragma var_order(charWidth, i, string, text, guiString, unusedVec3)
 void AsciiManager::DrawStrings(void)
 {
-    i32 padding_1;
-    i32 padding_2;
-    i32 padding_3;
     i32 i;
     f32 charWidth;
     u8 *text;
+    D3DXVECTOR3 unusedVec3; // NOTE: Not padding, IN calls default constructor
 
     ZunBool guiString = TRUE;
     AsciiManagerString *string = this->strings;
@@ -215,10 +213,10 @@ void AsciiManager::DrawStrings(void)
             guiString = string->isGui;
             if (guiString)
             {
-                g_Supervisor.viewport.X = g_GameManager.arcadeRegionTopLeftPos.x;
-                g_Supervisor.viewport.Y = g_GameManager.arcadeRegionTopLeftPos.y;
-                g_Supervisor.viewport.Width = g_GameManager.arcadeRegionSize.x;
-                g_Supervisor.viewport.Height = g_GameManager.arcadeRegionSize.y;
+                g_Supervisor.viewport.X = g_GameManager.gameRegionScreenPos.x;
+                g_Supervisor.viewport.Y = g_GameManager.gameRegionScreenPos.y;
+                g_Supervisor.viewport.Width = g_GameManager.gameRegionSize.x;
+                g_Supervisor.viewport.Height = g_GameManager.gameRegionSize.y;
                 g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
             }
             else
@@ -263,17 +261,14 @@ void AsciiManager::DrawStrings(void)
 
 void AsciiManager::CreatePopup1(D3DXVECTOR3 *position, i32 value, D3DCOLOR color)
 {
-    AsciiManagerPopup *popup;
-    i32 characterCount;
-
     if (this->nextPopupIndex1 >= ASCII_SCORE_POPUPS_COUNT)
     {
         this->nextPopupIndex1 = 0;
     }
 
-    popup = &this->popups[ASCII_SCORE_POPUPS_START + this->nextPopupIndex1];
+    AsciiManagerPopup *popup = &this->popups[ASCII_SCORE_POPUPS_START + this->nextPopupIndex1];
     popup->inUse = true;
-    characterCount = 0;
+    i32 characterCount = 0;
 
     if (value >= 0)
     {
@@ -304,17 +299,14 @@ void AsciiManager::CreatePopup1(D3DXVECTOR3 *position, i32 value, D3DCOLOR color
 
 void AsciiManager::CreatePopup2(D3DXVECTOR3 *position, i32 value, D3DCOLOR color)
 {
-    AsciiManagerPopup *popup;
-    i32 characterCount;
-
     if (this->nextPopupIndex2 >= ASCII_PLAYER_POPUPS_COUNT)
     {
         this->nextPopupIndex2 = 0;
     }
 
-    popup = &this->popups[ASCII_PLAYER_POPUPS_START + this->nextPopupIndex2];
+    AsciiManagerPopup *popup = &this->popups[ASCII_PLAYER_POPUPS_START + this->nextPopupIndex2];
     popup->inUse = true;
-    characterCount = 0;
+    i32 characterCount = 0;
 
     if (value >= 0)
     {
@@ -414,8 +406,8 @@ i32 StageMenu::OnUpdateGameMenu()
         {
             g_AnmManager->RequestScreenshot();
             g_AnmManager->SetAndExecuteScriptIdx(&this->menuBackground, ANM_SCRIPT_CAPTURE_PAUSE_BG);
-            this->menuBackground.pos.x = GAME_REGION_LEFT;
-            this->menuBackground.pos.y = GAME_REGION_TOP;
+            this->menuBackground.pos.x = GAME_REGION_POS_X;
+            this->menuBackground.pos.y = GAME_REGION_POS_Y;
             this->menuBackground.pos.z = 0.0f;
         }
     case GAME_MENU_PAUSE_CURSOR_UNPAUSE:
@@ -573,10 +565,10 @@ void StageMenu::OnDrawGameMenu()
 
     if (g_GameManager.isInGameMenu)
     {
-        g_Supervisor.viewport.X = g_GameManager.arcadeRegionTopLeftPos.x;
-        g_Supervisor.viewport.Y = g_GameManager.arcadeRegionTopLeftPos.y;
-        g_Supervisor.viewport.Width = g_GameManager.arcadeRegionSize.x;
-        g_Supervisor.viewport.Height = g_GameManager.arcadeRegionSize.y;
+        g_Supervisor.viewport.X = g_GameManager.gameRegionScreenPos.x;
+        g_Supervisor.viewport.Y = g_GameManager.gameRegionScreenPos.y;
+        g_Supervisor.viewport.Width = g_GameManager.gameRegionSize.x;
+        g_Supervisor.viewport.Height = g_GameManager.gameRegionSize.y;
         g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
         if (g_Supervisor.lockableBackbuffer && this->curState != GAME_MENU_PAUSE_OPENING)
         {
@@ -659,8 +651,8 @@ i32 StageMenu::OnUpdateRetryMenu()
             {
                 g_AnmManager->RequestScreenshot();
                 g_AnmManager->SetAndExecuteScriptIdx(&this->menuBackground, ANM_SCRIPT_CAPTURE_PAUSE_BG);
-                this->menuBackground.pos.x = GAME_REGION_LEFT;
-                this->menuBackground.pos.y = GAME_REGION_TOP;
+                this->menuBackground.pos.x = GAME_REGION_POS_X;
+                this->menuBackground.pos.y = GAME_REGION_POS_Y;
                 this->menuBackground.pos.z = 0.0f;
             }
         }
@@ -786,10 +778,10 @@ void StageMenu::OnDrawRetryMenu()
 {
     if (g_GameManager.isInRetryMenu)
     {
-        g_Supervisor.viewport.X = g_GameManager.arcadeRegionTopLeftPos.x;
-        g_Supervisor.viewport.Y = g_GameManager.arcadeRegionTopLeftPos.y;
-        g_Supervisor.viewport.Width = g_GameManager.arcadeRegionSize.x;
-        g_Supervisor.viewport.Height = g_GameManager.arcadeRegionSize.y;
+        g_Supervisor.viewport.X = g_GameManager.gameRegionScreenPos.x;
+        g_Supervisor.viewport.Y = g_GameManager.gameRegionScreenPos.y;
+        g_Supervisor.viewport.Width = g_GameManager.gameRegionSize.x;
+        g_Supervisor.viewport.Height = g_GameManager.gameRegionSize.y;
         g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
         if (g_Supervisor.lockableBackbuffer && (this->curState != RETRY_MENU_OPENING || this->numFrames > 2))
         {
@@ -820,13 +812,13 @@ void AsciiManager::DrawPopupsWithHwVertexProcessing()
     u8 *currentDigit;
     i32 i;
     i32 j;
-    D3DXVECTOR3 unusedVec3;
+    D3DXVECTOR3 unusedVec3; // NOTE: Not padding
 
     AsciiManagerPopup *currentPopup = this->popups;
-    g_Supervisor.viewport.X = g_GameManager.arcadeRegionTopLeftPos.x;
-    g_Supervisor.viewport.Y = g_GameManager.arcadeRegionTopLeftPos.y;
-    g_Supervisor.viewport.Width = g_GameManager.arcadeRegionSize.x;
-    g_Supervisor.viewport.Height = g_GameManager.arcadeRegionSize.y;
+    g_Supervisor.viewport.X = g_GameManager.gameRegionScreenPos.x;
+    g_Supervisor.viewport.Y = g_GameManager.gameRegionScreenPos.y;
+    g_Supervisor.viewport.Width = g_GameManager.gameRegionSize.x;
+    g_Supervisor.viewport.Height = g_GameManager.gameRegionSize.y;
     g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
 
     for (i = 0; i < ASCII_TOTAL_POPUPS_COUNT; i++, currentPopup++)
@@ -869,13 +861,13 @@ void AsciiManager::DrawPopupsWithoutHwVertexProcessing()
     u8 *currentDigit;
     i32 i;
     i32 j;
-    D3DXVECTOR3 unusedVec3;
+    D3DXVECTOR3 unusedVec3; // NOTE: Not padding
 
     AsciiManagerPopup *currentPopup = this->popups;
-    g_Supervisor.viewport.X = g_GameManager.arcadeRegionTopLeftPos.x;
-    g_Supervisor.viewport.Y = g_GameManager.arcadeRegionTopLeftPos.y;
-    g_Supervisor.viewport.Width = g_GameManager.arcadeRegionSize.x;
-    g_Supervisor.viewport.Height = g_GameManager.arcadeRegionSize.y;
+    g_Supervisor.viewport.X = g_GameManager.gameRegionScreenPos.x;
+    g_Supervisor.viewport.Y = g_GameManager.gameRegionScreenPos.y;
+    g_Supervisor.viewport.Width = g_GameManager.gameRegionSize.x;
+    g_Supervisor.viewport.Height = g_GameManager.gameRegionSize.y;
     g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
 
     for (i = 0; i < ASCII_TOTAL_POPUPS_COUNT; i++, currentPopup++)

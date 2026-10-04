@@ -127,14 +127,10 @@ ChainCallbackResult ScreenEffect::CalcFadeOut(ScreenEffect *effect)
 ScreenEffect *ScreenEffect::RegisterChain(i32 effect, u32 ticks, u32 effectParam1, u32 effectParam2,
                                           u32 unusedEffectParam)
 {
-    ChainElem *calcChainElem;
-    ScreenEffect *createdEffect;
-    ChainElem *drawChainElem;
+    ChainElem *calcChainElem = NULL;
+    ChainElem *drawChainElem = NULL;
 
-    calcChainElem = NULL;
-    drawChainElem = NULL;
-
-    createdEffect = ZUN_NEW(ScreenEffect);
+    ScreenEffect *createdEffect = ZUN_NEW(ScreenEffect);
 
     if (createdEffect == NULL)
     {
@@ -166,7 +162,7 @@ ScreenEffect *ScreenEffect::RegisterChain(i32 effect, u32 ticks, u32 effectParam
     createdEffect->shakinessParam = effectParam2;
     createdEffect->unusedParam = unusedEffectParam;
 
-    if (g_Chain.AddToCalcChain(calcChainElem, TH_CHAIN_PRIO_CALC_SCREENEFFECT) != 0)
+    if (g_Chain.AddToCalcChain(calcChainElem, TH_CHAIN_PRIO_CALC_SCREENEFFECT) != ZUN_SUCCESS)
     {
         return NULL;
     }
@@ -188,8 +184,8 @@ ChainCallbackResult ScreenEffect::DrawFadeIn(ScreenEffect *effect)
 
     fadeRect.left = 0.0f;
     fadeRect.top = 0.0f;
-    fadeRect.right = 640.0f;
-    fadeRect.bottom = 480.0f;
+    fadeRect.right = GAME_WINDOW_WIDTH;
+    fadeRect.bottom = GAME_WINDOW_HEIGHT;
     g_Supervisor.viewport.X = 0;
     g_Supervisor.viewport.Y = 0;
     g_Supervisor.viewport.Width = GAME_WINDOW_WIDTH;
@@ -202,71 +198,68 @@ ChainCallbackResult ScreenEffect::DrawFadeIn(ScreenEffect *effect)
 ChainCallbackResult ScreenEffect::DrawFadeOut(ScreenEffect *effect)
 {
     ZunRect fadeRect;
-
-    fadeRect.left = 32.0f;
-    fadeRect.top = 16.0f;
-    fadeRect.right = 416.0f;
-    fadeRect.bottom = 464.0f;
+    fadeRect.left = GAME_REGION_POS_X;
+    fadeRect.top = GAME_REGION_POS_Y;
+    fadeRect.right = GAME_REGION_POS_RIGHT;
+    fadeRect.bottom = GAME_REGION_POS_BOTTOM;
     ScreenEffect::DrawSquare(&fadeRect, (effect->fadeAlpha << 24) | effect->genericParam);
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
 ChainCallbackResult ScreenEffect::ShakeScreen(ScreenEffect *effect)
 {
-    f32 screenOffset;
-
     if (g_GameManager.isTimeStopped)
     {
-        g_GameManager.arcadeRegionTopLeftPos.x = GAME_REGION_LEFT;
-        g_GameManager.arcadeRegionTopLeftPos.y = GAME_REGION_TOP;
-        g_GameManager.arcadeRegionSize.x = GAME_REGION_WIDTH;
-        g_GameManager.arcadeRegionSize.y = GAME_REGION_HEIGHT;
+        g_GameManager.gameRegionScreenPos.x = GAME_REGION_POS_X;
+        g_GameManager.gameRegionScreenPos.y = GAME_REGION_POS_Y;
+        g_GameManager.gameRegionSize.x = GAME_REGION_WIDTH;
+        g_GameManager.gameRegionSize.y = GAME_REGION_HEIGHT;
         return CHAIN_CALLBACK_RESULT_CONTINUE;
     }
 
     effect->timer++;
     if (effect->timer >= effect->effectLength)
     {
-        g_GameManager.arcadeRegionTopLeftPos.x = GAME_REGION_LEFT;
-        g_GameManager.arcadeRegionTopLeftPos.y = GAME_REGION_TOP;
-        g_GameManager.arcadeRegionSize.x = GAME_REGION_WIDTH;
-        g_GameManager.arcadeRegionSize.y = GAME_REGION_HEIGHT;
+        g_GameManager.gameRegionScreenPos.x = GAME_REGION_POS_X;
+        g_GameManager.gameRegionScreenPos.y = GAME_REGION_POS_Y;
+        g_GameManager.gameRegionSize.x = GAME_REGION_WIDTH;
+        g_GameManager.gameRegionSize.y = GAME_REGION_HEIGHT;
         return CHAIN_CALLBACK_RESULT_CONTINUE_AND_REMOVE_JOB;
     }
 
-    screenOffset =
+    f32 screenOffset =
         ((effect->timer.AsFramesFloat() * (effect->shakinessParam - effect->genericParam)) / effect->effectLength) +
         effect->genericParam;
 
     switch (g_Rng.GetRandomU32InRange(3))
     {
     case 0:
-        g_GameManager.arcadeRegionTopLeftPos.x = GAME_REGION_LEFT;
-        g_GameManager.arcadeRegionSize.x = GAME_REGION_WIDTH;
+        g_GameManager.gameRegionScreenPos.x = GAME_REGION_POS_X;
+        g_GameManager.gameRegionSize.x = GAME_REGION_WIDTH;
         break;
     case 1:
-        g_GameManager.arcadeRegionTopLeftPos.x = GAME_REGION_LEFT + screenOffset;
-        g_GameManager.arcadeRegionSize.x = GAME_REGION_WIDTH - screenOffset;
+        g_GameManager.gameRegionScreenPos.x = GAME_REGION_POS_X + screenOffset;
+        g_GameManager.gameRegionSize.x = GAME_REGION_WIDTH - screenOffset;
         break;
     case 2:
-        g_GameManager.arcadeRegionTopLeftPos.x = GAME_REGION_LEFT;
-        g_GameManager.arcadeRegionSize.x = GAME_REGION_WIDTH - screenOffset;
+        g_GameManager.gameRegionScreenPos.x = GAME_REGION_POS_X;
+        g_GameManager.gameRegionSize.x = GAME_REGION_WIDTH - screenOffset;
         break;
     }
 
     switch (g_Rng.GetRandomU32InRange(3))
     {
     case 0:
-        g_GameManager.arcadeRegionTopLeftPos.y = GAME_REGION_TOP;
-        g_GameManager.arcadeRegionSize.y = GAME_REGION_HEIGHT;
+        g_GameManager.gameRegionScreenPos.y = GAME_REGION_POS_Y;
+        g_GameManager.gameRegionSize.y = GAME_REGION_HEIGHT;
         break;
     case 1:
-        g_GameManager.arcadeRegionTopLeftPos.y = GAME_REGION_TOP + screenOffset;
-        g_GameManager.arcadeRegionSize.y = GAME_REGION_HEIGHT - screenOffset;
+        g_GameManager.gameRegionScreenPos.y = GAME_REGION_POS_Y + screenOffset;
+        g_GameManager.gameRegionSize.y = GAME_REGION_HEIGHT - screenOffset;
         break;
     case 2:
-        g_GameManager.arcadeRegionTopLeftPos.y = GAME_REGION_TOP;
-        g_GameManager.arcadeRegionSize.y = GAME_REGION_HEIGHT - screenOffset;
+        g_GameManager.gameRegionScreenPos.y = GAME_REGION_POS_Y;
+        g_GameManager.gameRegionSize.y = GAME_REGION_HEIGHT - screenOffset;
         break;
     }
 

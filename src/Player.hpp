@@ -243,8 +243,8 @@ struct Player
     // TODO: This really looks like a hack
     inline void SetToTopLeftPos(AnmVm *sprite)
     {
-        sprite->pos[0] += g_GameManager.arcadeRegionTopLeftPos.x;
-        sprite->pos[1] += g_GameManager.arcadeRegionTopLeftPos.y;
+        sprite->pos[0] += g_GameManager.gameRegionScreenPos.x;
+        sprite->pos[1] += g_GameManager.gameRegionScreenPos.y;
         sprite->pos[2] = 0.0f;
     }
 };

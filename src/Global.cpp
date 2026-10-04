@@ -107,7 +107,7 @@ Chain::Chain()
     unk = 0;
 }
 
-int Chain::AddToCalcChain(ChainElem *elem, int priority)
+ZunResult Chain::AddToCalcChain(ChainElem *elem, int priority)
 {
     ChainElem *cur = &this->calcChain;
     utils::DebugPrint2("add calc chain (pri = %d)\n", priority);
@@ -144,18 +144,18 @@ int Chain::AddToCalcChain(ChainElem *elem, int priority)
 
     if (elem->addedCallback != NULL)
     {
-        int res = elem->addedCallback(elem->arg);
+        ZunResult res = elem->addedCallback(elem->arg);
         elem->addedCallback = NULL;
 
         return res;
     }
     else
     {
-        return 0;
+        return ZUN_SUCCESS;
     }
 }
 
-int Chain::AddToDrawChain(ChainElem *elem, int priority)
+ZunResult Chain::AddToDrawChain(ChainElem *elem, int priority)
 {
     ChainElem *cur = &this->drawChain;
     utils::DebugPrint2("add draw chain (pri = %d)\n", priority);
@@ -196,7 +196,7 @@ int Chain::AddToDrawChain(ChainElem *elem, int priority)
     }
     else
     {
-        return 0;
+        return ZUN_SUCCESS;
     }
 }
 

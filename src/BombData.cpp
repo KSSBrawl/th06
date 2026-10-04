@@ -182,10 +182,10 @@ static void DarkenViewport(Player *player)
     f32 darkeningTimeLeft;
     i32 darknessLevel; // Controls alpha level of black rectangle drawn over view
 
-    viewport.left = 32.0f;
-    viewport.top = 16.0f;
-    viewport.right = 416.0f;
-    viewport.bottom = 464.0f;
+    viewport.left = GAME_REGION_POS_X;
+    viewport.top = GAME_REGION_POS_Y;
+    viewport.right = GAME_REGION_POS_RIGHT;
+    viewport.bottom = GAME_REGION_POS_BOTTOM;
 
     if (player->bombInfo.timer < 60)
     {
@@ -272,15 +272,15 @@ void BombData::BombReimuBCalc(Player *player)
 
         g_SoundPlayer.PlaySoundByIdx(SOUND_BOMB_REIMARI);
         player->bombInfo.bombRegionPositions[0].x = player->positionCenter.x;
-        player->bombInfo.bombRegionPositions[0].y = 224.0f;
+        player->bombInfo.bombRegionPositions[0].y = GAME_REGION_HEIGHT / 2.0f;
         player->bombInfo.bombRegionPositions[0].z = 0.42f;
-        player->bombInfo.bombRegionPositions[1].x = 192.0f;
+        player->bombInfo.bombRegionPositions[1].x = GAME_REGION_WIDTH / 2.0f;
         player->bombInfo.bombRegionPositions[1].y = player->positionCenter.y;
         player->bombInfo.bombRegionPositions[1].z = 0.415f;
         player->bombInfo.bombRegionPositions[2].x = player->positionCenter.x;
-        player->bombInfo.bombRegionPositions[2].y = 224.0f;
+        player->bombInfo.bombRegionPositions[2].y = GAME_REGION_HEIGHT / 2.0f;
         player->bombInfo.bombRegionPositions[2].z = 0.41f;
-        player->bombInfo.bombRegionPositions[3].x = 192.0f;
+        player->bombInfo.bombRegionPositions[3].x = GAME_REGION_WIDTH / 2.0f;
         player->bombInfo.bombRegionPositions[3].y = player->positionCenter.y;
         player->bombInfo.bombRegionPositions[3].z = 0.405f;
         ScreenEffect::RegisterChain(SCREEN_EFFECT_SHAKE, 60, 2, 6, 0);
@@ -293,12 +293,12 @@ void BombData::BombReimuBCalc(Player *player)
         }
 
         player->bombProjectiles[0].size.x = 62.0f;
-        player->bombProjectiles[0].size.y = 448.0f;
-        player->bombProjectiles[1].size.x = 384.0f;
+        player->bombProjectiles[0].size.y = GAME_REGION_HEIGHT;
+        player->bombProjectiles[1].size.x = GAME_REGION_WIDTH;
         player->bombProjectiles[1].size.y = 62.0f;
         player->bombProjectiles[2].size.x = 62.0f;
-        player->bombProjectiles[2].size.y = 448.0f;
-        player->bombProjectiles[3].size.x = 384.0f;
+        player->bombProjectiles[2].size.y = GAME_REGION_HEIGHT;
+        player->bombProjectiles[3].size.x = GAME_REGION_WIDTH;
         player->bombProjectiles[3].size.y = 62.0f;
 
         for (i = 0; i < 4; i++)
@@ -334,8 +334,8 @@ void BombData::BombReimuBDraw(Player *player)
     for (i = 0; i < 4; i++, bombSprite++)
     {
         bombSprite->pos = player->bombInfo.bombRegionPositions[i] + bombSprite->posOffset;
-        bombSprite->pos.x += g_GameManager.arcadeRegionTopLeftPos.x;
-        bombSprite->pos.y += g_GameManager.arcadeRegionTopLeftPos.y;
+        bombSprite->pos.x += g_GameManager.gameRegionScreenPos.x;
+        bombSprite->pos.y += g_GameManager.gameRegionScreenPos.y;
         bombSprite->pos.z = 0.0f;
         g_AnmManager->Draw(bombSprite);
     }
@@ -415,8 +415,8 @@ void BombData::BombMarisaADraw(Player *player)
     for (idx = 0; idx < ARRAY_SIZE_SIGNED(player->bombInfo.sprites); idx++)
     {
         bombSprite->pos = player->bombInfo.bombRegionPositions[idx];
-        bombSprite->pos.x += g_GameManager.arcadeRegionTopLeftPos.x;
-        bombSprite->pos.y += g_GameManager.arcadeRegionTopLeftPos.y;
+        bombSprite->pos.x += g_GameManager.gameRegionScreenPos.x;
+        bombSprite->pos.y += g_GameManager.gameRegionScreenPos.y;
         bombSprite->pos.z = 0.0f;
         bombSprite->scaleX = 3.2f;
         bombSprite->scaleY = 3.2f;
@@ -489,11 +489,11 @@ void BombData::BombMarisaBCalc(Player *player)
 
         if (player->bombInfo.timer.HasTicked() && player->bombInfo.timer % 4 != 0)
         {
-            player->bombProjectiles[0].pos.x = 192.0f;
+            player->bombProjectiles[0].pos.x = GAME_REGION_WIDTH / 2.0f;
             player->bombProjectiles[0].pos.y = player->positionCenter.y / 2.0f;
-            player->bombProjectiles[0].size.x = 384.0f;
+            player->bombProjectiles[0].size.x = GAME_REGION_WIDTH;
             player->bombProjectiles[0].size.y = player->positionCenter.y;
-            player->bombRegionSizes[0].x = 384.0f;
+            player->bombRegionSizes[0].x = GAME_REGION_WIDTH;
             player->bombRegionSizes[0].y = player->positionCenter.y;
             player->bombRegionPositions[0].x = player->bombProjectiles[0].pos.x;
             player->bombRegionPositions[0].y = player->bombProjectiles[0].pos.y;
@@ -526,8 +526,8 @@ void BombData::BombMarisaBDraw(Player *player)
         bombSprite->pos.y += (sinf(spriteAngle) * bombSprite->sprite->heightPx * bombSprite->scaleY) / 2.0f;
         spriteAngle = ZUN_HALF_PI - spriteAngle;
         bombSprite->rotation.z = utils::AddNormalizeAngle(spriteAngle, ZUN_PI);
-        bombSprite->pos.x += g_GameManager.arcadeRegionTopLeftPos.x;
-        bombSprite->pos.y += g_GameManager.arcadeRegionTopLeftPos.y;
+        bombSprite->pos.x += g_GameManager.gameRegionScreenPos.x;
+        bombSprite->pos.y += g_GameManager.gameRegionScreenPos.y;
         bombSprite->pos.z = 0.0f;
         g_AnmManager->Draw(bombSprite);
         bombSprite++;

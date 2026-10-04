@@ -67,8 +67,8 @@ class Chain
 
     void Cut(ChainElem *to_remove);
     void Release(void);
-    int AddToCalcChain(ChainElem *elem, int priority);
-    int AddToDrawChain(ChainElem *elem, int priority);
+    ZunResult AddToCalcChain(ChainElem *elem, int priority);
+    ZunResult AddToDrawChain(ChainElem *elem, int priority);
     int RunDrawChain(void);
     int RunCalcChain(void);
 
