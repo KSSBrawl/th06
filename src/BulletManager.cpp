@@ -84,13 +84,8 @@ BulletManager::BulletManager()
 #pragma var_order(bulletSpeed, idx, bullet, bulletAngle)
 u32 BulletManager::SpawnSingleBullet(EnemyBulletShooter *bulletProps, i32 bulletIdx1, i32 bulletIdx2, f32 angle)
 {
-    f32 bulletAngle;
-    Bullet *bullet;
-    i32 idx;
-    f32 bulletSpeed;
-
-    idx = 0;
-    bullet = &this->bullets[this->nextBulletIndex];
+    i32 idx = 0;
+    Bullet *bullet = &this->bullets[this->nextBulletIndex];
     for (idx = 0; idx < MAX_ENEMY_BULLETS; idx++)
     {
         this->nextBulletIndex++;
@@ -118,8 +113,9 @@ u32 BulletManager::SpawnSingleBullet(EnemyBulletShooter *bulletProps, i32 bullet
         return 1;
     }
 
-    bulletAngle = 0.0f;
-    bulletSpeed = bulletProps->speed1 - (bulletProps->speed1 - bulletProps->speed2) * bulletIdx2 / bulletProps->count2;
+    f32 bulletAngle = 0.0f;
+    f32 bulletSpeed =
+        bulletProps->speed1 - (bulletProps->speed1 - bulletProps->speed2) * bulletIdx2 / bulletProps->count2;
     switch (bulletProps->aimMode)
     {
     case FAN_AIMED:
@@ -383,14 +379,13 @@ u32 BulletManager::SpawnSingleBullet(EnemyBulletShooter *bulletProps, i32 bullet
 #pragma var_order(itemPos, i, sine, bullet, laser, cosine)
 void BulletManager::RemoveAllBullets(ZunBool turnIntoItem)
 {
-    f32 cosine;
-    f32 sine;
-    Laser *laser;
-    Bullet *bullet;
     i32 i;
+    f32 sine;
+    f32 cosine;
     D3DXVECTOR3 itemPos;
 
-    for (bullet = &g_BulletManager.bullets[0], i = 0; i < MAX_ENEMY_BULLETS; i++, bullet++)
+    Bullet *bullet = &g_BulletManager.bullets[0];
+    for (i = 0; i < MAX_ENEMY_BULLETS; i++, bullet++)
     {
         if (bullet->state == BULLET_STATE_INACTIVE || bullet->state == BULLET_STATE_DESPAWNING)
         {
@@ -408,7 +403,8 @@ void BulletManager::RemoveAllBullets(ZunBool turnIntoItem)
         }
     }
 
-    for (laser = this->lasers, i = 0; i < MAX_ENEMY_LASERS; i++, laser++)
+    Laser *laser = this->lasers;
+    for (i = 0; i < MAX_ENEMY_LASERS; i++, laser++)
     {
         if (!laser->inUse)
         {
@@ -448,20 +444,16 @@ void BulletManager::TurnAllBulletsIntoPoints()
 #pragma var_order(bulletScore, totalBonusScore, awardedBullets, i, sine, bullet, itemPos, laser, cosine)
 i32 BulletManager::DespawnBullets(i32 maxBonusScore, ZunBool awardPoints)
 {
-    i32 bulletScore;
-    i32 totalBonusScore;
-    i32 awardedBullets;
     i32 i;
     f32 sine;
     f32 cosine;
-    Laser *laser;
-    Bullet *bullet;
     D3DXVECTOR3 itemPos;
 
-    totalBonusScore = 0;
-    bulletScore = 2000;
-    awardedBullets = 0;
-    bullet = &g_BulletManager.bullets[0];
+    i32 totalBonusScore = 0;
+    i32 bulletScore = 2000;
+    i32 awardedBullets = 0;
+
+    Bullet *bullet = &g_BulletManager.bullets[0];
     for (i = 0; i < MAX_ENEMY_BULLETS; i++, bullet++)
     {
         if (bullet->state == BULLET_STATE_INACTIVE)
@@ -489,7 +481,7 @@ i32 BulletManager::DespawnBullets(i32 maxBonusScore, ZunBool awardPoints)
         bullet->state = BULLET_STATE_DESPAWNING;
     }
 
-    laser = &this->lasers[0];
+    Laser *laser = &this->lasers[0];
     for (i = 0; i < MAX_ENEMY_LASERS; i++, laser++)
     {
         if (!laser->inUse)
@@ -535,9 +527,8 @@ i32 BulletManager::DespawnBullets(i32 maxBonusScore, ZunBool awardPoints)
 ZunResult BulletManager::SpawnBulletPattern(EnemyBulletShooter *bulletProps)
 {
     i32 idx1, idx2;
-    f32 angle;
 
-    angle = g_Player.AngleToPlayer(&bulletProps->position);
+    f32 angle = g_Player.AngleToPlayer(&bulletProps->position);
     for (idx1 = 0; idx1 < bulletProps->count2; idx1++)
     {
         for (idx2 = 0; idx2 < bulletProps->count1; idx2++)
@@ -560,10 +551,10 @@ out:
 #pragma var_order(idx, laser)
 Laser *BulletManager::SpawnLaserPattern(EnemyLaserShooter *bulletProps)
 {
-    Laser *laser;
     i32 idx;
 
-    for (laser = this->lasers, idx = 0; idx < MAX_ENEMY_LASERS; idx++, laser++)
+    Laser *laser = this->lasers;
+    for (idx = 0; idx < MAX_ENEMY_LASERS; idx++, laser++)
     {
         if (laser->inUse)
         {
@@ -656,13 +647,11 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
     D3DXVECTOR3 laserCenter;
     f32 length;
 
-    Bullet *curBullet;
-    Laser *curLaser;
     f32 bulletSpeed;
     i32 idx;
     i32 grazeState;
 
-    curBullet = &mgr->bullets[0];
+    Bullet *curBullet = &mgr->bullets[0];
 
     if (g_GameManager.isTimeStopped)
     {
@@ -830,13 +819,13 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
                                                   curBullet->sprites.spriteBullet.sprite->widthPx,
                                                   curBullet->sprites.spriteBullet.sprite->heightPx))
                     {
-                        if (curBullet->pos.x < 0.0f || curBullet->pos.x >= GAME_REGION_WIDTH)
+                        if (curBullet->pos.x < GAME_REGION_LEFT || curBullet->pos.x >= GAME_REGION_RIGHT)
                         {
                             curBullet->angle = -curBullet->angle - ZUN_PI;
                             curBullet->angle = utils::AddNormalizeAngle(curBullet->angle, 0.0f);
                         }
 
-                        if (curBullet->pos.y < 0.0f || curBullet->pos.y >= GAME_REGION_HEIGHT)
+                        if (curBullet->pos.y < GAME_REGION_TOP || curBullet->pos.y >= GAME_REGION_BOTTOM)
                         {
                             curBullet->angle = -curBullet->angle;
                         }
@@ -858,13 +847,13 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
                                                   curBullet->sprites.spriteBullet.sprite->widthPx,
                                                   curBullet->sprites.spriteBullet.sprite->heightPx))
                     {
-                        if (curBullet->pos.x < 0.0f || curBullet->pos.x >= 384.0f)
+                        if (curBullet->pos.x < GAME_REGION_LEFT || curBullet->pos.x >= GAME_REGION_RIGHT)
                         {
                             curBullet->angle = -curBullet->angle - ZUN_PI;
                             curBullet->angle = utils::AddNormalizeAngle(curBullet->angle, 0.0f);
                         }
 
-                        if (curBullet->pos.y < 0.0f)
+                        if (curBullet->pos.y < GAME_REGION_TOP)
                         {
                             curBullet->angle = -curBullet->angle;
                         }
@@ -951,7 +940,7 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
         curBullet->timer++;
     }
 
-    curLaser = &mgr->lasers[0];
+    Laser *curLaser = &mgr->lasers[0];
     for (idx = 0; idx < MAX_ENEMY_LASERS; idx++, curLaser++)
     {
         if (!curLaser->inUse)
@@ -1329,8 +1318,8 @@ static void DrawBulletNoHwVertex(Bullet *bullet)
         break;
     }
 
-    anmVm->pos.x = g_GameManager.arcadeRegionTopLeftPos.x + bullet->pos.x;
-    anmVm->pos.y = g_GameManager.arcadeRegionTopLeftPos.y + bullet->pos.y;
+    anmVm->pos.x = g_GameManager.gameRegionScreenPos.x + bullet->pos.x;
+    anmVm->pos.y = g_GameManager.gameRegionScreenPos.y + bullet->pos.y;
     anmVm->pos.z = 0.0f;
     anmVm->color = COLOR_COMBINE_ALPHA(COLOR_WHITE, anmVm->color);
 

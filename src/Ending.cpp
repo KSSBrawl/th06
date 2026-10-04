@@ -513,7 +513,7 @@ ZunResult Ending_RegisterChain()
     ending->calcChain->arg = ending;
     ending->calcChain->addedCallback = (ChainAddedCallback)Ending::AddedCallback;
     ending->calcChain->deletedCallback = (ChainDeletedCallback)Ending::DeletedCallback;
-    if (g_Chain.AddToCalcChain(ending->calcChain, TH_CHAIN_PRIO_CALC_ENDING))
+    if (g_Chain.AddToCalcChain(ending->calcChain, TH_CHAIN_PRIO_CALC_ENDING) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
     }

@@ -228,7 +228,7 @@ struct AnmManager
 
     void SetRenderStateForVm(AnmVm *vm);
 
-    void RequestScreenshot(i32 textureId = 3, i32 left = GAME_REGION_LEFT, i32 top = GAME_REGION_TOP,
+    void RequestScreenshot(i32 textureId = 3, i32 left = GAME_REGION_POS_X, i32 top = GAME_REGION_POS_Y,
                            i32 width = GAME_REGION_WIDTH, i32 height = GAME_REGION_HEIGHT)
     {
         this->screenshotTextureId = textureId;

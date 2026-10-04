@@ -168,7 +168,7 @@ ZunResult MusicRoom_RegisterChain()
     musicRoom->calc_chain->addedCallback = (ChainAddedCallback)MusicRoom::AddedCallback;
     musicRoom->calc_chain->deletedCallback = (ChainDeletedCallback)MusicRoom::DeletedCallback;
 
-    if (g_Chain.AddToCalcChain(musicRoom->calc_chain, TH_CHAIN_PRIO_CALC_MAINMENU))
+    if (g_Chain.AddToCalcChain(musicRoom->calc_chain, TH_CHAIN_PRIO_CALC_MAINMENU) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
     }

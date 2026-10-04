@@ -17,12 +17,10 @@ namespace EnemyEclInstr
 #pragma var_order(i, currentBullet, effectIndex)
 void ExInsCirnoRainbowBallJank(Enemy *enemy, EclRawInstr *instr)
 {
-    Bullet *currentBullet;
-    i32 effectIndex;
     i32 i;
 
-    currentBullet = g_BulletManager.bullets;
-    effectIndex = instr->args.exInstr.i32Param;
+    Bullet *currentBullet = g_BulletManager.bullets;
+    i32 effectIndex = instr->args.exInstr.i32Param;
 
     g_EffectManager.SpawnParticles(PARTICLE_EFFECT_UNK_12, &enemy->position, 1, COLOR_WHITE);
     for (i = 0; i < MAX_ENEMY_BULLETS; i++, currentBullet++)
@@ -420,6 +418,7 @@ void ExInsBatWingEffect(Enemy *enemy, EclRawInstr *instr)
         effect->unk_11c.z = 0.0f;
         effect->unk_128 = -effect->unk_11c / 120.0f;
 
+        // TODO: Trial codegen doesn't match here
         particlePos = enemy->position;
         particlePos.x -= cosf(finalAngle) * distanceModifier;
         particlePos.y += sinf(finalAngle) * distanceModifier;
@@ -638,17 +637,14 @@ void ExInsStage6Func9(Enemy *enemy, EclRawInstr *instr)
     }
 }
 
-#pragma var_order(unusedBulletProps, i, currentBullet, unusedRandomNumber)
+#pragma var_order(unusedBulletProps, i, currentBullet, unusedRandomAngle)
 void ExInsStage6Func11(Enemy *enemy, EclRawInstr *instr)
 {
-    Bullet *currentBullet;
+    Bullet *currentBullet = g_BulletManager.bullets;
     i32 i;
-    f32 unusedRandomNumber;
-
-    currentBullet = g_BulletManager.bullets;
     EnemyBulletShooter unusedBulletProps;
 
-    unusedRandomNumber = g_Rng.GetRandomF32InRange(ZUN_2PI) - ZUN_PI;
+    f32 unusedRandomAngle = g_Rng.GetRandomF32InRange(ZUN_2PI) - ZUN_PI;
     g_EffectManager.SpawnParticles(PARTICLE_EFFECT_UNK_12, &enemy->position, 1, COLOR_WHITE);
 
     for (i = 0; i < MAX_ENEMY_BULLETS; i++, currentBullet++)
@@ -711,9 +707,7 @@ void ExInsHandleBatTransformation(Enemy *enemy, EclRawInstr *instr)
 
 void ExInsStage4Func12(Enemy *enemy, EclRawInstr *instr)
 {
-    i32 i;
-
-    for (i = 0; i < 8; i++)
+    for (i32 i = 0; i < 8; i++)
     {
         if (enemy->lasers[i] != NULL && enemy->lasers[i]->inUse)
         {
@@ -728,20 +722,18 @@ void ExInsStage4Func12(Enemy *enemy, EclRawInstr *instr)
 #pragma var_order(i, bulletProps, basePatternAngle, numPatterns)
 void ExInsStageXFunc13(Enemy *enemy, EclRawInstr *instr)
 {
-    f32 basePatternAngle;
     EnemyBulletShooter bulletProps = enemy->bulletProps;
     i32 i;
-    i32 numPatterns;
 
-    numPatterns = instr->args.exInstr.i32Param;
-    basePatternAngle = enemy->currentContext.float2;
+    i32 numPatterns = instr->args.exInstr.i32Param;
+    f32 basePatternAngle = enemy->currentContext.float2;
     if (enemy->currentContext.int3 % 6 == 0)
     {
         for (i = 0; i < numPatterns; i++, basePatternAngle += ZUN_2PI / numPatterns)
         {
             sincosmul(&bulletProps.position, basePatternAngle, enemy->currentContext.float3);
-            bulletProps.position.x += 192.0f;
-            bulletProps.position.y += 224.0f;
+            bulletProps.position.x += GAME_REGION_WIDTH / 2.0f;
+            bulletProps.position.y += GAME_REGION_HEIGHT / 2.0f;
             bulletProps.angle1 = basePatternAngle + enemy->currentContext.float1;
             g_BulletManager.SpawnBulletPattern(&bulletProps);
         }

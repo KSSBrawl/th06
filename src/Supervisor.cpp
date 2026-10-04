@@ -239,9 +239,8 @@ ChainCallbackResult Supervisor::OnDraw(Supervisor *s)
 #pragma var_order(diprange, pvRefBackup)
 BOOL CALLBACK Supervisor::ControllerCallback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOID pvRef)
 {
-    LPVOID pvRefBackup;
     DIPROPRANGE diprange;
-    pvRefBackup = pvRef;
+    LPVOID pvRefBackup = pvRef;
 
     if (lpddoi->dwType & DIDFT_AXIS)
     {
@@ -274,7 +273,7 @@ ZunResult Supervisor::RegisterChain()
     chain->arg = supervisor;
     chain->addedCallback = (ChainAddedCallback)Supervisor::AddedCallback;
     chain->deletedCallback = (ChainDeletedCallback)Supervisor::DeletedCallback;
-    if (g_Chain.AddToCalcChain(chain, TH_CHAIN_PRIO_CALC_SUPERVISOR) != 0)
+    if (g_Chain.AddToCalcChain(chain, TH_CHAIN_PRIO_CALC_SUPERVISOR) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
     }
@@ -384,12 +383,12 @@ ZunResult Supervisor::AddedCallback(Supervisor *s)
     g_Rng.Initialize(timeGetTime());
 
     g_SoundPlayer.InitSoundBuffers();
-    if (g_AnmManager->LoadAnm(ANM_FILE_TEXT, "data/text.anm", ANM_OFFSET_TEXT) != 0)
+    if (g_AnmManager->LoadAnm(ANM_FILE_TEXT, "data/text.anm", ANM_OFFSET_TEXT) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
     }
 
-    if (AsciiManager::RegisterChain() != 0)
+    if (AsciiManager::RegisterChain() != ZUN_SUCCESS)
     {
         g_GameErrorContext.Log(TH_ERR_ASCIIMANAGER_INIT_FAILED);
         return ZUN_ERROR;
