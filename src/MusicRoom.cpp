@@ -73,8 +73,13 @@ ZunBool MusicRoom::ProcessInput()
         // Vertical wrap-around
         if (this->cursor < 0)
         {
+#ifndef TRIALBUILD
             this->cursor = this->numDescriptors - 1;
             this->listingOffset = this->numDescriptors - 10;
+#else
+            this->cursor = 6;
+            this->listingOffset = 0;
+#endif
         }
         // Scroll list up
         else if (this->listingOffset > this->cursor)
@@ -87,7 +92,11 @@ ZunBool MusicRoom::ProcessInput()
     {
         this->cursor++;
         // Vertical wrap-around
+#ifndef TRIALBUILD
         if (this->cursor >= this->numDescriptors)
+#else
+        if (this->cursor >= 7)
+#endif
         {
             this->cursor = 0;
             this->listingOffset = 0;
@@ -211,7 +220,7 @@ ChainCallbackResult MusicRoom::OnDraw(MusicRoom *musicRoom)
 {
     i32 i;
     D3DXVECTOR3 textPos;
-    char rightArrowStr[4];
+    char rightArrowStr[2];
 
     rightArrowStr[0] = TEXT_RIGHT_ARROW;
     rightArrowStr[1] = '\0';

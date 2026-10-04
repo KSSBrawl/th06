@@ -499,14 +499,16 @@ static void StartFireBulletTimer(Player *p)
     }
 }
 
-#pragma var_order(playerDirection, speed, orbOffset)
+#pragma var_order(playerDirection, speedY, speedX, orbOffsetY, orbOffsetX)
 ZunResult Player::HandlePlayerInputs()
 {
-    ZunVec2 orbOffset;
-    ZunVec2 speed;
+    f32 orbOffsetX;
+    f32 orbOffsetY;
+    f32 speedX;
+    f32 speedY;
 
-    speed.x = 0.0f;
-    speed.y = 0.0f;
+    speedX = 0.0f;
+    speedY = 0.0f;
     PlayerDirection playerDirection = this->playerDirection;
 
     this->playerDirection = MOVEMENT_NONE;
@@ -562,119 +564,118 @@ ZunResult Player::HandlePlayerInputs()
     case MOVEMENT_RIGHT:
         if (IS_PRESSED(TH_BUTTON_FOCUS))
         {
-            speed.x = this->characterData.orthogonalMovementSpeedFocus;
+            speedX = this->characterData.orthogonalMovementSpeedFocus;
         }
         else
         {
-            speed.x = this->characterData.orthogonalMovementSpeed;
+            speedX = this->characterData.orthogonalMovementSpeed;
         }
         break;
     case MOVEMENT_LEFT:
         if (IS_PRESSED(TH_BUTTON_FOCUS))
         {
-            speed.x = -this->characterData.orthogonalMovementSpeedFocus;
+            speedX = -this->characterData.orthogonalMovementSpeedFocus;
         }
         else
         {
-            speed.x = -this->characterData.orthogonalMovementSpeed;
+            speedX = -this->characterData.orthogonalMovementSpeed;
         }
         break;
     case MOVEMENT_UP:
         if (IS_PRESSED(TH_BUTTON_FOCUS))
         {
-            speed.y = -this->characterData.orthogonalMovementSpeedFocus;
+            speedY = -this->characterData.orthogonalMovementSpeedFocus;
         }
         else
         {
-            speed.y = -this->characterData.orthogonalMovementSpeed;
+            speedY = -this->characterData.orthogonalMovementSpeed;
         }
         break;
     case MOVEMENT_DOWN:
         if (IS_PRESSED(TH_BUTTON_FOCUS))
         {
-            speed.y = this->characterData.orthogonalMovementSpeedFocus;
+            speedY = this->characterData.orthogonalMovementSpeedFocus;
         }
         else
         {
-            speed.y = this->characterData.orthogonalMovementSpeed;
+            speedY = this->characterData.orthogonalMovementSpeed;
         }
         break;
     case MOVEMENT_UP_LEFT:
         if (IS_PRESSED(TH_BUTTON_FOCUS))
         {
-            speed.x = -this->characterData.diagonalMovementSpeedFocus;
+            speedX = -this->characterData.diagonalMovementSpeedFocus;
         }
         else
         {
-            speed.x = -this->characterData.diagonalMovementSpeed;
+            speedX = -this->characterData.diagonalMovementSpeed;
         }
-        speed.y = speed.x;
+        speedY = speedX;
         break;
     case MOVEMENT_DOWN_LEFT:
         if (IS_PRESSED(TH_BUTTON_FOCUS))
         {
-            speed.x = -this->characterData.diagonalMovementSpeedFocus;
+            speedX = -this->characterData.diagonalMovementSpeedFocus;
         }
         else
         {
-            speed.x = -this->characterData.diagonalMovementSpeed;
+            speedX = -this->characterData.diagonalMovementSpeed;
         }
-        speed.y = -speed.x;
+        speedY = -speedX;
         break;
     case MOVEMENT_UP_RIGHT:
         if (IS_PRESSED(TH_BUTTON_FOCUS))
         {
-            speed.x = this->characterData.diagonalMovementSpeedFocus;
+            speedX = this->characterData.diagonalMovementSpeedFocus;
         }
         else
         {
-            speed.x = this->characterData.diagonalMovementSpeed;
+            speedX = this->characterData.diagonalMovementSpeed;
         }
-        speed.y = -speed.x;
+        speedY = -speedX;
         break;
     case MOVEMENT_DOWN_RIGHT:
         if (IS_PRESSED(TH_BUTTON_FOCUS))
         {
-            speed.x = this->characterData.diagonalMovementSpeedFocus;
+            speedX = this->characterData.diagonalMovementSpeedFocus;
         }
         else
         {
-            speed.x = this->characterData.diagonalMovementSpeed;
+            speedX = this->characterData.diagonalMovementSpeed;
         }
-        speed.y = speed.x;
+        speedY = speedX;
     }
 
-    if (speed.x < 0.0f && this->previousSpeed.x >= 0.0f)
+    if (speedX < 0.0f && this->previousSpeed.x >= 0.0f)
     {
         g_AnmManager->SetAndExecuteScriptIdx(&this->playerSprite, ANM_SCRIPT_PLAYER_MOVING_LEFT);
     }
-    else if (speed.x == 0.0f && this->previousSpeed.x < 0.0f)
+    else if (speedX == 0.0f && this->previousSpeed.x < 0.0f)
     {
         g_AnmManager->SetAndExecuteScriptIdx(&this->playerSprite, ANM_SCRIPT_PLAYER_STOPPING_LEFT);
     }
 
-    if (speed.x > 0.0f && this->previousSpeed.x <= 0.0f)
+    if (speedX > 0.0f && this->previousSpeed.x <= 0.0f)
     {
         g_AnmManager->SetAndExecuteScriptIdx(&this->playerSprite, ANM_SCRIPT_PLAYER_MOVING_RIGHT);
     }
-    else if (speed.x == 0.0f && this->previousSpeed.x > 0.0f)
+    else if (speedX == 0.0f && this->previousSpeed.x > 0.0f)
     {
         g_AnmManager->SetAndExecuteScriptIdx(&this->playerSprite, ANM_SCRIPT_PLAYER_STOPPING_RIGHT);
     }
 
-    this->previousSpeed.x = speed.x;
-    this->previousSpeed.y = speed.y;
+    this->previousSpeed.x = speedX;
+    this->previousSpeed.y = speedY;
 
-    // TODO: Match stack variables here
-    this->positionCenter[0] += speed.x * this->speedMultiplierDuringBomb.x * g_Supervisor.effectiveFramerateMultiplier;
-    this->positionCenter[1] += speed.y * this->speedMultiplierDuringBomb.y * g_Supervisor.effectiveFramerateMultiplier;
+    this->positionCenter[0] += speedX * this->speedMultiplierDuringBomb.x * g_Supervisor.effectiveFramerateMultiplier;
+    this->positionCenter[1] += speedY * this->speedMultiplierDuringBomb.y * g_Supervisor.effectiveFramerateMultiplier;
 
     if (this->positionCenter.x < g_GameManager.playerMovementAreaTopLeftPos.x)
     {
         this->positionCenter.x = g_GameManager.playerMovementAreaTopLeftPos.x;
     }
-    else if (g_GameManager.playerMovementAreaTopLeftPos.x + g_GameManager.playerMovementAreaSize.x <
-             this->positionCenter.x)
+    else if (this->positionCenter.x >
+             g_GameManager.playerMovementAreaTopLeftPos.x + g_GameManager.playerMovementAreaSize.x)
     {
         this->positionCenter.x = g_GameManager.playerMovementAreaTopLeftPos.x + g_GameManager.playerMovementAreaSize.x;
     }
@@ -683,8 +684,8 @@ ZunResult Player::HandlePlayerInputs()
     {
         this->positionCenter.y = g_GameManager.playerMovementAreaTopLeftPos.y;
     }
-    else if (g_GameManager.playerMovementAreaTopLeftPos.y + g_GameManager.playerMovementAreaSize.y <
-             this->positionCenter.y)
+    else if (this->positionCenter.y >
+             g_GameManager.playerMovementAreaTopLeftPos.y + g_GameManager.playerMovementAreaSize.y)
     {
         this->positionCenter.y = g_GameManager.playerMovementAreaTopLeftPos.y + g_GameManager.playerMovementAreaSize.y;
     }
@@ -700,7 +701,7 @@ ZunResult Player::HandlePlayerInputs()
     this->orbsPosition[0] = this->positionCenter;
     this->orbsPosition[1] = this->positionCenter;
 
-    orbOffset.x = orbOffset.y = 0.0f;
+    orbOffsetX = orbOffsetY = 0.0f;
 
     if (g_GameManager.currentPower < 8)
     {
@@ -720,7 +721,7 @@ ZunResult Player::HandlePlayerInputs()
         break;
 
     case ORB_UNFOCUSED:
-        orbOffset.x = 24.0f;
+        orbOffsetX = 24.0f;
         this->focusMovementTimer = 0;
         if (this->isFocus)
         {
@@ -736,9 +737,9 @@ ZunResult Player::HandlePlayerInputs()
         this->focusMovementTimer++;
 
         intermediateFloat = this->focusMovementTimer.AsFramesFloat() / 8.0f;
-        orbOffset.y = (1.0f - intermediateFloat) * 32.0f + -32.0f;
+        orbOffsetY = (1.0f - intermediateFloat) * 32.0f + -32.0f;
         intermediateFloat *= intermediateFloat;
-        orbOffset.x = -16.0f * intermediateFloat + 24.0f;
+        orbOffsetX = -16.0f * intermediateFloat + 24.0f;
 
         if (this->focusMovementTimer >= 8)
         {
@@ -757,8 +758,8 @@ ZunResult Player::HandlePlayerInputs()
         }
 
     case ORB_FOCUSED:
-        orbOffset.x = 8.0f;
-        orbOffset.y = -32.0f;
+        orbOffsetX = 8.0f;
+        orbOffsetY = -32.0f;
         this->focusMovementTimer = 0;
         if (!this->isFocus)
         {
@@ -774,10 +775,10 @@ ZunResult Player::HandlePlayerInputs()
         this->focusMovementTimer++;
 
         intermediateFloat = this->focusMovementTimer.AsFramesFloat() / 8.0f;
-        orbOffset.y = (32.0f * intermediateFloat) + -32.0f;
+        orbOffsetY = (32.0f * intermediateFloat) + -32.0f;
         intermediateFloat *= intermediateFloat;
         intermediateFloat = 1.0f - intermediateFloat;
-        orbOffset.x = -16.0f * intermediateFloat + 24.0f;
+        orbOffsetX = -16.0f * intermediateFloat + 24.0f;
         if (this->focusMovementTimer >= 8)
         {
             this->orbState = ORB_UNFOCUSED;
@@ -790,10 +791,10 @@ ZunResult Player::HandlePlayerInputs()
         }
     }
 
-    this->orbsPosition[0].x -= orbOffset.x;
-    this->orbsPosition[1].x += orbOffset.x;
-    this->orbsPosition[0].y += orbOffset.y;
-    this->orbsPosition[1].y += orbOffset.y;
+    this->orbsPosition[0].x -= orbOffsetX;
+    this->orbsPosition[1].x += orbOffsetX;
+    this->orbsPosition[0].y += orbOffsetY;
+    this->orbsPosition[1].y += orbOffsetY;
     if (IS_PRESSED(TH_BUTTON_SHOOT) && !g_Gui.HasCurrentMsgIdx())
     {
         StartFireBulletTimer(this);
@@ -854,10 +855,11 @@ ZunResult Player::RegisterChain(u8 unk)
     return ZUN_SUCCESS;
 }
 
-#pragma var_order(vector, idx, vecLength, bullet)
+#pragma var_order(vectorY, vectorX, idx, vecLength, bullet)
 static void UpdatePlayerBullets(Player *player)
 {
-    ZunVec2 vector;
+    f32 vectorX;
+    f32 vectorY;
     PlayerBullet *bullet;
     f32 vecLength;
     i32 idx;
@@ -885,19 +887,19 @@ static void UpdatePlayerBullets(Player *player)
                 if (player->positionOfLastEnemyHit.x > -100.0f && (i32)bullet->lifetime < 40 &&
                     bullet->lifetime.HasTicked())
                 {
-                    vector.x = player->positionOfLastEnemyHit.x - bullet->position.x;
-                    vector.y = player->positionOfLastEnemyHit.y - bullet->position.y;
+                    vectorX = player->positionOfLastEnemyHit.x - bullet->position.x;
+                    vectorY = player->positionOfLastEnemyHit.y - bullet->position.y;
 
-                    vecLength = sqrtf(vector.x * vector.x + vector.y * vector.y) / (bullet->speed / 4.0f);
+                    vecLength = sqrtf(vectorX * vectorX + vectorY * vectorY) / (bullet->speed / 4.0f);
                     if (vecLength < 1.0f)
                     {
                         vecLength = 1.0f;
                     }
 
-                    vector.x = vector.x / vecLength + bullet->velocity.x;
-                    vector.y = vector.y / vecLength + bullet->velocity.y;
+                    vectorX = vectorX / vecLength + bullet->velocity.x;
+                    vectorY = vectorY / vecLength + bullet->velocity.y;
 
-                    vecLength = sqrtf(vector.x * vector.x + vector.y * vector.y);
+                    vecLength = sqrtf(vectorX * vectorX + vectorY * vectorY);
 
                     bullet->speed = ZUN_MIN(vecLength, 10.0f);
 
@@ -906,19 +908,19 @@ static void UpdatePlayerBullets(Player *player)
                         bullet->speed = 1.0f;
                     }
 
-                    bullet->velocity.x = vector.x * bullet->speed / vecLength;
-                    bullet->velocity.y = vector.y * bullet->speed / vecLength;
+                    bullet->velocity.x = vectorX * bullet->speed / vecLength;
+                    bullet->velocity.y = vectorY * bullet->speed / vecLength;
                 }
                 else
                 {
                     if (bullet->speed < 10.0f)
                     {
                         bullet->speed += 0.33333333f;
-                        vector.x = bullet->velocity.x;
-                        vector.y = bullet->velocity.y;
-                        vecLength = sqrtf(vector.x * vector.x + vector.y * vector.y);
-                        bullet->velocity.x = vector.x * bullet->speed / vecLength;
-                        bullet->velocity.y = vector.y * bullet->speed / vecLength;
+                        vectorX = bullet->velocity.x;
+                        vectorY = bullet->velocity.y;
+                        vecLength = sqrtf(vectorX * vectorX + vectorY * vectorY);
+                        bullet->velocity.x = vectorX * bullet->speed / vecLength;
+                        bullet->velocity.y = vectorY * bullet->speed / vecLength;
                     }
                 }
             }

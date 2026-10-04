@@ -1690,14 +1690,15 @@ ChainCallbackResult ResultScreen::OnUpdate(ResultScreen *resultScreen)
 }
 
 #pragma var_order(strPos, row, name, sprite, ShootScoreListNodeA, column, ShootScoreListNodeB, spritePos,              \
-                  spellcardIdx, charPos, keyboardCharacter)
+                  spellcardIdx, charPosY, charPosX, keyboardCharacter)
 ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
 {
     static const char *g_ShortCharacterList2[] = {"ReimuA ", "ReimuB ", "MarisaA", "MarisaB"};
 
     AnmVm *sprite;
     char keyboardCharacter[16]; // TODO: Is this actually 16, or is there padding?
-    ZunVec2 charPos;
+    f32 charPosX;
+    f32 charPosY;
 
     i32 spellcardIdx;
     D3DXVECTOR3 spritePos;
@@ -1903,23 +1904,23 @@ ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
         {
             for (column = 0; column < RESULT_KEYBOARD_COLUMNS; column++)
             {
-                charPos.y = 0.0f;
-                charPos.x = 0.0f;
+                charPosY = 0.0f;
+                charPosX = 0.0f;
                 if (resultScreen->selectedCharacter == row * RESULT_KEYBOARD_COLUMNS + column)
                 {
                     g_AsciiManager.color = COLOR_PASTEL_YELLOW;
                     if (resultScreen->frameTimer % 64 < 32)
                     {
-                        charPos.y = 1.2f + 0.8f * (resultScreen->frameTimer % 32) / 32.0f;
+                        charPosY = 1.2f + 0.8f * (resultScreen->frameTimer % 32) / 32.0f;
                     }
                     else
                     {
-                        charPos.y = 2.0f - 0.8f * (resultScreen->frameTimer % 32) / 32.0f;
+                        charPosY = 2.0f - 0.8f * (resultScreen->frameTimer % 32) / 32.0f;
                     }
-                    g_AsciiManager.scale.x = charPos.y;
-                    g_AsciiManager.scale.y = charPos.y;
-                    charPos.y = -(charPos.y - 1.0f) * 8.0f;
-                    charPos.x = charPos.y;
+                    g_AsciiManager.scale.x = charPosY;
+                    g_AsciiManager.scale.y = charPosY;
+                    charPosY = -(charPosY - 1.0f) * 8.0f;
+                    charPosX = charPosY;
                 }
                 else
                 {
@@ -1928,8 +1929,8 @@ ChainCallbackResult th06::ResultScreen::OnDraw(ResultScreen *resultScreen)
                     g_AsciiManager.scale.y = 1.0f;
                 }
                 strPos = spritePos;
-                strPos.x += charPos.y;
-                strPos.y += charPos.x;
+                strPos.x += charPosY;
+                strPos.y += charPosX;
                 keyboardCharacter[0] = g_AlphabetList[row * RESULT_KEYBOARD_COLUMNS + column];
                 keyboardCharacter[1] = '\0';
 

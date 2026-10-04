@@ -155,14 +155,11 @@ struct AnmManager
         {
             return false;
         }
-        else if (vm->sprite->sourceFileIndex < 0)
+        if (vm->sprite->sourceFileIndex < 0)
         {
             return false;
         }
-        else
-        {
-            return this->textures[vm->sprite->sourceFileIndex] != NULL;
-        }
+        return this->textures[vm->sprite->sourceFileIndex] != NULL;
     }
 
     void SetCurrentVertexShader(u8 vertexShader)

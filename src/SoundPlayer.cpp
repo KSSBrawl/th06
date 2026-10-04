@@ -14,6 +14,14 @@ FILE_BSS_SORT(S1);
 #define BACKGROUND_MUSIC_WAV_BITS_PER_SAMPLE 16
 #define BACKGROUND_MUSIC_WAV_BLOCK_ALIGN BACKGROUND_MUSIC_WAV_BITS_PER_SAMPLE / 8 * BACKGROUND_MUSIC_WAV_NUM_CHANNELS
 
+#ifndef TRIALBUILD
+#define BACKGROUND_MUSIC_STREAM_SECONDS 2
+#define BACKGROUND_MUSIC_STREAM_NOTIFICATIONS 4
+#else
+#define BACKGROUND_MUSIC_STREAM_SECONDS 4
+#define BACKGROUND_MUSIC_STREAM_NOTIFICATIONS 8
+#endif
+
 DIFFABLE_STATIC_ARRAY_ASSIGN(SoundEffectData, 32, g_SoundBufferIdxVol) = {
     {0, -1500, 0},   {0, -2000, 0},   {1, -1200, 5},   {1, -1400, 5},  {2, -1000, 100}, {3, -500, 100},
     {4, -500, 100},  {5, -1700, 50},  {6, -1700, 50},  {7, -1700, 50}, {8, -1000, 100}, {9, -1000, 100},
@@ -266,14 +274,15 @@ ZunResult SoundPlayer::LoadWav(char *path)
     waveFile.Close();
     blockAlign = waveFile.m_pwfx->nBlockAlign;
     numSamplesPerSec = waveFile.m_pwfx->nSamplesPerSec;
-    notifySize = numSamplesPerSec * 2 * blockAlign >> 2;
+    notifySize =
+        numSamplesPerSec * BACKGROUND_MUSIC_STREAM_SECONDS * blockAlign / BACKGROUND_MUSIC_STREAM_NOTIFICATIONS;
     notifySize -= (notifySize % blockAlign);
     this->backgroundMusicUpdateEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
     this->backgroundMusicThreadHandle = CreateThread(NULL, 0, SoundPlayer::BackgroundMusicPlayerThread,
                                                      g_Supervisor.hwndGameWindow, 0, &this->backgroundMusicThreadId);
-    res = this->manager->CreateStreaming(&this->backgroundMusic, path,
-                                         DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_CTRLPOSITIONNOTIFY, GUID_NULL, 4,
-                                         notifySize, this->backgroundMusicUpdateEvent);
+    res = this->manager->CreateStreaming(
+        &this->backgroundMusic, path, DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_CTRLPOSITIONNOTIFY, GUID_NULL,
+        BACKGROUND_MUSIC_STREAM_NOTIFICATIONS, notifySize, this->backgroundMusicUpdateEvent);
     if (FAILED(res))
     {
         utils::DebugPrint2(TH_ERR_SOUNDPLAYER_FAILED_TO_CREATE_BGM_SOUND_BUFFER);

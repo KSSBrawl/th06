@@ -21,10 +21,10 @@
 #include <string.h>
 
 // The trial's archive marker differs from its config and replay format version.
-#if TRIALBUILD
-#define ARCHIVE_VERSION 0x13
-#else
+#if !TRIALBUILD
 #define ARCHIVE_VERSION GAME_VERSION
+#else
+#define ARCHIVE_VERSION 0x13
 #endif
 
 namespace th06
@@ -801,10 +801,10 @@ ZunResult Supervisor::SetupMidiPlayback(const char *path)
     return ZUN_SUCCESS;
 }
 
+#pragma var_order(pathExtension, audioPaths)
 ZunResult Supervisor::PlayAudio(const char *path)
 {
-    char wavName[256];
-    char wavPos[256];
+    char audioPaths[2][256];
     char *pathExtension;
 
     if (g_Supervisor.cfg.musicMode == MIDI)
@@ -816,18 +816,18 @@ ZunResult Supervisor::PlayAudio(const char *path)
     }
     else if (g_Supervisor.cfg.musicMode == WAV)
     {
-        strcpy(wavName, path);
-        strcpy(wavPos, path);
-        pathExtension = strrchr(wavName, L'.');
+        strcpy(audioPaths[0], path);
+        strcpy(audioPaths[1], path);
+        pathExtension = strrchr(audioPaths[0], L'.');
         pathExtension[1] = 'w';
         pathExtension[2] = 'a';
         pathExtension[3] = 'v';
-        pathExtension = strrchr(wavPos, L'.');
+        pathExtension = strrchr(audioPaths[1], L'.');
         pathExtension[1] = 'p';
         pathExtension[2] = 'o';
         pathExtension[3] = 's';
-        g_SoundPlayer.LoadWav(wavName);
-        if (g_SoundPlayer.LoadPos(wavPos) < ZUN_SUCCESS)
+        g_SoundPlayer.LoadWav(audioPaths[0]);
+        if (g_SoundPlayer.LoadPos(audioPaths[1]) < ZUN_SUCCESS)
         {
             g_SoundPlayer.PlayBGM(FALSE);
         }
