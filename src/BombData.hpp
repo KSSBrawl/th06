@@ -7,14 +7,15 @@ struct BombData
 {
     void (*calc)(Player *p);
     void (*draw)(Player *p);
-
-    static void BombReimuACalc(Player *);
-    static void BombReimuBCalc(Player *);
-    static void BombMarisaACalc(Player *);
-    static void BombMarisaBCalc(Player *);
-    static void BombReimuADraw(Player *);
-    static void BombReimuBDraw(Player *);
-    static void BombMarisaADraw(Player *);
-    static void BombMarisaBDraw(Player *);
 };
+
+void BombData_BombReimuACalc(Player *);
+void BombData_BombReimuBCalc(Player *);
+void BombData_BombMarisaACalc(Player *);
+void BombData_BombMarisaBCalc(Player *);
+void BombData_BombReimuADraw(Player *);
+void BombData_BombReimuBDraw(Player *);
+void BombData_BombMarisaADraw(Player *);
+void BombData_BombMarisaBDraw(Player *);
+
 } // namespace th06

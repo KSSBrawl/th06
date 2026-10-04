@@ -56,15 +56,6 @@ ZUN_ASSERT_TYPE(AsciiManagerPopup, 0x28, 4);
 // - Various text elements such as the "Stage clear" prompt.
 struct AsciiManager
 {
-    static ZunResult RegisterChain();
-    static void CutChain();
-
-    static ChainCallbackResult OnUpdate(AsciiManager *s);
-    static ChainCallbackResult OnDrawMenus(AsciiManager *s);
-    static ChainCallbackResult OnDrawPopups(AsciiManager *s);
-    static ZunResult AddedCallback(AsciiManager *s);
-    static ZunResult DeletedCallback(AsciiManager *s);
-
     // TODO: Make this inline somehow
     void InitializeVms();
 
@@ -103,6 +94,14 @@ struct AsciiManager
     AsciiManagerPopup popups[ASCII_TOTAL_POPUPS_COUNT];
 };
 ZUN_ASSERT_TYPE(AsciiManager, 0xc1ac, 4);
+
+ZunResult AsciiManager_RegisterChain();
+void AsciiManager_CutChain();
+ChainCallbackResult AsciiManager_OnUpdate(AsciiManager *s);
+ChainCallbackResult AsciiManager_OnDrawMenus(AsciiManager *s);
+ChainCallbackResult AsciiManager_OnDrawPopups(AsciiManager *s);
+ZunResult AsciiManager_AddedCallback(AsciiManager *s);
+ZunResult AsciiManager_DeletedCallback(AsciiManager *s);
 
 DIFFABLE_EXTERN(AsciiManager, g_AsciiManager);
 } // namespace th06

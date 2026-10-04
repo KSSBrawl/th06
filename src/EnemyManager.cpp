@@ -12,6 +12,11 @@
 
 namespace th06
 {
+static ZunResult EnemyManager_DeletedCallback(EnemyManager *enemyManager);
+static ZunResult EnemyManager_AddedCallback(EnemyManager *enemyManager);
+static ChainCallbackResult EnemyManager_OnDraw(EnemyManager *enemyManager);
+static ChainCallbackResult EnemyManager_OnUpdate(EnemyManager *enemyManager);
+
 #define ITEM_SPAWNS 3
 #define ITEM_TABLES 8
 
@@ -147,7 +152,7 @@ static void UpdateEffects(Enemy *enemy)
     }
 }
 
-void Enemy::ResetEffectArray(Enemy *enemy)
+void Enemy_ResetEffectArray(Enemy *enemy)
 {
     i32 idx;
 
@@ -467,7 +472,7 @@ void Enemy::Despawn()
     }
     if (this->effectIdx != 0)
     {
-        this->ResetEffectArray(this);
+        Enemy_ResetEffectArray(this);
     }
 }
 
@@ -495,23 +500,23 @@ void Enemy::ClampPos()
     }
 }
 
-ZunResult EnemyManager::RegisterChain(const char *stgEnm1, const char *stgEnm2)
+ZunResult EnemyManager_RegisterChain(const char *stgEnm1, const char *stgEnm2)
 {
     EnemyManager *mgr = &g_EnemyManager;
     mgr->Initialize();
     mgr->stgEnmAnmFilename = stgEnm1;
     mgr->stgEnm2AnmFilename = stgEnm2;
-    g_EnemyManagerCalcChain.callback = (ChainCallback)mgr->OnUpdate;
+    g_EnemyManagerCalcChain.callback = (ChainCallback)EnemyManager_OnUpdate;
     g_EnemyManagerCalcChain.addedCallback = NULL;
     g_EnemyManagerCalcChain.deletedCallback = NULL;
-    g_EnemyManagerCalcChain.addedCallback = (ChainAddedCallback)mgr->AddedCallback;
-    g_EnemyManagerCalcChain.deletedCallback = (ChainAddedCallback)mgr->DeletedCallback;
+    g_EnemyManagerCalcChain.addedCallback = (ChainAddedCallback)EnemyManager_AddedCallback;
+    g_EnemyManagerCalcChain.deletedCallback = (ChainAddedCallback)EnemyManager_DeletedCallback;
     g_EnemyManagerCalcChain.arg = mgr;
     if (g_Chain.AddToCalcChain(&g_EnemyManagerCalcChain, TH_CHAIN_PRIO_CALC_ENEMYMANAGER) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
     }
-    g_EnemyManagerDrawChain.callback = (ChainCallback)mgr->OnDraw;
+    g_EnemyManagerDrawChain.callback = (ChainCallback)EnemyManager_OnDraw;
     g_EnemyManagerDrawChain.addedCallback = NULL;
     g_EnemyManagerDrawChain.deletedCallback = NULL;
     g_EnemyManagerDrawChain.arg = mgr;
@@ -523,7 +528,7 @@ ZunResult EnemyManager::RegisterChain(const char *stgEnm1, const char *stgEnm2)
 }
 
 #pragma var_order(hitByBomb, damage, enemyIdx, enemyHitbox, enemyVmIdx, enemyLifeBeforeDmg, curEnemy)
-ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
+static ChainCallbackResult EnemyManager_OnUpdate(EnemyManager *mgr)
 {
     Enemy *curEnemy;
     i32 enemyLifeBeforeDmg;
@@ -669,7 +674,7 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
                     if (curEnemy->flags.isBoss)
                     {
                         g_Gui.bossPresent = false;
-                        Enemy::ResetEffectArray(curEnemy);
+                        Enemy_ResetEffectArray(curEnemy);
                     }
                 case EnemyDeath_DropItemsOnly:
                     if (curEnemy->itemDrop >= 0)
@@ -743,7 +748,7 @@ ChainCallbackResult EnemyManager::OnUpdate(EnemyManager *mgr)
 }
 
 #pragma var_order(curEnemyIdx, curEnemyVm, curEnemyVmIdx, curEnemy)
-ChainCallbackResult EnemyManager::OnDraw(EnemyManager *mgr)
+static ChainCallbackResult EnemyManager_OnDraw(EnemyManager *mgr)
 {
     AnmVm *curEnemyVm;
     Enemy *curEnemy;
@@ -799,7 +804,7 @@ ChainCallbackResult EnemyManager::OnDraw(EnemyManager *mgr)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ZunResult EnemyManager::AddedCallback(EnemyManager *enemyManager)
+static ZunResult EnemyManager_AddedCallback(EnemyManager *enemyManager)
 {
     Enemy *enemies = enemyManager->enemies;
 
@@ -823,14 +828,14 @@ ZunResult EnemyManager::AddedCallback(EnemyManager *enemyManager)
     return ZUN_SUCCESS;
 }
 
-ZunResult EnemyManager::DeletedCallback(EnemyManager *mgr)
+static ZunResult EnemyManager_DeletedCallback(EnemyManager *mgr)
 {
     g_AnmManager->ReleaseAnm(ANM_FILE_ENEMY2);
     g_AnmManager->ReleaseAnm(ANM_FILE_ENEMY);
     return ZUN_SUCCESS;
 }
 
-void EnemyManager::CutChain()
+void EnemyManager_CutChain()
 {
     g_Chain.Cut(&g_EnemyManagerCalcChain);
     g_Chain.Cut(&g_EnemyManagerDrawChain);

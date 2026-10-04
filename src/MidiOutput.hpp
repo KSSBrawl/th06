@@ -16,12 +16,12 @@ struct MidiTimer
     i32 StopTimer();
     u32 StartTimer(u32 delay, LPTIMECALLBACK cb, DWORD_PTR data);
 
-    static void CALLBACK DefaultTimerCallback(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2);
-
     u32 timerId;
     TIMECAPS timeCaps;
 };
 ZUN_ASSERT_TYPE(MidiTimer, 0x10, 4);
+
+void CALLBACK MidiTimer_DefaultTimerCallback(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2);
 
 enum MidiOpcode
 {
@@ -144,21 +144,6 @@ struct MidiOutput : MidiTimer
     u32 SetFadeOut(u32 ms);
     void FadeOutSetVolume(i32 volume);
 
-    static u16 Ntohs(u16 val);
-    static u32 SkipVariableLength(u8 **curTrackDataCursor);
-
-    static u32 Ntohl(u32 val)
-    {
-        u8 tmp[4];
-
-        tmp[0] = ((u8 *)&val)[3];
-        tmp[1] = ((u8 *)&val)[2];
-        tmp[2] = ((u8 *)&val)[1];
-        tmp[3] = ((u8 *)&val)[0];
-
-        return *(const u32 *)(&tmp);
-    }
-
     MIDIHDR *midiHeaders[32];
     i32 midiHeadersCursor;
     u8 *midiFileData[32];
@@ -188,5 +173,20 @@ struct MidiOutput : MidiTimer
     ULONGLONG unk2f0;
     ULONGLONG unk2f8;
 };
+u16 MidiOutput_Ntohs(u16 val);
+u32 MidiOutput_SkipVariableLength(u8 **curTrackDataCursor);
+
+inline u32 MidiOutput_Ntohl(u32 val)
+{
+    u8 tmp[4];
+
+    tmp[0] = ((u8 *)&val)[3];
+    tmp[1] = ((u8 *)&val)[2];
+    tmp[2] = ((u8 *)&val)[1];
+    tmp[3] = ((u8 *)&val)[0];
+
+    return *(const u32 *)(&tmp);
+}
+
 ZUN_ASSERT_TYPE(MidiOutput, 0x300, 8);
 } // namespace th06

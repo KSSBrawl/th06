@@ -24,12 +24,6 @@ struct EnemyManager
 {
     void Initialize();
     EnemyManager();
-    static ZunResult RegisterChain(const char *stgEnm1, const char *stgEnm2);
-    static void CutChain();
-    static ChainCallbackResult OnUpdate(EnemyManager *enemyManager);
-    static ChainCallbackResult OnDraw(EnemyManager *enemyManager);
-    static ZunResult AddedCallback(EnemyManager *enemyManager);
-    static ZunResult DeletedCallback(EnemyManager *enemyManager);
 
     void RunEclTimeline();
     Enemy *SpawnEnemy(i32 eclSubId, D3DXVECTOR3 *pos, i16 life, i16 itemDrop, i32 score);
@@ -49,6 +43,9 @@ struct EnemyManager
     ZunTimer timelineTime;
 };
 ZUN_ASSERT_TYPE(EnemyManager, 0xee5ec, 4);
+
+ZunResult EnemyManager_RegisterChain(const char *stgEnm1, const char *stgEnm2);
+void EnemyManager_CutChain();
 
 DIFFABLE_EXTERN(EnemyManager, g_EnemyManager);
 } // namespace th06

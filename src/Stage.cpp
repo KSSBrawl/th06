@@ -37,7 +37,7 @@ DIFFABLE_STATIC_SORTED(B4, ChainElem, g_StageOnDrawLowPrioChain);
 #define GET_FLOAT3_ARG() GET_ARG(D3DXVECTOR3, 0)
 
 #pragma var_order(posInterpRatio, curInstr, pos)
-ChainCallbackResult Stage::OnUpdate(Stage *stage)
+ChainCallbackResult Stage_OnUpdate(Stage *stage)
 {
     f32 posInterpRatio;
     D3DXVECTOR3 pos;
@@ -219,7 +219,7 @@ ChainCallbackResult Stage::OnUpdate(Stage *stage)
     }
 }
 
-ChainCallbackResult Stage::OnDrawHighPrio(Stage *stage)
+ChainCallbackResult Stage_OnDrawHighPrio(Stage *stage)
 {
     if (stage->skyFogNeedsSetup)
     {
@@ -239,7 +239,7 @@ ChainCallbackResult Stage::OnDrawHighPrio(Stage *stage)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ChainCallbackResult Stage::OnDrawLowPrio(Stage *stage)
+ChainCallbackResult Stage_OnDrawLowPrio(Stage *stage)
 {
     if (stage->spellcardState <= RUNNING)
     {
@@ -257,7 +257,7 @@ ChainCallbackResult Stage::OnDrawLowPrio(Stage *stage)
                 gameRegion.right = GAME_REGION_POS_RIGHT;
                 gameRegion.bottom = GAME_REGION_POS_BOTTOM;
                 stageToSpellcardBackgroundAlpha = (stage->ticksSinceSpellcardStarted * 255) / 60;
-                ScreenEffect::DrawSquare(&gameRegion, stageToSpellcardBackgroundAlpha << 24);
+                ScreenEffect_DrawSquare(&gameRegion, stageToSpellcardBackgroundAlpha << 24);
             }
         }
     }
@@ -271,7 +271,7 @@ ChainCallbackResult Stage::OnDrawLowPrio(Stage *stage)
     }
     g_Supervisor.viewport.MinZ = 0.0f;
     g_Supervisor.viewport.MaxZ = 0.5f;
-    GameManager::SetupCameraStageBackground(0);
+    GameManager_SetupCameraStageBackground(0);
     g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
 
     f32 val;
@@ -282,7 +282,7 @@ ChainCallbackResult Stage::OnDrawLowPrio(Stage *stage)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ZunResult Stage::AddedCallback(Stage *stage)
+ZunResult Stage_AddedCallback(Stage *stage)
 {
     stage->scriptTime = 0;
 
@@ -314,7 +314,7 @@ ZunResult Stage::AddedCallback(Stage *stage)
     return ZUN_SUCCESS;
 }
 
-ZunResult Stage::RegisterChain(u32 stage)
+ZunResult Stage_RegisterChain(u32 stage)
 {
     Stage *stg = &g_Stage;
 
@@ -324,23 +324,23 @@ ZunResult Stage::RegisterChain(u32 stage)
     stg->timer = 0;
 
     stg->stage = stage;
-    g_StageCalcChain.callback = (ChainCallback)Stage::OnUpdate;
+    g_StageCalcChain.callback = (ChainCallback)Stage_OnUpdate;
     g_StageCalcChain.addedCallback = NULL;
     g_StageCalcChain.deletedCallback = NULL;
-    g_StageCalcChain.addedCallback = (ChainAddedCallback)Stage::AddedCallback;
-    g_StageCalcChain.deletedCallback = (ChainDeletedCallback)Stage::DeletedCallback;
+    g_StageCalcChain.addedCallback = (ChainAddedCallback)Stage_AddedCallback;
+    g_StageCalcChain.deletedCallback = (ChainDeletedCallback)Stage_DeletedCallback;
     g_StageCalcChain.arg = stg;
 
     if (g_Chain.AddToCalcChain(&g_StageCalcChain, TH_CHAIN_PRIO_CALC_STAGE) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
     }
-    g_StageOnDrawHighPrioChain.callback = (ChainCallback)OnDrawHighPrio;
+    g_StageOnDrawHighPrioChain.callback = (ChainCallback)Stage_OnDrawHighPrio;
     g_StageOnDrawHighPrioChain.addedCallback = NULL;
     g_StageOnDrawHighPrioChain.deletedCallback = NULL;
     g_StageOnDrawHighPrioChain.arg = stg;
     g_Chain.AddToDrawChain(&g_StageOnDrawHighPrioChain, TH_CHAIN_PRIO_DRAW_HIGH_PRIO_STAGE);
-    g_StageOnDrawLowPrioChain.callback = (ChainCallback)OnDrawLowPrio;
+    g_StageOnDrawLowPrioChain.callback = (ChainCallback)Stage_OnDrawLowPrio;
     g_StageOnDrawLowPrioChain.addedCallback = NULL;
     g_StageOnDrawLowPrioChain.deletedCallback = NULL;
     g_StageOnDrawLowPrioChain.arg = stg;
@@ -349,7 +349,7 @@ ZunResult Stage::RegisterChain(u32 stage)
     return ZUN_SUCCESS;
 }
 
-ZunResult Stage::DeletedCallback(Stage *s)
+ZunResult Stage_DeletedCallback(Stage *s)
 {
     g_AnmManager->ReleaseAnm(ANM_FILE_STAGEBG);
     ZUN_SAFE_FREE(s->quadVms);
@@ -357,7 +357,7 @@ ZunResult Stage::DeletedCallback(Stage *s)
     return ZUN_SUCCESS;
 }
 
-void Stage::CutChain()
+void Stage_CutChain()
 {
     g_Chain.Cut(&g_StageCalcChain);
     g_Chain.Cut(&g_StageOnDrawHighPrioChain);

@@ -94,14 +94,6 @@ enum StdOpcode
 
 struct Stage
 {
-    static ZunResult RegisterChain(u32 stage);
-    static void CutChain();
-    static ChainCallbackResult OnUpdate(Stage *stage);
-    static ChainCallbackResult OnDrawHighPrio(Stage *stage);
-    static ChainCallbackResult OnDrawLowPrio(Stage *stage);
-    static ZunResult AddedCallback(Stage *stage);
-    static ZunResult DeletedCallback(Stage *stage);
-
     ZunResult LoadStageData(const char *anmpath, const char *stdpath);
     ZunResult UpdateObjects();
     ZunResult RenderObjects(i32 zLevel);
@@ -141,6 +133,14 @@ struct Stage
     i32 positionInterpStartTime;
 };
 ZUN_ASSERT_TYPE(Stage, 0x2f4, 4);
+
+ZunResult Stage_RegisterChain(u32 stage);
+void Stage_CutChain();
+ChainCallbackResult Stage_OnUpdate(Stage *stage);
+ChainCallbackResult Stage_OnDrawHighPrio(Stage *stage);
+ChainCallbackResult Stage_OnDrawLowPrio(Stage *stage);
+ZunResult Stage_AddedCallback(Stage *stage);
+ZunResult Stage_DeletedCallback(Stage *stage);
 
 DIFFABLE_EXTERN(Stage, g_Stage);
 } // namespace th06

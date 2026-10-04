@@ -124,7 +124,7 @@ u32 MidiTimer::StartTimer(u32 delay, LPTIMECALLBACK cb, DWORD_PTR data)
     }
     else
     {
-        this->timerId = timeSetEvent(delay, this->timeCaps.wPeriodMin, (LPTIMECALLBACK)MidiTimer::DefaultTimerCallback,
+        this->timerId = timeSetEvent(delay, this->timeCaps.wPeriodMin, (LPTIMECALLBACK)MidiTimer_DefaultTimerCallback,
                                      (DWORD_PTR)this, TIME_PERIODIC);
     }
     return this->timerId;
@@ -141,14 +141,14 @@ i32 MidiTimer::StopTimer()
     return 1;
 }
 
-void CALLBACK MidiTimer::DefaultTimerCallback(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
+void CALLBACK MidiTimer_DefaultTimerCallback(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
 {
     MidiTimer *timer = (MidiTimer *)dwUser;
 
     timer->OnTimerElapsed();
 }
 
-u16 MidiOutput::Ntohs(u16 val)
+u16 MidiOutput_Ntohs(u16 val)
 {
     u8 tmp[2];
 
@@ -158,7 +158,7 @@ u16 MidiOutput::Ntohs(u16 val)
     return *(const u16 *)(&tmp);
 }
 
-u32 MidiOutput::SkipVariableLength(u8 **curTrackDataCursor)
+u32 MidiOutput_SkipVariableLength(u8 **curTrackDataCursor)
 {
     u32 length;
     u8 tmp;
@@ -279,7 +279,7 @@ ZunResult MidiOutput::ParseFile(i32 fileIdx)
 
     // Get a pointer to the end of the header chunk
     currentCursor += sizeof(hdrRaw);
-    hdrLength = MidiOutput::Ntohl(*(u32 *)(hdrRaw + 4));
+    hdrLength = MidiOutput_Ntohl(*(u32 *)(hdrRaw + 4));
 
     endOfHeaderPointer = currentCursor;
     currentCursor += hdrLength;
@@ -290,13 +290,13 @@ ZunResult MidiOutput::ParseFile(i32 fileIdx)
     //  sequence
     //  2: the file contains one or more sequentially independent single-track
     //  patterns
-    this->format = MidiOutput::Ntohs(*(u16 *)endOfHeaderPointer);
+    this->format = MidiOutput_Ntohs(*(u16 *)endOfHeaderPointer);
 
     // Read the divisions in this track. Note that this doesn't appear to support
     // "negative SMPTE format", which happens when the MSB is set.
-    this->divisions = MidiOutput::Ntohs(*(u16 *)(endOfHeaderPointer + 4));
+    this->divisions = MidiOutput_Ntohs(*(u16 *)(endOfHeaderPointer + 4));
     // Read the number of tracks in this midi file.
-    this->numTracks = MidiOutput::Ntohs(*(u16 *)(endOfHeaderPointer + 2));
+    this->numTracks = MidiOutput_Ntohs(*(u16 *)(endOfHeaderPointer + 2));
 
     // Allocate this->divisions * 32 bytes.
     this->tracks = ZUN_ALLOC_ARRAY(MidiTrack, this->numTracks);
@@ -309,7 +309,7 @@ ZunResult MidiOutput::ParseFile(i32 fileIdx)
         // Read a track (MTrk) chunk.
         //
         // First, read the length of the chunk
-        trackLength = MidiOutput::Ntohl(*(u32 *)(currentCursorTrack + 4));
+        trackLength = MidiOutput_Ntohl(*(u32 *)(currentCursorTrack + 4));
         this->tracks[trackIdx].trackLength = trackLength;
         this->tracks[trackIdx].trackData = ZUN_ALLOC(trackLength);
         this->tracks[trackIdx].trackPlaying = true;
@@ -349,7 +349,7 @@ void MidiOutput::LoadTracks()
         track->curTrackDataCursor = track->trackData;
         track->startTrackDataMaybe = track->curTrackDataCursor;
         track->trackPlaying = true;
-        track->trackLengthOther = MidiOutput::SkipVariableLength(&track->curTrackDataCursor);
+        track->trackLengthOther = MidiOutput_SkipVariableLength(&track->curTrackDataCursor);
     }
 }
 
@@ -520,7 +520,7 @@ void MidiOutput::ProcessMsg(MidiTrack *track)
                 this->UnprepareHeader(this->midiHeaders[this->midiHeadersCursor]);
             }
             MIDIHDR *midiHdr = this->midiHeaders[this->midiHeadersCursor] = ZUN_ALLOC_TYPE(MIDIHDR);
-            curTrackLength = MidiOutput::SkipVariableLength(&track->curTrackDataCursor);
+            curTrackLength = MidiOutput_SkipVariableLength(&track->curTrackDataCursor);
             memset(midiHdr, 0, sizeof(MIDIHDR));
             midiHdr->lpData = (LPSTR)ZUN_ALLOC(curTrackLength + 1);
             midiHdr->lpData[0] = -0x10;
@@ -548,7 +548,7 @@ void MidiOutput::ProcessMsg(MidiTrack *track)
             // file, but not in the context of the MIDI protocol itself.
             u8 cVar1 = *track->curTrackDataCursor;
             track->curTrackDataCursor++;
-            curTrackLength = MidiOutput::SkipVariableLength(&track->curTrackDataCursor);
+            curTrackLength = MidiOutput_SkipVariableLength(&track->curTrackDataCursor);
             // End of Track meta-event.
             if (cVar1 == 0x2f)
             {
@@ -674,7 +674,7 @@ void MidiOutput::ProcessMsg(MidiTrack *track)
         this->midiOutDev.SendShortMsg(opcode, arg1, arg2);
     }
     track->opcode = opcode;
-    i32 nextTrackLength = MidiOutput::SkipVariableLength(&track->curTrackDataCursor);
+    i32 nextTrackLength = MidiOutput_SkipVariableLength(&track->curTrackDataCursor);
     track->trackLengthOther = track->trackLengthOther + nextTrackLength;
 }
 

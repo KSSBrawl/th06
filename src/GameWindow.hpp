@@ -18,13 +18,6 @@ enum RenderResult
 struct GameWindow
 {
     RenderResult Render();
-    static void Present();
-
-    static i32 InitD3dInterface();
-    static void CreateGameWindow(HINSTANCE hInstance);
-    static i32 InitD3dRendering();
-    static void InitD3dDevice();
-    static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     HWND window;
     ZunBool isAppClosing;
@@ -36,6 +29,7 @@ struct GameWindow
     BOOL lowPowerActive;
     BOOL powerOffActive;
 };
+
 ZUN_ASSERT_TYPE(GameWindow, 0x20, 4);
 
 DIFFABLE_EXTERN(GameWindow, g_GameWindow);

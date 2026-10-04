@@ -92,12 +92,6 @@ struct Supervisor
     {
         memset(this, 0, sizeof(Supervisor));
     }
-    static ZunResult RegisterChain();
-    static ChainCallbackResult OnUpdate(Supervisor *s);
-    static ChainCallbackResult OnDraw(Supervisor *s);
-    static ZunResult AddedCallback(Supervisor *s);
-    static ZunResult DeletedCallback(Supervisor *s);
-    static void DrawFpsCounter();
 
     ZunBool ReadMidiFile(u32 midiFileIdx, const char *path);
     ZunBool PlayMidiFile(i32 midiFileIdx);
@@ -105,9 +99,6 @@ struct Supervisor
     ZunResult StopAudio();
     ZunResult SetupMidiPlayback(const char *path);
     ZunResult FadeOutMusic(f32 fadeOutSeconds);
-
-    static BOOL CALLBACK ControllerCallback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOID pvRef);
-    static BOOL CALLBACK EnumGameControllersCb(LPCDIDEVICEINSTANCE pdidInstance, LPVOID pContext);
 
     BOOL LoadPbg3(i32 pbg3FileIdx, const char *filename);
     void ReleasePbg3(i32 pbg3FileIdx);
@@ -248,6 +239,17 @@ struct Supervisor
     u32 startupTimeBeforeMenuMusic;
     D3DCAPS8 d3dCaps;
 };
+ZunResult Supervisor_RegisterChain();
+ChainCallbackResult Supervisor_OnUpdate(Supervisor *s);
+ChainCallbackResult Supervisor_OnDraw(Supervisor *s);
+ZunResult Supervisor_AddedCallback(Supervisor *s);
+ZunResult Supervisor_DeletedCallback(Supervisor *s);
+void Supervisor_DrawFpsCounter();
+
+BOOL CALLBACK Supervisor_ControllerCallback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOID pvRef);
+
+BOOL CALLBACK Supervisor_EnumGameControllersCb(LPCDIDEVICEINSTANCE pdidInstance, LPVOID pContext);
+
 #if !TRIALBUILD
 ZUN_ASSERT_SIZE(Supervisor, 0x4d8);
 #else

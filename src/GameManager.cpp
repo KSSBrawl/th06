@@ -68,7 +68,7 @@ ZunBool GameManager::IsInBounds(f32 x, f32 y, f32 width, f32 height)
 }
 
 #pragma var_order(scoreIncrement, isInMenu)
-ChainCallbackResult GameManager::OnUpdate(GameManager *gameManager)
+ChainCallbackResult GameManager_OnUpdate(GameManager *gameManager)
 {
     ZunBool isInMenu;
     u32 scoreIncrement;
@@ -82,7 +82,7 @@ ChainCallbackResult GameManager::OnUpdate(GameManager *gameManager)
         gameManager->demoFrames++;
         if (gameManager->demoFrames == DEMO_FADEOUT_FRAMES)
         {
-            ScreenEffect::RegisterChain(SCREEN_EFFECT_FADE_OUT, 120, 0x000000, 0, 0);
+            ScreenEffect_RegisterChain(SCREEN_EFFECT_FADE_OUT, 120, 0x000000, 0, 0);
         }
         if (gameManager->demoFrames >= DEMO_FRAMES)
         {
@@ -120,7 +120,7 @@ ChainCallbackResult GameManager::OnUpdate(GameManager *gameManager)
     g_Supervisor.viewport.MinZ = 0.5f;
     g_Supervisor.viewport.MaxZ = 1.0f;
 
-    SetupCamera(0);
+    GameManager_SetupCamera(0);
 
     g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
     g_Supervisor.d3dDevice->Clear(0, NULL, D3DCLEAR_ZBUFFER, g_Stage.skyFog.color, 1.0f, 0);
@@ -188,7 +188,7 @@ ChainCallbackResult GameManager::OnUpdate(GameManager *gameManager)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ChainCallbackResult GameManager::OnDraw(GameManager *gameManager)
+ChainCallbackResult GameManager_OnDraw(GameManager *gameManager)
 {
     if (gameManager->isInGameMenu)
     {
@@ -197,13 +197,13 @@ ChainCallbackResult GameManager::OnDraw(GameManager *gameManager)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ZunResult GameManager::RegisterChain()
+ZunResult GameManager_RegisterChain()
 {
     GameManager *mgr = &g_GameManager;
 
-    g_GameManagerCalcChain.SetCallback((ChainCallback)GameManager::OnUpdate);
-    g_GameManagerCalcChain.addedCallback = (ChainAddedCallback)GameManager::AddedCallback;
-    g_GameManagerCalcChain.deletedCallback = (ChainDeletedCallback)GameManager::DeletedCallback;
+    g_GameManagerCalcChain.SetCallback((ChainCallback)GameManager_OnUpdate);
+    g_GameManagerCalcChain.addedCallback = (ChainAddedCallback)GameManager_AddedCallback;
+    g_GameManagerCalcChain.deletedCallback = (ChainDeletedCallback)GameManager_DeletedCallback;
     g_GameManagerCalcChain.arg = mgr;
 
     mgr->gameFrames = 0;
@@ -212,14 +212,14 @@ ZunResult GameManager::RegisterChain()
     {
         return ZUN_ERROR;
     }
-    g_GameManagerDrawChain.SetCallback((ChainCallback)GameManager::OnDraw);
+    g_GameManagerDrawChain.SetCallback((ChainCallback)GameManager_OnDraw);
     g_GameManagerDrawChain.arg = mgr;
     g_Chain.AddToDrawChain(&g_GameManagerDrawChain, TH_CHAIN_PRIO_DRAW_GAMEMANAGER);
     return ZUN_SUCCESS;
 }
 
 #pragma var_order(failedToLoadReplay, catk, i, catkCursor, scoredat, clrdIdx, pad)
-ZunResult GameManager::AddedCallback(GameManager *mgr)
+ZunResult GameManager_AddedCallback(GameManager *mgr)
 {
     static const char *g_EclFiles[] = {"dummy",
                                        "data/ecldata1.ecl",
@@ -323,15 +323,14 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
         }
         scoredat = OpenScore("score.dat");
         g_GameManager.highScore =
-            GetHighScore(scoredat, NULL, g_GameManager.CharacterShotType(), g_GameManager.difficulty);
+            GetHighScore(scoredat, NULL, GameManager_CharacterShotType(), g_GameManager.difficulty);
         ParseCatk(scoredat, mgr->catk);
         ParseClrd(scoredat, mgr->clrd);
         ParsePscr(scoredat, (Pscr *)mgr->pscr);
         if (mgr->isInPracticeMode)
         {
             g_GameManager.highScore =
-                mgr->pscr[g_GameManager.CharacterShotType()][g_GameManager.currentStage][g_GameManager.difficulty]
-                    .score;
+                mgr->pscr[GameManager_CharacterShotType()][g_GameManager.currentStage][g_GameManager.difficulty].score;
         }
         ReleaseScoreDat(scoredat);
         mgr->rank = g_DifficultyInfo[g_GameManager.difficulty].rank;
@@ -353,7 +352,7 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
     mgr->currentStage++;
     if (!g_GameManager.isInReplay)
     {
-        clrdIdx = g_GameManager.CharacterShotType();
+        clrdIdx = GameManager_CharacterShotType();
         if (mgr->numRetries == 0 &&
             mgr->clrd[clrdIdx].difficultyClearedWithRetries[g_GameManager.difficulty] < mgr->currentStage - 1)
         {
@@ -381,7 +380,7 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
     g_Supervisor.LoadPbg3(ST_PBG3_INDEX, TH_ST_DAT_FILE);
     if (g_GameManager.isInReplay == TRUE)
     {
-        if (ReplayManager::RegisterChain(true, g_GameManager.replayFile) != ZUN_SUCCESS)
+        if (ReplayManager_RegisterChain(true, g_GameManager.replayFile) != ZUN_SUCCESS)
         {
             failedToLoadReplay = true;
         }
@@ -394,23 +393,23 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
     }
     g_Rng.generationCount = 0;
     mgr->randomSeed = g_Rng.seed;
-    if (Stage::RegisterChain(mgr->currentStage) != ZUN_SUCCESS)
+    if (Stage_RegisterChain(mgr->currentStage) != ZUN_SUCCESS)
     {
         g_GameErrorContext.Log(TH_ERR_GAMEMANAGER_FAILED_TO_INITIALIZE_STAGE);
         return ZUN_ERROR;
     }
 
-    if (Player::RegisterChain(0) != ZUN_SUCCESS)
+    if (Player_RegisterChain(0) != ZUN_SUCCESS)
     {
         g_GameErrorContext.Log(TH_ERR_GAMEMANAGER_FAILED_TO_INITIALIZE_PLAYER);
         return ZUN_ERROR;
     }
-    if (BulletManager::RegisterChain("data/etama.anm") != ZUN_SUCCESS)
+    if (BulletManager_RegisterChain("data/etama.anm") != ZUN_SUCCESS)
     {
         g_GameErrorContext.Log(TH_ERR_GAMEMANAGER_FAILED_TO_INITIALIZE_BULLETMANAGER);
         return ZUN_ERROR;
     }
-    if (EnemyManager::RegisterChain(g_AnmStageFiles[mgr->currentStage][0], g_AnmStageFiles[mgr->currentStage][1]) !=
+    if (EnemyManager_RegisterChain(g_AnmStageFiles[mgr->currentStage][0], g_AnmStageFiles[mgr->currentStage][1]) !=
         ZUN_SUCCESS)
     {
         g_GameErrorContext.Log(TH_ERR_GAMEMANAGER_FAILED_TO_INITIALIZE_ENEMYMANAGER);
@@ -421,19 +420,19 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
         g_GameErrorContext.Log(TH_ERR_GAMEMANAGER_FAILED_TO_INITIALIZE_ECLMANAGER);
         return ZUN_ERROR;
     }
-    if (EffectManager::RegisterChain() != ZUN_SUCCESS)
+    if (EffectManager_RegisterChain() != ZUN_SUCCESS)
     {
         g_GameErrorContext.Log(TH_ERR_GAMEMANAGER_FAILED_TO_INITIALIZE_EFFECTMANAGER);
         return ZUN_ERROR;
     }
-    if (Gui::RegisterChain() != ZUN_SUCCESS)
+    if (Gui_RegisterChain() != ZUN_SUCCESS)
     {
         g_GameErrorContext.Log(TH_ERR_GAMEMANAGER_FAILED_TO_INITIALIZE_GUI);
         return ZUN_ERROR;
     }
     if (!g_GameManager.isInReplay)
     {
-        ReplayManager::RegisterChain(false, "replay/th6_00.rpy");
+        ReplayManager_RegisterChain(false, "replay/th6_00.rpy");
     }
     if (!g_GameManager.demoMode)
     {
@@ -463,7 +462,7 @@ ZunResult GameManager::AddedCallback(GameManager *mgr)
     return ZUN_SUCCESS;
 }
 
-ZunResult GameManager::DeletedCallback(GameManager *mgr)
+ZunResult GameManager_DeletedCallback(GameManager *mgr)
 {
     // TODO: Fake padding from g_AsciiManager.InitializeVms,
     // but not currently known how to make that link correctly
@@ -475,27 +474,27 @@ ZunResult GameManager::DeletedCallback(GameManager *mgr)
     {
         g_Supervisor.StopAudio();
     }
-    Stage::CutChain();
-    BulletManager::CutChain();
-    Player::CutChain();
-    EnemyManager::CutChain();
+    Stage_CutChain();
+    BulletManager_CutChain();
+    Player_CutChain();
+    EnemyManager_CutChain();
     g_EclManager.Unload();
-    EffectManager::CutChain();
-    Gui::CutChain();
-    ReplayManager::StopRecording();
+    EffectManager_CutChain();
+    Gui_CutChain();
+    ReplayManager_StopRecording();
     mgr->isInMenu = false;
     g_AsciiManager.InitializeVms();
     return ZUN_SUCCESS;
 }
 
-void GameManager::CutChain()
+void GameManager_CutChain()
 {
     g_Chain.Cut(&g_GameManagerCalcChain);
     g_Chain.Cut(&g_GameManagerDrawChain);
 }
 
 #pragma var_order(cameraDistance, viewportMiddleHeight, viewportMiddleWidth, aspectRatio, fov)
-void GameManager::SetupCameraStageBackground(f32 extraRenderDistance)
+void GameManager_SetupCameraStageBackground(f32 extraRenderDistance)
 {
     f32 fov;
     f32 aspectRatio;
@@ -519,7 +518,7 @@ void GameManager::SetupCameraStageBackground(f32 extraRenderDistance)
 }
 
 #pragma var_order(cameraDistance, viewportMiddleHeight, viewportMiddleWidth, aspectRatio, fov)
-void GameManager::SetupCamera(f32 extraRenderDistance)
+void GameManager_SetupCamera(f32 extraRenderDistance)
 {
     f32 fov;
     f32 aspectRatio;

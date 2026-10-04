@@ -13,6 +13,13 @@
 
 namespace th06
 {
+static LRESULT CALLBACK GameWindow_WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+static void GameWindow_InitD3dDevice();
+static i32 GameWindow_InitD3dRendering();
+static void GameWindow_CreateGameWindow(HINSTANCE hInstance);
+static i32 GameWindow_InitD3dInterface();
+static void GameWindow_Present();
+
 DIFFABLE_STATIC_SORTED(L1, GameWindow, g_GameWindow);
 DIFFABLE_STATIC_SORTED(L2, i32, g_TickCountToEffectiveFramerate);
 DIFFABLE_STATIC_SORTED(L3, f64, g_LastFrameTime);
@@ -51,7 +58,7 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPST
         return -1;
     }
 
-    if (GameWindow::InitD3dInterface())
+    if (GameWindow_InitD3dInterface())
     {
         g_GameErrorContext.Flush();
         return 1;
@@ -65,9 +72,9 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPST
     SystemParametersInfo(SPI_SETPOWEROFFACTIVE, 0, NULL, SPIF_SENDCHANGE);
 
 restart:
-    GameWindow::CreateGameWindow(hInstance);
+    GameWindow_CreateGameWindow(hInstance);
 
-    if (GameWindow::InitD3dRendering())
+    if (GameWindow_InitD3dRendering())
     {
         g_GameErrorContext.Flush();
         return 1;
@@ -79,7 +86,7 @@ restart:
 
     g_AnmManager = ZUN_NEW(AnmManager);
 
-    if (Supervisor::RegisterChain() != ZUN_SUCCESS)
+    if (Supervisor_RegisterChain() != ZUN_SUCCESS)
     {
     }
     else
@@ -120,7 +127,7 @@ restart:
                     {
                         break;
                     }
-                    GameWindow::InitD3dDevice();
+                    GameWindow_InitD3dDevice();
                     g_Supervisor.forceRedrawFrames = 3;
                 }
             }
@@ -251,12 +258,12 @@ RenderResult GameWindow::Render()
     {
         if (g_Supervisor.cfg.frameskipConfig >= this->curFrame)
         {
-            Present();
+            GameWindow_Present();
             goto LOOP_USING_GOTO_BECAUSE_WHY_NOT;
         }
 
     I_HAVE_NO_CLUE_WHY_BUT_I_MUST_JUMP_HERE:
-        Present();
+        GameWindow_Present();
         if (g_Supervisor.framerateMultiplier == 0.0f)
         {
 #pragma var_order(delta, curtime)
@@ -299,13 +306,13 @@ RenderResult GameWindow::Render()
     return RENDER_RESULT_KEEP_RUNNING;
 }
 
-void GameWindow::Present()
+static void GameWindow_Present()
 {
     if (FAILED(g_Supervisor.d3dDevice->Present(NULL, NULL, NULL, NULL)))
     {
         g_AnmManager->ReleaseSurfaces();
         g_Supervisor.d3dDevice->Reset(&g_Supervisor.presentParameters);
-        InitD3dDevice();
+        GameWindow_InitD3dDevice();
         g_Supervisor.forceRedrawFrames = 2;
     }
     g_AnmManager->TakeScreenshotIfRequested();
@@ -315,7 +322,7 @@ void GameWindow::Present()
     }
 }
 
-i32 GameWindow::InitD3dInterface(void)
+static i32 GameWindow_InitD3dInterface(void)
 {
     g_Supervisor.d3dIface = Direct3DCreate8(D3D_SDK_VERSION);
 
@@ -327,7 +334,7 @@ i32 GameWindow::InitD3dInterface(void)
     return 0;
 }
 
-void GameWindow::CreateGameWindow(HINSTANCE hInstance)
+static void GameWindow_CreateGameWindow(HINSTANCE hInstance)
 {
     WNDCLASS base_class;
     i32 width;
@@ -338,7 +345,7 @@ void GameWindow::CreateGameWindow(HINSTANCE hInstance)
     base_class.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
     base_class.hCursor = LoadCursor(NULL, IDC_ARROW);
     base_class.hInstance = hInstance;
-    base_class.lpfnWndProc = WindowProc;
+    base_class.lpfnWndProc = GameWindow_WindowProc;
     g_GameWindow.isAppActive = false;
     g_GameWindow.showCursor = false;
     base_class.lpszClassName = "BASE";
@@ -360,7 +367,7 @@ void GameWindow::CreateGameWindow(HINSTANCE hInstance)
     g_Supervisor.hwndGameWindow = g_GameWindow.window;
 }
 
-LRESULT CALLBACK GameWindow::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK GameWindow_WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg)
     {
@@ -411,7 +418,7 @@ LRESULT CALLBACK GameWindow::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 
 #pragma var_order(using_d3d_hal, display_mode, present_params, camera_distance, half_height, half_width, aspect_ratio, \
                   field_of_view_y)
-i32 GameWindow::InitD3dRendering(void)
+static i32 GameWindow_InitD3dRendering(void)
 {
     u8 using_d3d_hal;
     D3DPRESENT_PARAMETERS present_params;
@@ -594,8 +601,8 @@ i32 GameWindow::InitD3dRendering(void)
             g_GameErrorContext.Log(TH_ERR_D3DFMT_A8R8G8B8_UNSUPPORTED);
         }
     }
-    InitD3dDevice();
-    ScreenEffect::SetViewport(0);
+    GameWindow_InitD3dDevice();
+    ScreenEffect_SetViewport(0);
     g_GameWindow.isAppClosing = false;
     g_Supervisor.lastFrameTime = 0;
     g_Supervisor.framerateMultiplier = 0.0f;
@@ -603,7 +610,7 @@ i32 GameWindow::InitD3dRendering(void)
 }
 
 #pragma var_order(fogVal, fogDensity)
-void GameWindow::InitD3dDevice(void)
+static void GameWindow_InitD3dDevice(void)
 {
     f32 fogVal;
     f32 fogDensity;

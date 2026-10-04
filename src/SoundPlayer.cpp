@@ -7,6 +7,8 @@
 
 namespace th06
 {
+static DWORD WINAPI SoundPlayer_BackgroundMusicPlayerThread(LPVOID lpThreadParameter);
+
 FILE_BSS_SORT(S1);
 
 #define BACKGROUND_MUSIC_BUFFER_SIZE 0x8000
@@ -278,7 +280,7 @@ ZunResult SoundPlayer::LoadWav(char *path)
         numSamplesPerSec * BACKGROUND_MUSIC_STREAM_SECONDS * blockAlign / BACKGROUND_MUSIC_STREAM_NOTIFICATIONS;
     notifySize -= (notifySize % blockAlign);
     this->backgroundMusicUpdateEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-    this->backgroundMusicThreadHandle = CreateThread(NULL, 0, SoundPlayer::BackgroundMusicPlayerThread,
+    this->backgroundMusicThreadHandle = CreateThread(NULL, 0, SoundPlayer_BackgroundMusicPlayerThread,
                                                      g_Supervisor.hwndGameWindow, 0, &this->backgroundMusicThreadId);
     res = this->manager->CreateStreaming(
         &this->backgroundMusic, path, DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_CTRLPOSITIONNOTIFY, GUID_NULL,
@@ -480,7 +482,7 @@ void SoundPlayer::PlaySounds()
 }
 
 #pragma var_order(msg, looped, lpThreadParameterCopy, waitObj, res, stopped)
-DWORD WINAPI SoundPlayer::BackgroundMusicPlayerThread(LPVOID lpThreadParameter)
+static DWORD WINAPI SoundPlayer_BackgroundMusicPlayerThread(LPVOID lpThreadParameter)
 {
     DWORD waitObj;
     MSG msg;

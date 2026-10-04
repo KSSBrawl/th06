@@ -13,23 +13,23 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(EffectInfo, 20, g_Effects) = {
     {ANM_SCRIPT_BULLET4_SPAWN_BUBBLE_EXPLOSION_SMALL, NULL},
     {ANM_SCRIPT_BULLET4_SPAWN_BUBBLE_EXPLOSION_SPIRAL, NULL},
     {ANM_SCRIPT_BULLET4_SPAWN_BUBBLE_EXPLOSION_NORMAL, NULL},
-    {ANM_SCRIPT_BULLET4_SPAWN_GLOW_1, EffectManager::EffectCallbackRandomSplashBig},
-    {ANM_SCRIPT_BULLET4_SPAWN_WHITE_PARTICLE, EffectManager::EffectCallbackRandomSplash},
-    {ANM_SCRIPT_BULLET4_SPAWN_RED_PARTICLE, EffectManager::EffectCallbackRandomSplash},
-    {ANM_SCRIPT_BULLET4_SPAWN_GREEN_PARTICLE, EffectManager::EffectCallbackRandomSplash},
-    {ANM_SCRIPT_BULLET4_SPAWN_BLUE_PARTICLE, EffectManager::EffectCallbackRandomSplash},
-    {ANM_SCRIPT_BULLET4_SPAWN_WHITE_PARTICLE_SMALL, EffectManager::EffectCallbackRandomSplash},
-    {ANM_SCRIPT_BULLET4_SPAWN_RED_PARTICLE_SMALL, EffectManager::EffectCallbackRandomSplash},
-    {ANM_SCRIPT_BULLET4_SPAWN_GREEN_PARTICLE_SMALL, EffectManager::EffectCallbackRandomSplash},
-    {ANM_SCRIPT_BULLET4_SPAWN_BLUE_PARTICLE_SMALL, EffectManager::EffectCallbackRandomSplash},
+    {ANM_SCRIPT_BULLET4_SPAWN_GLOW_1, Effect_RandomSplashBig},
+    {ANM_SCRIPT_BULLET4_SPAWN_WHITE_PARTICLE, Effect_RandomSplash},
+    {ANM_SCRIPT_BULLET4_SPAWN_RED_PARTICLE, Effect_RandomSplash},
+    {ANM_SCRIPT_BULLET4_SPAWN_GREEN_PARTICLE, Effect_RandomSplash},
+    {ANM_SCRIPT_BULLET4_SPAWN_BLUE_PARTICLE, Effect_RandomSplash},
+    {ANM_SCRIPT_BULLET4_SPAWN_WHITE_PARTICLE_SMALL, Effect_RandomSplash},
+    {ANM_SCRIPT_BULLET4_SPAWN_RED_PARTICLE_SMALL, Effect_RandomSplash},
+    {ANM_SCRIPT_BULLET4_SPAWN_GREEN_PARTICLE_SMALL, Effect_RandomSplash},
+    {ANM_SCRIPT_BULLET4_SPAWN_BLUE_PARTICLE_SMALL, Effect_RandomSplash},
     {ANM_SCRIPT_BULLET4_SCRIPT_17, NULL},
-    {ANM_SCRIPT_BULLET4_SCRIPT_18, EffectManager::EffectUpdateCallback4},
-    {ANM_SCRIPT_BULLET4_SCRIPT_18, EffectManager::EffectUpdateCallback4},
-    {ANM_SCRIPT_BULLET4_SCRIPT_18, EffectManager::EffectUpdateCallback4},
+    {ANM_SCRIPT_BULLET4_SCRIPT_18, EffectManager_UpdateCallback4},
+    {ANM_SCRIPT_BULLET4_SCRIPT_18, EffectManager_UpdateCallback4},
+    {ANM_SCRIPT_BULLET4_SCRIPT_18, EffectManager_UpdateCallback4},
     {ANM_SCRIPT_EFFECTS_SPELLCARD_BACKGROUND, NULL},
-    {ANM_SCRIPT_BULLET4_SPAWN_GLOW_2, EffectManager::EffectCallbackAttract},
-    {ANM_SCRIPT_BULLET4_SPAWN_GLOW_3, EffectManager::EffectCallbackAttractSlow},
-    {ANM_SCRIPT_BULLET4_SCRIPT_19, EffectManager::EffectCallbackStill},
+    {ANM_SCRIPT_BULLET4_SPAWN_GLOW_2, Effect_Attract},
+    {ANM_SCRIPT_BULLET4_SPAWN_GLOW_3, Effect_AttractSlow},
+    {ANM_SCRIPT_BULLET4_SCRIPT_19, Effect_Still},
 };
 
 DIFFABLE_STATIC_SORTED(D1, EffectManager, g_EffectManager);
@@ -41,7 +41,7 @@ void EffectManager::Reset()
     memset(this, 0, sizeof(*this));
 }
 
-EffectCallbackResult EffectManager::EffectCallbackRandomSplash(Effect *effect)
+EffectCallbackResult Effect_RandomSplash(Effect *effect)
 {
     if (effect->timer == 0 && effect->timer.HasTicked())
     {
@@ -58,7 +58,7 @@ EffectCallbackResult EffectManager::EffectCallbackRandomSplash(Effect *effect)
     return EFFECT_CALLBACK_RESULT_DONE;
 }
 
-EffectCallbackResult EffectManager::EffectCallbackRandomSplashBig(Effect *effect)
+EffectCallbackResult Effect_RandomSplashBig(Effect *effect)
 {
     if (effect->timer == 0 && effect->timer.HasTicked())
     {
@@ -75,7 +75,7 @@ EffectCallbackResult EffectManager::EffectCallbackRandomSplashBig(Effect *effect
     return EFFECT_CALLBACK_RESULT_DONE;
 }
 
-EffectCallbackResult EffectManager::EffectCallbackStill(Effect *effect)
+EffectCallbackResult Effect_Still(Effect *effect)
 {
     effect->pos1 += effect->unk_11c * g_Supervisor.effectiveFramerateMultiplier;
     effect->unk_11c += effect->unk_128 * g_Supervisor.effectiveFramerateMultiplier;
@@ -84,7 +84,7 @@ EffectCallbackResult EffectManager::EffectCallbackStill(Effect *effect)
 }
 
 #pragma var_order(posOffset, verticalAngle, matrix, horizontalAngle, normalizedPos)
-EffectCallbackResult EffectManager::EffectUpdateCallback4(Effect *effect)
+EffectCallbackResult EffectManager_UpdateCallback4(Effect *effect)
 {
     D3DXVECTOR3 posOffset;
     f32 verticalAngle;
@@ -141,7 +141,7 @@ EffectCallbackResult EffectManager::EffectUpdateCallback4(Effect *effect)
     return EFFECT_CALLBACK_RESULT_DONE;
 }
 
-EffectCallbackResult EffectManager::EffectCallbackAttract(Effect *effect)
+EffectCallbackResult Effect_Attract(Effect *effect)
 {
     f32 angle;
 
@@ -162,7 +162,7 @@ EffectCallbackResult EffectManager::EffectCallbackAttract(Effect *effect)
     return EFFECT_CALLBACK_RESULT_DONE;
 }
 
-EffectCallbackResult EffectManager::EffectCallbackAttractSlow(Effect *effect)
+EffectCallbackResult Effect_AttractSlow(Effect *effect)
 {
     f32 angle;
 
@@ -239,7 +239,7 @@ Effect *EffectManager::SpawnParticles(i32 effectIdx, D3DXVECTOR3 *pos, i32 count
     return idx >= MAX_EFFECT_COUNT ? &this->effects[MAX_EFFECT_COUNT] : effect;
 }
 
-ChainCallbackResult EffectManager::OnUpdate(EffectManager *mgr)
+ChainCallbackResult EffectManager_OnUpdate(EffectManager *mgr)
 {
     i32 effectIdx;
     Effect *effect;
@@ -270,7 +270,7 @@ ChainCallbackResult EffectManager::OnUpdate(EffectManager *mgr)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ChainCallbackResult EffectManager::OnDraw(EffectManager *mgr)
+ChainCallbackResult EffectManager_OnDraw(EffectManager *mgr)
 {
     i32 effectIdx;
     Effect *effect;
@@ -290,7 +290,7 @@ ChainCallbackResult EffectManager::OnDraw(EffectManager *mgr)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ZunResult EffectManager::AddedCallback(EffectManager *mgr)
+ZunResult EffectManager_AddedCallback(EffectManager *mgr)
 {
     mgr->Reset();
     switch (g_GameManager.currentStage)
@@ -342,23 +342,23 @@ ZunResult EffectManager::AddedCallback(EffectManager *mgr)
     return ZUN_SUCCESS;
 }
 
-ZunResult EffectManager::DeletedCallback(EffectManager *p)
+ZunResult EffectManager_DeletedCallback(EffectManager *p)
 {
     g_AnmManager->ReleaseAnm(ANM_FILE_EFFECTS);
 
     return ZUN_SUCCESS;
 }
 
-ZunResult EffectManager::RegisterChain()
+ZunResult EffectManager_RegisterChain()
 {
     EffectManager *mgr = &g_EffectManager;
     mgr->Reset();
 
-    g_EffectManagerCalcChain.callback = (ChainCallback)mgr->OnUpdate;
+    g_EffectManagerCalcChain.callback = (ChainCallback)EffectManager_OnUpdate;
     g_EffectManagerCalcChain.addedCallback = NULL;
     g_EffectManagerCalcChain.deletedCallback = NULL;
-    g_EffectManagerCalcChain.addedCallback = (ChainAddedCallback)mgr->AddedCallback;
-    g_EffectManagerCalcChain.deletedCallback = (ChainAddedCallback)mgr->DeletedCallback;
+    g_EffectManagerCalcChain.addedCallback = (ChainAddedCallback)EffectManager_AddedCallback;
+    g_EffectManagerCalcChain.deletedCallback = (ChainAddedCallback)EffectManager_DeletedCallback;
     g_EffectManagerCalcChain.arg = mgr;
 
     if (g_Chain.AddToCalcChain(&g_EffectManagerCalcChain, TH_CHAIN_PRIO_CALC_EFFECTMANAGER) != ZUN_SUCCESS)
@@ -366,7 +366,7 @@ ZunResult EffectManager::RegisterChain()
         return ZUN_ERROR;
     }
 
-    g_EffectManagerDrawChain.callback = (ChainCallback)mgr->OnDraw;
+    g_EffectManagerDrawChain.callback = (ChainCallback)EffectManager_OnDraw;
     g_EffectManagerDrawChain.addedCallback = NULL;
     g_EffectManagerDrawChain.deletedCallback = NULL;
     g_EffectManagerDrawChain.arg = mgr;
@@ -375,7 +375,7 @@ ZunResult EffectManager::RegisterChain()
     return ZUN_SUCCESS;
 }
 
-void EffectManager::CutChain()
+void EffectManager_CutChain()
 {
     g_Chain.Cut(&g_EffectManagerCalcChain);
     g_Chain.Cut(&g_EffectManagerDrawChain);

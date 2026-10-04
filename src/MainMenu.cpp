@@ -80,18 +80,7 @@ struct MainMenu
     ZunBool WeirdSecondInputCheck();
     void ColorMenuItem(AnmVm *, i32, i32, i32);
 
-    static ZunResult LoadTitleAnm(MainMenu *menu);
-
     i32 ReplayHandling();
-    static ZunResult LoadReplayMenu(MainMenu *menu);
-
-    static ChainCallbackResult OnUpdate(MainMenu *s);
-    static ChainCallbackResult OnDraw(MainMenu *s);
-    static ZunResult AddedCallback(MainMenu *s);
-    static ZunResult DeletedCallback(MainMenu *s);
-    static ZunResult LoadDiffCharSelect(MainMenu *s);
-
-    static void ReleaseTitleAnm();
 
     AnmVm vm[122];
     i32 cursor;
@@ -131,6 +120,15 @@ struct MainMenu
 };
 ZUN_ASSERT_TYPE(MainMenu, 0x10f34, 4);
 
+ZunResult MainMenu_LoadTitleAnm(MainMenu *menu);
+ZunResult MainMenu_LoadReplayMenu(MainMenu *menu);
+ChainCallbackResult MainMenu_OnUpdate(MainMenu *s);
+ChainCallbackResult MainMenu_OnDraw(MainMenu *s);
+ZunResult MainMenu_AddedCallback(MainMenu *s);
+ZunResult MainMenu_DeletedCallback(MainMenu *s);
+ZunResult MainMenu_LoadDiffCharSelect(MainMenu *s);
+void MainMenu_ReleaseTitleAnm();
+
 static CursorMovement MoveCursor(MainMenu *menu, i32 menuLength);
 static void SwapMapping(MainMenu *menu, i16 btnPressed, i16 oldMapping, ZunBool unk);
 static void DrawMenuItem(AnmVm *vm, i32 itemNumber, i32 cursor, D3DCOLOR activeItemColor, D3DCOLOR inactiveItemColor,
@@ -145,7 +143,7 @@ DIFFABLE_STATIC_ASSIGN(i16, g_LastJoystickInput) = TH_BUTTON_DOWN; // why???
 #define MENU_VMS_SHOTTYPE_SELECT 92
 
 #pragma var_order(i, vmList, time, deltaTime, deltaTimeAsFrames, deltaTimeAsMs, mapping, startedUp)
-ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
+ChainCallbackResult MainMenu_OnUpdate(MainMenu *menu)
 {
     i32 i;
     AnmVm *vmList;
@@ -377,7 +375,7 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
     case STATE_DIFFICULTY_LOAD:
         if (menu->stateTimer == 60)
         {
-            if (LoadDiffCharSelect(menu) != ZUN_SUCCESS)
+            if (MainMenu_LoadDiffCharSelect(menu) != ZUN_SUCCESS)
             {
                 g_GameErrorContext.Log(TH_ERR_MAINMENU_LOAD_SELECT_SCREEN_FAILED);
                 g_Supervisor.curState = SUPERVISOR_STATE_EXITSUCCESS;
@@ -857,10 +855,10 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
                 }
             }
             menu->cursor = g_GameManager.menuCursorBackup;
-            i32 local_4c = g_GameManager.clrd[g_GameManager.CharacterShotType()]
+            i32 local_4c = g_GameManager.clrd[GameManager_CharacterShotType()]
                                        .difficultyClearedWithoutRetries[g_GameManager.difficulty] > 6
                                ? 6
-                               : g_GameManager.clrd[g_GameManager.CharacterShotType()]
+                               : g_GameManager.clrd[GameManager_CharacterShotType()]
                                      .difficultyClearedWithoutRetries[g_GameManager.difficulty];
             if (g_GameManager.difficulty == EASY && local_4c == 6)
             {
@@ -873,10 +871,10 @@ ChainCallbackResult MainMenu::OnUpdate(MainMenu *menu)
         }
         break;
     case STATE_PRACTICE_LVL_SELECT: {
-        u32 chosenStage = g_GameManager.clrd[g_GameManager.CharacterShotType()]
+        u32 chosenStage = g_GameManager.clrd[GameManager_CharacterShotType()]
                                       .difficultyClearedWithoutRetries[g_GameManager.difficulty] > 6
                               ? 6
-                              : g_GameManager.clrd[g_GameManager.CharacterShotType()]
+                              : g_GameManager.clrd[GameManager_CharacterShotType()]
                                     .difficultyClearedWithoutRetries[g_GameManager.difficulty];
         if (g_GameManager.difficulty == EASY && chosenStage == 6)
         {
@@ -1074,7 +1072,7 @@ ZunResult MainMenu::BeginStartup()
     DWORD time;
     i32 i;
 
-    if (LoadTitleAnm(this) != ZUN_SUCCESS)
+    if (MainMenu_LoadTitleAnm(this) != ZUN_SUCCESS)
     {
         g_Supervisor.curState = SUPERVISOR_STATE_EXITSUCCESS;
         return ZUN_ERROR;
@@ -1353,7 +1351,7 @@ i32 MainMenu::ReplayHandling()
     case STATE_REPLAY_LOAD:
         if (this->stateTimer == 60)
         {
-            if (LoadReplayMenu(this))
+            if (MainMenu_LoadReplayMenu(this))
             {
                 g_GameErrorContext.Log(TH_ERR_MAINMENU_LOAD_SELECT_SCREEN_FAILED);
                 g_Supervisor.curState = SUPERVISOR_STATE_EXITSUCCESS;
@@ -1370,7 +1368,7 @@ i32 MainMenu::ReplayHandling()
                     {
                         continue;
                     }
-                    if (!ReplayManager::ValidateReplayData(replayData, g_LastFileSize))
+                    if (!ReplayManager_ValidateReplayData(replayData, g_LastFileSize))
                     {
                         this->replayFileData[replayFileIdx] = *replayData;
                         strcpy(this->replayFilePaths[replayFileIdx], replayFilePath);
@@ -1391,7 +1389,7 @@ i32 MainMenu::ReplayHandling()
                         {
                             continue;
                         }
-                        if (!ReplayManager::ValidateReplayData(replayData, g_LastFileSize))
+                        if (!ReplayManager_ValidateReplayData(replayData, g_LastFileSize))
                         {
                             this->replayFileData[replayFileIdx] = *replayData;
                             sprintf(this->replayFilePaths[replayFileIdx], "./replay/%s", replayFileInfo.cFileName);
@@ -1451,7 +1449,7 @@ i32 MainMenu::ReplayHandling()
                 g_SoundPlayer.PlaySoundByIdx(SOUND_SELECT);
                 this->currentReplay =
                     (ReplayData *)FileSystem::OpenPath(this->replayFilePaths[this->chosenReplay], EXTERNAL_FILE);
-                ReplayManager::ValidateReplayData(this->currentReplay, g_LastFileSize);
+                ReplayManager_ValidateReplayData(this->currentReplay, g_LastFileSize);
                 for (cur = 0; cur < ARRAY_SIZE_SIGNED(this->currentReplay->stageReplayData); cur++)
                 {
                     if (this->currentReplay->stageReplayData[cur] != NULL)
@@ -2025,7 +2023,7 @@ ZunResult MainMenu::ChoosePracticeLevel()
 }
 
 #pragma var_order(targetOpacity, window, vmIdx, curVm)
-ChainCallbackResult MainMenu::OnDraw(MainMenu *menu)
+ChainCallbackResult MainMenu_OnDraw(MainMenu *menu)
 {
     AnmVm *curVm;
     i32 vmIdx;
@@ -2053,7 +2051,7 @@ ChainCallbackResult MainMenu::OnDraw(MainMenu *menu)
             menu->numFramesSinceActive++;
         }
         targetOpacity = COLOR_ALPHA(menu->menuTextColor) - COLOR_ALPHA(menu->minimumOpacity);
-        ScreenEffect::DrawSquare(
+        ScreenEffect_DrawSquare(
             &window,
             COLOR_SET_ALPHA(menu->menuTextColor, targetOpacity * menu->numFramesSinceActive / menu->framesActive +
                                                      COLOR_ALPHA(menu->minimumOpacity)));
@@ -2062,7 +2060,7 @@ ChainCallbackResult MainMenu::OnDraw(MainMenu *menu)
     {
         menu->numFramesSinceActive--;
         targetOpacity = COLOR_ALPHA(menu->menuTextColor) - COLOR_ALPHA(menu->minimumOpacity);
-        ScreenEffect::DrawSquare(
+        ScreenEffect_DrawSquare(
             &window,
             COLOR_SET_ALPHA(menu->menuTextColor, targetOpacity * menu->numFramesSinceActive / menu->framesInactive +
                                                      COLOR_ALPHA(menu->minimumOpacity)));
@@ -2089,7 +2087,7 @@ ChainCallbackResult MainMenu::OnDraw(MainMenu *menu)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ZunResult MainMenu::LoadTitleAnm(MainMenu *menu)
+ZunResult MainMenu_LoadTitleAnm(MainMenu *menu)
 {
     i32 i;
 
@@ -2139,7 +2137,7 @@ ZunResult MainMenu::LoadTitleAnm(MainMenu *menu)
     return ZUN_SUCCESS;
 }
 
-ZunResult MainMenu::LoadDiffCharSelect(MainMenu *menu)
+ZunResult MainMenu_LoadDiffCharSelect(MainMenu *menu)
 {
     AnmVm *vm;
     i32 i;
@@ -2209,7 +2207,7 @@ ZunResult MainMenu::LoadDiffCharSelect(MainMenu *menu)
 }
 
 #pragma var_order(fileIdx, vm)
-ZunResult MainMenu::LoadReplayMenu(MainMenu *menu)
+ZunResult MainMenu_LoadReplayMenu(MainMenu *menu)
 {
     AnmVm *vm;
     i32 fileIdx;
@@ -2260,16 +2258,16 @@ ZunResult MainMenu_RegisterChain(ZunBool isDemo)
     utils::DebugPrint(TH_DBG_MAINMENU_VRAM, g_Supervisor.d3dDevice->GetAvailableTextureMem());
     menu->gameState = isDemo ? STATE_REPLAY_LOAD : STATE_STARTUP;
     g_Supervisor.framerateMultiplier = 0.0f;
-    menu->chainCalc = g_Chain.CreateElem((ChainCallback)MainMenu::OnUpdate);
+    menu->chainCalc = g_Chain.CreateElem((ChainCallback)MainMenu_OnUpdate);
     menu->chainCalc->arg = menu;
-    menu->chainCalc->addedCallback = (ChainAddedCallback)MainMenu::AddedCallback;
-    menu->chainCalc->deletedCallback = (ChainDeletedCallback)MainMenu::DeletedCallback;
+    menu->chainCalc->addedCallback = (ChainAddedCallback)MainMenu_AddedCallback;
+    menu->chainCalc->deletedCallback = (ChainDeletedCallback)MainMenu_DeletedCallback;
     menu->stateTimer = 0;
     if (g_Chain.AddToCalcChain(menu->chainCalc, TH_CHAIN_PRIO_CALC_MAINMENU) != ZUN_SUCCESS)
     {
         return ZUN_ERROR;
     }
-    menu->chainDraw = g_Chain.CreateElem((ChainCallback)MainMenu::OnDraw);
+    menu->chainDraw = g_Chain.CreateElem((ChainCallback)MainMenu_OnDraw);
     menu->chainDraw->arg = menu;
     g_Chain.AddToDrawChain(menu->chainDraw, TH_CHAIN_PRIO_DRAW_MAINMENU);
     menu->lastFrameTime = 0;
@@ -2278,7 +2276,7 @@ ZunResult MainMenu_RegisterChain(ZunBool isDemo)
     return ZUN_SUCCESS;
 }
 
-ZunResult MainMenu::AddedCallback(MainMenu *menu)
+ZunResult MainMenu_AddedCallback(MainMenu *menu)
 {
 #if !TRIALBUILD
     if (!g_GameManager.demoMode)
@@ -2341,11 +2339,11 @@ ZunResult MainMenu::AddedCallback(MainMenu *menu)
         if (g_Supervisor.startupTimeBeforeMenuMusic == 0)
         {
             g_Supervisor.PlayAudio("bgm/th06_01.mid");
-            ScreenEffect::RegisterChain(SCREEN_EFFECT_FADE_IN, 120, 0xffffff, 0, 0);
+            ScreenEffect_RegisterChain(SCREEN_EFFECT_FADE_IN, 120, 0xffffff, 0, 0);
         }
         else
         {
-            ScreenEffect::RegisterChain(SCREEN_EFFECT_FADE_IN, 200, 0xffffff, 0, 0);
+            ScreenEffect_RegisterChain(SCREEN_EFFECT_FADE_IN, 200, 0xffffff, 0, 0);
         }
     }
     g_GameManager.demoMode = false;
@@ -2353,10 +2351,10 @@ ZunResult MainMenu::AddedCallback(MainMenu *menu)
     return ZUN_SUCCESS;
 }
 
-ZunResult MainMenu::DeletedCallback(MainMenu *menu)
+ZunResult MainMenu_DeletedCallback(MainMenu *menu)
 {
     g_Supervisor.d3dDevice->ResourceManagerDiscardBytes(0);
-    MainMenu::ReleaseTitleAnm();
+    MainMenu_ReleaseTitleAnm();
     for (i32 i = ANM_FILE_SELECT01; i <= ANM_FILE_REPLAY; i++)
     {
         g_AnmManager->ReleaseAnm(i);
@@ -2370,7 +2368,7 @@ ZunResult MainMenu::DeletedCallback(MainMenu *menu)
     return ZUN_SUCCESS;
 }
 
-void MainMenu::ReleaseTitleAnm()
+void MainMenu_ReleaseTitleAnm()
 {
     // There's a bit of an off-by-one error here, where it frees
     // ANM_FILE_SELECT01 in addition to the titles. I'm pretty sure this is

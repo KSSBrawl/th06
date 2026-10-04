@@ -14,6 +14,10 @@
 
 namespace th06
 {
+static ChainCallbackResult BulletManager_OnDraw(BulletManager *mgr);
+static ChainCallbackResult BulletManager_OnUpdate(BulletManager *mgr);
+static ZunResult BulletManager_DeletedCallback(BulletManager *mgr);
+static ZunResult BulletManager_AddedCallback(BulletManager *mgr);
 static void DrawBullet(Bullet *bullet);
 static void DrawBulletNoHwVertex(Bullet *bullet);
 
@@ -604,7 +608,7 @@ Laser *BulletManager::SpawnLaserPattern(EnemyLaserShooter *bulletProps)
     return laser;
 }
 
-ZunResult BulletManager::RegisterChain(const char *bulletAnmPath)
+ZunResult BulletManager_RegisterChain(const char *bulletAnmPath)
 {
     BulletManager *mgr = &g_BulletManager;
 
@@ -619,11 +623,11 @@ ZunResult BulletManager::RegisterChain(const char *bulletAnmPath)
 
     mgr->InitializeToZero();
     mgr->bulletAnmPath = bulletAnmPath;
-    g_BulletManagerCalcChain.callback = (ChainCallback)BulletManager::OnUpdate;
+    g_BulletManagerCalcChain.callback = (ChainCallback)BulletManager_OnUpdate;
     g_BulletManagerCalcChain.addedCallback = NULL;
     g_BulletManagerCalcChain.deletedCallback = NULL;
-    g_BulletManagerCalcChain.addedCallback = (ChainAddedCallback)BulletManager::AddedCallback;
-    g_BulletManagerCalcChain.deletedCallback = (ChainDeletedCallback)BulletManager::DeletedCallback;
+    g_BulletManagerCalcChain.addedCallback = (ChainAddedCallback)BulletManager_AddedCallback;
+    g_BulletManagerCalcChain.deletedCallback = (ChainDeletedCallback)BulletManager_DeletedCallback;
     g_BulletManagerCalcChain.arg = mgr;
 
     if (g_Chain.AddToCalcChain(&g_BulletManagerCalcChain, TH_CHAIN_PRIO_CALC_BULLETMANAGER) != ZUN_SUCCESS)
@@ -631,7 +635,7 @@ ZunResult BulletManager::RegisterChain(const char *bulletAnmPath)
         return ZUN_ERROR;
     }
 
-    g_BulletManagerDrawChain.callback = (ChainCallback)BulletManager::OnDraw;
+    g_BulletManagerDrawChain.callback = (ChainCallback)BulletManager_OnDraw;
     g_BulletManagerDrawChain.addedCallback = NULL;
     g_BulletManagerDrawChain.deletedCallback = NULL;
     g_BulletManagerDrawChain.arg = mgr;
@@ -640,7 +644,7 @@ ZunResult BulletManager::RegisterChain(const char *bulletAnmPath)
 }
 
 #pragma var_order(grazeState, idx, bulletSpeed, length, laserSize, curBullet, laserColor, curLaser, laserCenter)
-ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
+static ChainCallbackResult BulletManager_OnUpdate(BulletManager *mgr)
 {
     D3DXVECTOR3 laserSize;
     i32 laserColor;
@@ -1088,7 +1092,7 @@ ChainCallbackResult BulletManager::OnUpdate(BulletManager *mgr)
 }
 
 #pragma var_order(idx, sine, curLaser, laserOffset, cosine)
-ChainCallbackResult BulletManager::OnDraw(BulletManager *mgr)
+static ChainCallbackResult BulletManager_OnDraw(BulletManager *mgr)
 {
     i32 idx;
     f32 sine;
@@ -1331,7 +1335,7 @@ static void DrawBulletNoHwVertex(Bullet *bullet)
     g_AnmManager->Draw(anmVm);
 }
 
-ZunResult BulletManager::AddedCallback(BulletManager *mgr)
+static ZunResult BulletManager_AddedCallback(BulletManager *mgr)
 {
     u32 idx;
 
@@ -1419,7 +1423,7 @@ ZunResult BulletManager::AddedCallback(BulletManager *mgr)
     return ZUN_SUCCESS;
 }
 
-ZunResult BulletManager::DeletedCallback(BulletManager *arg)
+static ZunResult BulletManager_DeletedCallback(BulletManager *arg)
 {
     if (g_Supervisor.IsNotLoadingNextStage())
     {
@@ -1430,7 +1434,7 @@ ZunResult BulletManager::DeletedCallback(BulletManager *arg)
     return ZUN_SUCCESS;
 }
 
-void BulletManager::CutChain()
+void BulletManager_CutChain()
 {
     g_Chain.Cut(&g_BulletManagerCalcChain);
     g_Chain.Cut(&g_BulletManagerDrawChain);

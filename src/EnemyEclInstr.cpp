@@ -385,7 +385,7 @@ void ExInsBatWingEffect(Enemy *enemy, EclRawInstr *instr)
 
     if (enemy->flags.isInvisible)
     {
-        Enemy::ResetEffectArray(enemy);
+        Enemy_ResetEffectArray(enemy);
         return;
     }
     enemy->exInsFunc6Angle += RADIANS(1.0f);

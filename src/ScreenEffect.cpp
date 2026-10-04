@@ -12,7 +12,7 @@ FILE_BSS_SORT(R1);
 
 DIFFABLE_STATIC(ScreenEffect, g_ScreenEffect); // UNUSED FOREVER
 
-void ScreenEffect::Clear(D3DCOLOR color)
+void ScreenEffect_Clear(D3DCOLOR color)
 {
     g_Supervisor.d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, color, 1.0f, 0);
     if (FAILED(g_Supervisor.d3dDevice->Present(NULL, NULL, NULL, NULL)))
@@ -27,7 +27,7 @@ void ScreenEffect::Clear(D3DCOLOR color)
 }
 
 // Why is this not in GameWindow.cpp? Don't ask me...
-void ScreenEffect::SetViewport(D3DCOLOR color)
+void ScreenEffect_SetViewport(D3DCOLOR color)
 {
     g_Supervisor.viewport.X = 0;
     g_Supervisor.viewport.Y = 0;
@@ -36,10 +36,10 @@ void ScreenEffect::SetViewport(D3DCOLOR color)
     g_Supervisor.viewport.MinZ = 0.0f;
     g_Supervisor.viewport.MaxZ = 1.0f;
     g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
-    ScreenEffect::Clear(color);
+    ScreenEffect_Clear(color);
 }
 
-ChainCallbackResult ScreenEffect::CalcFadeIn(ScreenEffect *effect)
+ChainCallbackResult ScreenEffect_CalcFadeIn(ScreenEffect *effect)
 {
     if (effect->effectLength != 0)
     {
@@ -59,7 +59,7 @@ ChainCallbackResult ScreenEffect::CalcFadeIn(ScreenEffect *effect)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-void ScreenEffect::DrawSquare(ZunRect *rect, D3DCOLOR rectColor)
+void ScreenEffect_DrawSquare(ZunRect *rect, D3DCOLOR rectColor)
 {
     VertexDiffuseXyzrwh vertices[4];
 
@@ -103,7 +103,7 @@ void ScreenEffect::DrawSquare(ZunRect *rect, D3DCOLOR rectColor)
     g_Supervisor.d3dDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESSEQUAL);
 }
 
-ChainCallbackResult ScreenEffect::CalcFadeOut(ScreenEffect *effect)
+ChainCallbackResult ScreenEffect_CalcFadeOut(ScreenEffect *effect)
 {
     if (effect->effectLength != 0)
     {
@@ -124,8 +124,8 @@ ChainCallbackResult ScreenEffect::CalcFadeOut(ScreenEffect *effect)
 }
 
 #pragma var_order(calcChainElem, drawChainElem, createdEffect)
-ScreenEffect *ScreenEffect::RegisterChain(i32 effect, u32 ticks, u32 effectParam1, u32 effectParam2,
-                                          u32 unusedEffectParam)
+ScreenEffect *ScreenEffect_RegisterChain(i32 effect, u32 ticks, u32 effectParam1, u32 effectParam2,
+                                         u32 unusedEffectParam)
 {
     ChainElem *calcChainElem = NULL;
     ChainElem *drawChainElem = NULL;
@@ -142,19 +142,19 @@ ScreenEffect *ScreenEffect::RegisterChain(i32 effect, u32 ticks, u32 effectParam
     switch (effect)
     {
     case SCREEN_EFFECT_FADE_IN:
-        calcChainElem = g_Chain.CreateElem((ChainCallback)ScreenEffect::CalcFadeIn);
-        drawChainElem = g_Chain.CreateElem((ChainCallback)ScreenEffect::DrawFadeIn);
+        calcChainElem = g_Chain.CreateElem((ChainCallback)ScreenEffect_CalcFadeIn);
+        drawChainElem = g_Chain.CreateElem((ChainCallback)ScreenEffect_DrawFadeIn);
         break;
     case SCREEN_EFFECT_SHAKE:
-        calcChainElem = g_Chain.CreateElem((ChainCallback)ScreenEffect::ShakeScreen);
+        calcChainElem = g_Chain.CreateElem((ChainCallback)ScreenEffect_ShakeScreen);
         break;
     case SCREEN_EFFECT_FADE_OUT:
-        calcChainElem = g_Chain.CreateElem((ChainCallback)ScreenEffect::CalcFadeOut);
-        drawChainElem = g_Chain.CreateElem((ChainCallback)ScreenEffect::DrawFadeOut);
+        calcChainElem = g_Chain.CreateElem((ChainCallback)ScreenEffect_CalcFadeOut);
+        drawChainElem = g_Chain.CreateElem((ChainCallback)ScreenEffect_DrawFadeOut);
     }
 
-    calcChainElem->addedCallback = (ChainAddedCallback)ScreenEffect::AddedCallback;
-    calcChainElem->deletedCallback = (ChainAddedCallback)ScreenEffect::DeletedCallback;
+    calcChainElem->addedCallback = (ChainAddedCallback)ScreenEffect_AddedCallback;
+    calcChainElem->deletedCallback = (ChainAddedCallback)ScreenEffect_DeletedCallback;
     calcChainElem->arg = createdEffect;
     createdEffect->usedEffect = (ScreenEffects)effect;
     createdEffect->effectLength = ticks;
@@ -178,7 +178,7 @@ ScreenEffect *ScreenEffect::RegisterChain(i32 effect, u32 ticks, u32 effectParam
     return createdEffect;
 }
 
-ChainCallbackResult ScreenEffect::DrawFadeIn(ScreenEffect *effect)
+ChainCallbackResult ScreenEffect_DrawFadeIn(ScreenEffect *effect)
 {
     ZunRect fadeRect;
 
@@ -191,22 +191,22 @@ ChainCallbackResult ScreenEffect::DrawFadeIn(ScreenEffect *effect)
     g_Supervisor.viewport.Width = GAME_WINDOW_WIDTH;
     g_Supervisor.viewport.Height = GAME_WINDOW_HEIGHT;
     g_Supervisor.d3dDevice->SetViewport(&g_Supervisor.viewport);
-    ScreenEffect::DrawSquare(&fadeRect, (effect->fadeAlpha << 24) | effect->genericParam);
+    ScreenEffect_DrawSquare(&fadeRect, (effect->fadeAlpha << 24) | effect->genericParam);
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ChainCallbackResult ScreenEffect::DrawFadeOut(ScreenEffect *effect)
+ChainCallbackResult ScreenEffect_DrawFadeOut(ScreenEffect *effect)
 {
     ZunRect fadeRect;
     fadeRect.left = GAME_REGION_POS_X;
     fadeRect.top = GAME_REGION_POS_Y;
     fadeRect.right = GAME_REGION_POS_RIGHT;
     fadeRect.bottom = GAME_REGION_POS_BOTTOM;
-    ScreenEffect::DrawSquare(&fadeRect, (effect->fadeAlpha << 24) | effect->genericParam);
+    ScreenEffect_DrawSquare(&fadeRect, (effect->fadeAlpha << 24) | effect->genericParam);
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ChainCallbackResult ScreenEffect::ShakeScreen(ScreenEffect *effect)
+ChainCallbackResult ScreenEffect_ShakeScreen(ScreenEffect *effect)
 {
     if (g_GameManager.isTimeStopped)
     {
@@ -266,13 +266,13 @@ ChainCallbackResult ScreenEffect::ShakeScreen(ScreenEffect *effect)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ZunResult ScreenEffect::AddedCallback(ScreenEffect *effect)
+ZunResult ScreenEffect_AddedCallback(ScreenEffect *effect)
 {
     effect->timer = 0;
     return ZUN_SUCCESS;
 }
 
-ZunResult ScreenEffect::DeletedCallback(ScreenEffect *effect)
+ZunResult ScreenEffect_DeletedCallback(ScreenEffect *effect)
 {
     effect->calcChainElement->deletedCallback = NULL;
     g_Chain.Cut(effect->drawChainElement);

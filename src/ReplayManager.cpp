@@ -11,12 +11,20 @@
 
 namespace th06
 {
+static ZunResult ReplayManager_DeletedCallback(ReplayManager *mgr);
+static ZunResult ReplayManager_AddedCallbackDemo(ReplayManager *mgr);
+static ZunResult ReplayManager_AddedCallback(ReplayManager *mgr);
+static ChainCallbackResult ReplayManager_OnDraw(ReplayManager *mgr);
+static ChainCallbackResult ReplayManager_OnUpdateDemoLowPrio(ReplayManager *mgr);
+static ChainCallbackResult ReplayManager_OnUpdateDemoHighPrio(ReplayManager *mgr);
+static ChainCallbackResult ReplayManager_OnUpdate(ReplayManager *mgr);
+
 FILE_BSS_SORT(P1);
 
 DIFFABLE_STATIC(ReplayManager *, g_ReplayManager);
 
 #pragma var_order(idx, decryptedData, obfOffset, obfuscateCursor, checksum, checksumCursor)
-ZunResult ReplayManager::ValidateReplayData(ReplayData *data, i32 fileSize)
+ZunResult ReplayManager_ValidateReplayData(ReplayData *data, i32 fileSize)
 {
     u8 *checksumCursor;
     u32 checksum;
@@ -68,7 +76,7 @@ ZunResult ReplayManager::ValidateReplayData(ReplayData *data, i32 fileSize)
     return ZUN_SUCCESS;
 }
 
-ZunResult ReplayManager::RegisterChain(ZunBool isDemo, const char *replayFile)
+ZunResult ReplayManager_RegisterChain(ZunBool isDemo, const char *replayFile)
 {
     ReplayManager *replayMgr;
 
@@ -87,10 +95,10 @@ ZunResult ReplayManager::RegisterChain(ZunBool isDemo, const char *replayFile)
         switch (isDemo)
         {
         case false:
-            replayMgr->calcChain = g_Chain.CreateElem((ChainCallback)ReplayManager::OnUpdate);
-            replayMgr->calcChain->addedCallback = (ChainAddedCallback)AddedCallback;
-            replayMgr->calcChain->deletedCallback = (ChainDeletedCallback)DeletedCallback;
-            replayMgr->drawChain = g_Chain.CreateElem((ChainCallback)ReplayManager::OnDraw);
+            replayMgr->calcChain = g_Chain.CreateElem((ChainCallback)ReplayManager_OnUpdate);
+            replayMgr->calcChain->addedCallback = (ChainAddedCallback)ReplayManager_AddedCallback;
+            replayMgr->calcChain->deletedCallback = (ChainDeletedCallback)ReplayManager_DeletedCallback;
+            replayMgr->drawChain = g_Chain.CreateElem((ChainCallback)ReplayManager_OnDraw);
             replayMgr->calcChain->arg = replayMgr;
             if (g_Chain.AddToCalcChain(replayMgr->calcChain, TH_CHAIN_PRIO_CALC_REPLAYMANAGER) != ZUN_SUCCESS)
             {
@@ -99,17 +107,17 @@ ZunResult ReplayManager::RegisterChain(ZunBool isDemo, const char *replayFile)
             replayMgr->calcChainDemoHighPrio = NULL;
             break;
         case true:
-            replayMgr->calcChain = g_Chain.CreateElem((ChainCallback)ReplayManager::OnUpdateDemoHighPrio);
-            replayMgr->calcChain->addedCallback = (ChainAddedCallback)AddedCallbackDemo;
-            replayMgr->calcChain->deletedCallback = (ChainDeletedCallback)DeletedCallback;
-            replayMgr->drawChain = g_Chain.CreateElem((ChainCallback)ReplayManager::OnDraw);
+            replayMgr->calcChain = g_Chain.CreateElem((ChainCallback)ReplayManager_OnUpdateDemoHighPrio);
+            replayMgr->calcChain->addedCallback = (ChainAddedCallback)ReplayManager_AddedCallbackDemo;
+            replayMgr->calcChain->deletedCallback = (ChainDeletedCallback)ReplayManager_DeletedCallback;
+            replayMgr->drawChain = g_Chain.CreateElem((ChainCallback)ReplayManager_OnDraw);
             replayMgr->calcChain->arg = replayMgr;
             if (g_Chain.AddToCalcChain(replayMgr->calcChain, TH_CHAIN_PRIO_CALC_LOW_PRIO_REPLAYMANAGER_DEMO) !=
                 ZUN_SUCCESS)
             {
                 return ZUN_ERROR;
             }
-            replayMgr->calcChainDemoHighPrio = g_Chain.CreateElem((ChainCallback)ReplayManager::OnUpdateDemoLowPrio);
+            replayMgr->calcChainDemoHighPrio = g_Chain.CreateElem((ChainCallback)ReplayManager_OnUpdateDemoLowPrio);
             replayMgr->calcChainDemoHighPrio->arg = replayMgr;
             g_Chain.AddToCalcChain(replayMgr->calcChainDemoHighPrio, TH_CHAIN_PRIO_CALC_HIGH_PRIO_REPLAYMANAGER_DEMO);
             break;
@@ -122,13 +130,13 @@ ZunResult ReplayManager::RegisterChain(ZunBool isDemo, const char *replayFile)
         switch (isDemo)
         {
         case false:
-            AddedCallback(g_ReplayManager);
+            ReplayManager_AddedCallback(g_ReplayManager);
             break;
         case true:
 #if !TRIALBUILD
-            return AddedCallbackDemo(g_ReplayManager);
+            return ReplayManager_AddedCallbackDemo(g_ReplayManager);
 #else
-            AddedCallbackDemo(g_ReplayManager);
+            ReplayManager_AddedCallbackDemo(g_ReplayManager);
 #endif
             break;
         }
@@ -139,7 +147,7 @@ ZunResult ReplayManager::RegisterChain(ZunBool isDemo, const char *replayFile)
 #define TH_BUTTON_REPLAY_CAPTURE                                                                                       \
     (TH_BUTTON_SHOOT | TH_BUTTON_BOMB | TH_BUTTON_FOCUS | TH_BUTTON_SKIP | TH_BUTTON_DIRECTION)
 
-ChainCallbackResult ReplayManager::OnUpdate(ReplayManager *mgr)
+static ChainCallbackResult ReplayManager_OnUpdate(ReplayManager *mgr)
 {
     u16 inputs;
 
@@ -159,7 +167,7 @@ ChainCallbackResult ReplayManager::OnUpdate(ReplayManager *mgr)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ChainCallbackResult ReplayManager::OnUpdateDemoLowPrio(ReplayManager *mgr)
+static ChainCallbackResult ReplayManager_OnUpdateDemoLowPrio(ReplayManager *mgr)
 {
     if (!g_GameManager.isInMenu)
     {
@@ -172,7 +180,7 @@ ChainCallbackResult ReplayManager::OnUpdateDemoLowPrio(ReplayManager *mgr)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ChainCallbackResult ReplayManager::OnUpdateDemoHighPrio(ReplayManager *mgr)
+static ChainCallbackResult ReplayManager_OnUpdateDemoHighPrio(ReplayManager *mgr)
 {
     if (!g_GameManager.isInMenu)
     {
@@ -208,12 +216,12 @@ ChainCallbackResult ReplayManager::OnUpdateDemoHighPrio(ReplayManager *mgr)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ChainCallbackResult ReplayManager::OnDraw(ReplayManager *mgr)
+static ChainCallbackResult ReplayManager_OnDraw(ReplayManager *mgr)
 {
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ZunResult ReplayManager::AddedCallback(ReplayManager *mgr)
+static ZunResult ReplayManager_AddedCallback(ReplayManager *mgr)
 {
     mgr->frameId = 0;
     if (mgr->replayData == NULL)
@@ -258,7 +266,7 @@ ZunResult ReplayManager::AddedCallback(ReplayManager *mgr)
     return ZUN_SUCCESS;
 }
 
-ZunResult ReplayManager::AddedCallbackDemo(ReplayManager *mgr)
+static ZunResult ReplayManager_AddedCallbackDemo(ReplayManager *mgr)
 {
     i32 idx;
     StageReplayData *replayData;
@@ -267,7 +275,7 @@ ZunResult ReplayManager::AddedCallbackDemo(ReplayManager *mgr)
     if (mgr->replayData == NULL)
     {
         mgr->replayData = (ReplayData *)FileSystem::OpenPath(mgr->replayFile, !g_GameManager.demoMode);
-        if (ValidateReplayData(mgr->replayData, g_LastFileSize) != ZUN_SUCCESS)
+        if (ReplayManager_ValidateReplayData(mgr->replayData, g_LastFileSize) != ZUN_SUCCESS)
         {
             return ZUN_ERROR;
         }
@@ -304,7 +312,7 @@ ZunResult ReplayManager::AddedCallbackDemo(ReplayManager *mgr)
     return ZUN_SUCCESS;
 }
 
-ZunResult ReplayManager::DeletedCallback(ReplayManager *mgr)
+static ZunResult ReplayManager_DeletedCallback(ReplayManager *mgr)
 {
     g_Chain.Cut(mgr->drawChain);
     mgr->drawChain = NULL;
@@ -319,7 +327,7 @@ ZunResult ReplayManager::DeletedCallback(ReplayManager *mgr)
     return ZUN_SUCCESS;
 }
 
-void ReplayManager::StopRecording()
+void ReplayManager_StopRecording()
 {
     ReplayManager *mgr = g_ReplayManager;
     if (mgr != NULL)
@@ -335,7 +343,7 @@ void ReplayManager::StopRecording()
 }
 
 #pragma var_order(stageIdx, mgr, slowDown)
-void ReplayManager::SaveReplay(const char *replayPath, const char *replayName)
+void ReplayManager_SaveReplay(const char *replayPath, const char *replayName)
 {
     ReplayManager *mgr;
     f32 slowDown;
@@ -359,7 +367,7 @@ void ReplayManager::SaveReplay(const char *replayPath, const char *replayName)
                 i32 csumStagePos;
                 size_t stageReplayPos;
                 ReplayData replayCopy = *mgr->replayData;
-                ReplayManager::StopRecording();
+                ReplayManager_StopRecording();
                 stageReplayPos = sizeof(ReplayData);
                 for (stageIdx = 0; stageIdx < ARRAY_SIZE_SIGNED(g_ReplayManager->replayData->stageReplayData);
                      stageIdx++)
