@@ -14,12 +14,6 @@ inline EffectManager::EffectManager()
     this->Reset();
 }
 
-// TODO: this is linking above the constructor now???
-void EffectManager::Reset()
-{
-    memset(this, 0, sizeof(*this));
-}
-
 EffectCallbackResult Effect_RandomSplash(Effect *effect);
 EffectCallbackResult Effect_RandomSplashBig(Effect *effect);
 EffectCallbackResult Effect_Still(Effect *effect);
@@ -53,6 +47,11 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(EffectInfo, 20, g_Effects) = {
 DIFFABLE_STATIC_SORTED(D1, EffectManager, g_EffectManager);
 DIFFABLE_STATIC_SORTED(D2, ChainElem, g_EffectManagerCalcChain);
 DIFFABLE_STATIC_SORTED(D3, ChainElem, g_EffectManagerDrawChain);
+
+void EffectManager::Reset()
+{
+    memset(this, 0, sizeof(*this));
+}
 
 EffectCallbackResult Effect_RandomSplash(Effect *effect)
 {
