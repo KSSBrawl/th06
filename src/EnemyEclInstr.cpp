@@ -12,8 +12,6 @@
 
 namespace th06
 {
-namespace EnemyEclInstr
-{
 #pragma var_order(i, currentBullet, effectIndex)
 void ExInsCirnoRainbowBallJank(Enemy *enemy, EclRawInstr *instr)
 {
@@ -863,5 +861,4 @@ void ExInsFlandreFinalContextUpdate(Enemy *enemy, EclRawInstr *instr)
         enemy->currentContext.float3 = g_Rng.GetRandomF32InRange(rangeModifier) + (96.0f - rangeModifier / 2.0f);
     }
 }
-} // namespace EnemyEclInstr
 } // namespace th06

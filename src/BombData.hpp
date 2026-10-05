@@ -9,13 +9,13 @@ struct BombData
     void (*draw)(Player *p);
 };
 
-void BombData_BombReimuACalc(Player *);
-void BombData_BombReimuBCalc(Player *);
-void BombData_BombMarisaACalc(Player *);
-void BombData_BombMarisaBCalc(Player *);
-void BombData_BombReimuADraw(Player *);
-void BombData_BombReimuBDraw(Player *);
-void BombData_BombMarisaADraw(Player *);
-void BombData_BombMarisaBDraw(Player *);
+void BombReimuACalc(Player *);
+void BombReimuBCalc(Player *);
+void BombMarisaACalc(Player *);
+void BombMarisaBCalc(Player *);
+void BombReimuADraw(Player *);
+void BombReimuBDraw(Player *);
+void BombMarisaADraw(Player *);
+void BombMarisaBDraw(Player *);
 
 } // namespace th06

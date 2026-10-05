@@ -12,6 +12,14 @@ FILE_BSS_SORT(R1);
 
 DIFFABLE_STATIC(ScreenEffect, g_ScreenEffect); // UNUSED FOREVER
 
+ZunResult ScreenEffect_AddedCallback(ScreenEffect *effect);
+ZunResult ScreenEffect_DeletedCallback(ScreenEffect *effect);
+ChainCallbackResult ScreenEffect_DrawFadeIn(ScreenEffect *effect);
+ChainCallbackResult ScreenEffect_CalcFadeIn(ScreenEffect *effect);
+ChainCallbackResult ScreenEffect_ShakeScreen(ScreenEffect *effect);
+ChainCallbackResult ScreenEffect_DrawFadeOut(ScreenEffect *effect);
+ChainCallbackResult ScreenEffect_CalcFadeOut(ScreenEffect *effect);
+
 void ScreenEffect_Clear(D3DCOLOR color)
 {
     g_Supervisor.d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, color, 1.0f, 0);

@@ -240,15 +240,6 @@ struct Supervisor
     D3DCAPS8 d3dCaps;
 };
 ZunResult Supervisor_RegisterChain();
-ChainCallbackResult Supervisor_OnUpdate(Supervisor *s);
-ChainCallbackResult Supervisor_OnDraw(Supervisor *s);
-ZunResult Supervisor_AddedCallback(Supervisor *s);
-ZunResult Supervisor_DeletedCallback(Supervisor *s);
-void Supervisor_DrawFpsCounter();
-
-BOOL CALLBACK Supervisor_ControllerCallback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOID pvRef);
-
-BOOL CALLBACK Supervisor_EnumGameControllersCb(LPCDIDEVICEINSTANCE pdidInstance, LPVOID pContext);
 
 #if !TRIALBUILD
 ZUN_ASSERT_SIZE(Supervisor, 0x4d8);

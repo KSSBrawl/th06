@@ -173,10 +173,9 @@ struct MidiOutput : MidiTimer
     ULONGLONG unk2f0;
     ULONGLONG unk2f8;
 };
-u16 MidiOutput_Ntohs(u16 val);
 u32 MidiOutput_SkipVariableLength(u8 **curTrackDataCursor);
 
-inline u32 MidiOutput_Ntohl(u32 val)
+inline u32 Ntohl(u32 val)
 {
     u8 tmp[4];
 

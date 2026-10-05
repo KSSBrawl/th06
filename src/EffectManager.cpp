@@ -9,6 +9,24 @@
 
 namespace th06
 {
+inline EffectManager::EffectManager()
+{
+    this->Reset();
+}
+
+// TODO: this is linking above the constructor now???
+void EffectManager::Reset()
+{
+    memset(this, 0, sizeof(*this));
+}
+
+EffectCallbackResult Effect_RandomSplash(Effect *effect);
+EffectCallbackResult Effect_RandomSplashBig(Effect *effect);
+EffectCallbackResult Effect_Still(Effect *effect);
+EffectCallbackResult Effect_Callback4(Effect *effect);
+EffectCallbackResult Effect_Attract(Effect *effect);
+EffectCallbackResult Effect_AttractSlow(Effect *effect);
+
 DIFFABLE_STATIC_ARRAY_ASSIGN(EffectInfo, 20, g_Effects) = {
     {ANM_SCRIPT_BULLET4_SPAWN_BUBBLE_EXPLOSION_SMALL, NULL},
     {ANM_SCRIPT_BULLET4_SPAWN_BUBBLE_EXPLOSION_SPIRAL, NULL},
@@ -23,9 +41,9 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(EffectInfo, 20, g_Effects) = {
     {ANM_SCRIPT_BULLET4_SPAWN_GREEN_PARTICLE_SMALL, Effect_RandomSplash},
     {ANM_SCRIPT_BULLET4_SPAWN_BLUE_PARTICLE_SMALL, Effect_RandomSplash},
     {ANM_SCRIPT_BULLET4_SCRIPT_17, NULL},
-    {ANM_SCRIPT_BULLET4_SCRIPT_18, EffectManager_UpdateCallback4},
-    {ANM_SCRIPT_BULLET4_SCRIPT_18, EffectManager_UpdateCallback4},
-    {ANM_SCRIPT_BULLET4_SCRIPT_18, EffectManager_UpdateCallback4},
+    {ANM_SCRIPT_BULLET4_SCRIPT_18, Effect_Callback4},
+    {ANM_SCRIPT_BULLET4_SCRIPT_18, Effect_Callback4},
+    {ANM_SCRIPT_BULLET4_SCRIPT_18, Effect_Callback4},
     {ANM_SCRIPT_EFFECTS_SPELLCARD_BACKGROUND, NULL},
     {ANM_SCRIPT_BULLET4_SPAWN_GLOW_2, Effect_Attract},
     {ANM_SCRIPT_BULLET4_SPAWN_GLOW_3, Effect_AttractSlow},
@@ -35,11 +53,6 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(EffectInfo, 20, g_Effects) = {
 DIFFABLE_STATIC_SORTED(D1, EffectManager, g_EffectManager);
 DIFFABLE_STATIC_SORTED(D2, ChainElem, g_EffectManagerCalcChain);
 DIFFABLE_STATIC_SORTED(D3, ChainElem, g_EffectManagerDrawChain);
-
-void EffectManager::Reset()
-{
-    memset(this, 0, sizeof(*this));
-}
 
 EffectCallbackResult Effect_RandomSplash(Effect *effect)
 {
@@ -84,7 +97,7 @@ EffectCallbackResult Effect_Still(Effect *effect)
 }
 
 #pragma var_order(posOffset, verticalAngle, matrix, horizontalAngle, normalizedPos)
-EffectCallbackResult EffectManager_UpdateCallback4(Effect *effect)
+EffectCallbackResult Effect_Callback4(Effect *effect)
 {
     D3DXVECTOR3 posOffset;
     f32 verticalAngle;

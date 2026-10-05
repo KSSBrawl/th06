@@ -37,8 +37,8 @@ ZUN_ASSERT_TYPE(ReplayManager, 0x74, 4);
 
 ZunResult ReplayManager_RegisterChain(ZunBool isDemo, const char *replayFile);
 
-void ReplayManager_StopRecording();
-void ReplayManager_SaveReplay(const char *replay_path, const char *param_2);
-ZunResult ReplayManager_ValidateReplayData(ReplayData *data, i32 fileSize);
+void StopRecordingReplay();
+void SaveReplay(const char *replayPath, const char *replayName);
+ZunResult ValidateReplayData(ReplayData *data, i32 fileSize);
 
 } // namespace th06

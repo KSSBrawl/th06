@@ -73,6 +73,11 @@ bool TextHelper::AllocateBufferWithFallback(i32 width, i32 height, D3DFORMAT for
     return false;
 }
 
+void strlen_dummy(const char *a)
+{
+    strlen(a);
+}
+
 #pragma var_order(imageWidthInBytes, deviceContext, originalBitmapObj, bitmapInfo, formatInfo, bitmapObj, bitmapData)
 bool TextHelper::TryAllocateBuffer(i32 width, i32 height, D3DFORMAT format)
 {
@@ -237,6 +242,11 @@ bool TextHelper::CopyTextToSurface(LPDIRECT3DSURFACE8 outSurface)
     }
     outSurface->UnlockRect();
     return true;
+}
+
+void memmove_dummy(void *a, void *b, size_t c)
+{
+    memmove(a, b, c);
 }
 
 #define TEXT_BUFFER_HEIGHT 64

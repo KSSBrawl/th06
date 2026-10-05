@@ -115,8 +115,6 @@ def configure(build_type):
             "zwave",
         ]
 
-        no_pch_sources = set(["EffectManager"])
-
         small_codegen_sources = set(
             [
                 "GameManager",
@@ -170,8 +168,6 @@ def configure(build_type):
                 variables["cl_flags"] += " /Oi-"
             else:
                 variables["cl_flags"] += " /Oi"
-            if rule in no_pch_sources:
-                variables["cl_flags"] += " /Y-"
 
             writer.build(
                 "$builddir/" + rule + ".obj",

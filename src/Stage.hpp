@@ -28,7 +28,7 @@ struct RawStageQuadBasic
     i16 anmScript;
     i16 vmIdx;
     D3DXVECTOR3 position;
-    D3DXVECTOR2 size;
+    ZunVec2 size;
 };
 ZUN_ASSERT_TYPE(RawStageQuadBasic, 0x1c, 4);
 
@@ -136,11 +136,6 @@ ZUN_ASSERT_TYPE(Stage, 0x2f4, 4);
 
 ZunResult Stage_RegisterChain(u32 stage);
 void Stage_CutChain();
-ChainCallbackResult Stage_OnUpdate(Stage *stage);
-ChainCallbackResult Stage_OnDrawHighPrio(Stage *stage);
-ChainCallbackResult Stage_OnDrawLowPrio(Stage *stage);
-ZunResult Stage_AddedCallback(Stage *stage);
-ZunResult Stage_DeletedCallback(Stage *stage);
 
 DIFFABLE_EXTERN(Stage, g_Stage);
 } // namespace th06

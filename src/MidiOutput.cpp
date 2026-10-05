@@ -148,7 +148,7 @@ void CALLBACK MidiTimer_DefaultTimerCallback(UINT uTimerID, UINT uMsg, DWORD_PTR
     timer->OnTimerElapsed();
 }
 
-u16 MidiOutput_Ntohs(u16 val)
+u16 Ntohs(u16 val)
 {
     u8 tmp[2];
 
@@ -279,7 +279,7 @@ ZunResult MidiOutput::ParseFile(i32 fileIdx)
 
     // Get a pointer to the end of the header chunk
     currentCursor += sizeof(hdrRaw);
-    hdrLength = MidiOutput_Ntohl(*(u32 *)(hdrRaw + 4));
+    hdrLength = Ntohl(*(u32 *)(hdrRaw + 4));
 
     endOfHeaderPointer = currentCursor;
     currentCursor += hdrLength;
@@ -290,13 +290,13 @@ ZunResult MidiOutput::ParseFile(i32 fileIdx)
     //  sequence
     //  2: the file contains one or more sequentially independent single-track
     //  patterns
-    this->format = MidiOutput_Ntohs(*(u16 *)endOfHeaderPointer);
+    this->format = Ntohs(*(u16 *)endOfHeaderPointer);
 
     // Read the divisions in this track. Note that this doesn't appear to support
     // "negative SMPTE format", which happens when the MSB is set.
-    this->divisions = MidiOutput_Ntohs(*(u16 *)(endOfHeaderPointer + 4));
+    this->divisions = Ntohs(*(u16 *)(endOfHeaderPointer + 4));
     // Read the number of tracks in this midi file.
-    this->numTracks = MidiOutput_Ntohs(*(u16 *)(endOfHeaderPointer + 2));
+    this->numTracks = Ntohs(*(u16 *)(endOfHeaderPointer + 2));
 
     // Allocate this->divisions * 32 bytes.
     this->tracks = ZUN_ALLOC_ARRAY(MidiTrack, this->numTracks);
@@ -309,7 +309,7 @@ ZunResult MidiOutput::ParseFile(i32 fileIdx)
         // Read a track (MTrk) chunk.
         //
         // First, read the length of the chunk
-        trackLength = MidiOutput_Ntohl(*(u32 *)(currentCursorTrack + 4));
+        trackLength = Ntohl(*(u32 *)(currentCursorTrack + 4));
         this->tracks[trackIdx].trackLength = trackLength;
         this->tracks[trackIdx].trackData = ZUN_ALLOC(trackLength);
         this->tracks[trackIdx].trackPlaying = true;

@@ -24,16 +24,15 @@ FILE_BSS_SORT(P1);
 DIFFABLE_STATIC(ReplayManager *, g_ReplayManager);
 
 #pragma var_order(idx, decryptedData, obfOffset, obfuscateCursor, checksum, checksumCursor)
-ZunResult ReplayManager_ValidateReplayData(ReplayData *data, i32 fileSize)
+ZunResult ValidateReplayData(ReplayData *data, i32 fileSize)
 {
     u8 *checksumCursor;
     u32 checksum;
     u8 *obfuscateCursor;
     u8 obfOffset;
     i32 idx;
-    ReplayData *decryptedData;
 
-    decryptedData = data;
+    ReplayData *decryptedData = data;
 
     if (decryptedData == NULL)
     {
@@ -78,8 +77,6 @@ ZunResult ReplayManager_ValidateReplayData(ReplayData *data, i32 fileSize)
 
 ZunResult ReplayManager_RegisterChain(ZunBool isDemo, const char *replayFile)
 {
-    ReplayManager *replayMgr;
-
     if (g_Supervisor.framerateMultiplier < 0.99f && !isDemo)
     {
         return ZUN_SUCCESS;
@@ -87,7 +84,7 @@ ZunResult ReplayManager_RegisterChain(ZunBool isDemo, const char *replayFile)
     g_Supervisor.framerateMultiplier = 1.0f;
     if (g_ReplayManager == NULL)
     {
-        replayMgr = ZUN_NEW(ReplayManager);
+        ReplayManager *replayMgr = ZUN_NEW(ReplayManager);
         g_ReplayManager = replayMgr;
         replayMgr->replayData = NULL;
         replayMgr->isDemo = isDemo;
@@ -149,13 +146,11 @@ ZunResult ReplayManager_RegisterChain(ZunBool isDemo, const char *replayFile)
 
 static ChainCallbackResult ReplayManager_OnUpdate(ReplayManager *mgr)
 {
-    u16 inputs;
-
     if (!g_GameManager.isInMenu)
     {
         return CHAIN_CALLBACK_RESULT_CONTINUE;
     }
-    inputs = IS_PRESSED(TH_BUTTON_REPLAY_CAPTURE);
+    u16 inputs = IS_PRESSED(TH_BUTTON_REPLAY_CAPTURE);
     if (inputs != mgr->replayInputs->inputKey)
     {
         mgr->replayInputs++;
@@ -275,7 +270,7 @@ static ZunResult ReplayManager_AddedCallbackDemo(ReplayManager *mgr)
     if (mgr->replayData == NULL)
     {
         mgr->replayData = (ReplayData *)FileSystem::OpenPath(mgr->replayFile, !g_GameManager.demoMode);
-        if (ReplayManager_ValidateReplayData(mgr->replayData, g_LastFileSize) != ZUN_SUCCESS)
+        if (ValidateReplayData(mgr->replayData, g_LastFileSize) != ZUN_SUCCESS)
         {
             return ZUN_ERROR;
         }
@@ -327,7 +322,7 @@ static ZunResult ReplayManager_DeletedCallback(ReplayManager *mgr)
     return ZUN_SUCCESS;
 }
 
-void ReplayManager_StopRecording()
+void StopRecordingReplay()
 {
     ReplayManager *mgr = g_ReplayManager;
     if (mgr != NULL)
@@ -343,7 +338,7 @@ void ReplayManager_StopRecording()
 }
 
 #pragma var_order(stageIdx, mgr, slowDown)
-void ReplayManager_SaveReplay(const char *replayPath, const char *replayName)
+void SaveReplay(const char *replayPath, const char *replayName)
 {
     ReplayManager *mgr;
     f32 slowDown;
@@ -354,10 +349,10 @@ void ReplayManager_SaveReplay(const char *replayPath, const char *replayName)
         mgr = g_ReplayManager;
         if (!mgr->IsDemo())
         {
-            if (replayPath != NULL)
-            {
 #pragma var_order(replayCopy, stageReplayPos, file, csumStagePos, checksum, checksumCursor, obfOffset, obfStagePos,    \
                   obfuscateCursor)
+            if (replayPath != NULL)
+            {
                 FILE *file;
                 u8 *checksumCursor;
                 u8 *obfuscateCursor;
@@ -367,7 +362,7 @@ void ReplayManager_SaveReplay(const char *replayPath, const char *replayName)
                 i32 csumStagePos;
                 size_t stageReplayPos;
                 ReplayData replayCopy = *mgr->replayData;
-                ReplayManager_StopRecording();
+                StopRecordingReplay();
                 stageReplayPos = sizeof(ReplayData);
                 for (stageIdx = 0; stageIdx < ARRAY_SIZE_SIGNED(g_ReplayManager->replayData->stageReplayData);
                      stageIdx++)

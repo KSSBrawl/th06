@@ -22,10 +22,6 @@
 
 namespace th06
 {
-static FireBulletResult Player_FireBulletMarisaB(Player *, PlayerBullet *, u32, u32);
-static FireBulletResult Player_FireBulletMarisaA(Player *, PlayerBullet *, u32, u32);
-static FireBulletResult Player_FireBulletReimuB(Player *, PlayerBullet *, u32, u32);
-static FireBulletResult Player_FireBulletReimuA(Player *, PlayerBullet *, u32, u32);
 static ZunResult Player_DeletedCallback(Player *p);
 static ZunResult Player_AddedCallback(Player *p);
 static ChainCallbackResult Player_OnDrawLowPrio(Player *p);
@@ -33,17 +29,10 @@ static ChainCallbackResult Player_OnDrawHighPrio(Player *p);
 static ChainCallbackResult Player_OnUpdate(Player *p);
 
 DIFFABLE_STATIC_ARRAY_ASSIGN(BombData, 4, g_BombData) = {
-    /* ReimuA  */ {BombData_BombReimuACalc, BombData_BombReimuADraw},
-    /* ReimuB  */ {BombData_BombReimuBCalc, BombData_BombReimuBDraw},
-    /* MarisaA */ {BombData_BombMarisaACalc, BombData_BombMarisaADraw},
-    /* MarisaB */ {BombData_BombMarisaBCalc, BombData_BombMarisaBDraw},
-};
-DIFFABLE_STATIC_ARRAY_ASSIGN(CharacterData, 5, g_CharData) = {
-    /* ReimuA  */ {4.0f, 2.0f, 4.0f, 2.0f, Player_FireBulletReimuA, Player_FireBulletReimuA},
-    /* ReimuB  */ {4.0f, 2.0f, 4.0f, 2.0f, Player_FireBulletReimuB, Player_FireBulletReimuB},
-    /* MarisaA */ {5.0f, 2.5f, 5.0f, 2.5f, Player_FireBulletMarisaA, Player_FireBulletMarisaA},
-    /* MarisaB */ {5.0f, 2.5f, 5.0f, 2.5f, Player_FireBulletMarisaB, Player_FireBulletMarisaB},
-    /* Rin???  */ {4.0f, 2.0f, 4.0f, 2.0f, NULL, NULL},
+    /* ReimuA  */ {BombReimuACalc, BombReimuADraw},
+    /* ReimuB  */ {BombReimuBCalc, BombReimuBDraw},
+    /* MarisaA */ {BombMarisaACalc, BombMarisaADraw},
+    /* MarisaB */ {BombMarisaBCalc, BombMarisaBDraw},
 };
 
 FILE_BSS_SORT(O1);
@@ -128,29 +117,35 @@ static FireBulletResult FireSingleBullet(Player *player, PlayerBullet *bullet, i
     }
 }
 
-static FireBulletResult Player_FireBulletReimuA(Player *player, PlayerBullet *bullet, u32 bulletIdx,
-                                                u32 framesSinceLastBullet)
+static FireBulletResult FireBulletReimuA(Player *player, PlayerBullet *bullet, u32 bulletIdx, u32 framesSinceLastBullet)
 {
     return FireSingleBullet(player, bullet, bulletIdx, framesSinceLastBullet, g_CharacterPowerDataReimuA);
 }
 
-static FireBulletResult Player_FireBulletReimuB(Player *player, PlayerBullet *bullet, u32 bulletIdx,
-                                                u32 framesSinceLastBullet)
+static FireBulletResult FireBulletReimuB(Player *player, PlayerBullet *bullet, u32 bulletIdx, u32 framesSinceLastBullet)
 {
     return FireSingleBullet(player, bullet, bulletIdx, framesSinceLastBullet, g_CharacterPowerDataReimuB);
 }
 
-static FireBulletResult Player_FireBulletMarisaA(Player *player, PlayerBullet *bullet, u32 bulletIdx,
-                                                 u32 framesSinceLastBullet)
+static FireBulletResult FireBulletMarisaA(Player *player, PlayerBullet *bullet, u32 bulletIdx,
+                                          u32 framesSinceLastBullet)
 {
     return FireSingleBullet(player, bullet, bulletIdx, framesSinceLastBullet, g_CharacterPowerDataMarisaA);
 }
 
-static FireBulletResult Player_FireBulletMarisaB(Player *player, PlayerBullet *bullet, u32 bulletIdx,
-                                                 u32 framesSinceLastBullet)
+static FireBulletResult FireBulletMarisaB(Player *player, PlayerBullet *bullet, u32 bulletIdx,
+                                          u32 framesSinceLastBullet)
 {
     return FireSingleBullet(player, bullet, bulletIdx, framesSinceLastBullet, g_CharacterPowerDataMarisaB);
 }
+
+DIFFABLE_STATIC_ARRAY_ASSIGN(CharacterData, 5, g_CharData) = {
+    /* ReimuA  */ {4.0f, 2.0f, 4.0f, 2.0f, FireBulletReimuA, FireBulletReimuA},
+    /* ReimuB  */ {4.0f, 2.0f, 4.0f, 2.0f, FireBulletReimuB, FireBulletReimuB},
+    /* MarisaA */ {5.0f, 2.5f, 5.0f, 2.5f, FireBulletMarisaA, FireBulletMarisaA},
+    /* MarisaB */ {5.0f, 2.5f, 5.0f, 2.5f, FireBulletMarisaB, FireBulletMarisaB},
+    /* Rin???  */ {4.0f, 2.0f, 4.0f, 2.0f, NULL, NULL},
+};
 
 #pragma var_order(bullet, idx, enemyBottomRight, bulletBottomRight, enemyTopLeft, damage, bulletTopLeft)
 i32 Player::CalcDamageToEnemy(D3DXVECTOR3 *enemyPos, D3DXVECTOR3 *enemyHitboxSize, ZunBool *hitByBomb)
