@@ -114,7 +114,6 @@ def configure(build_type):
             "MainMenu",
             "zwave",
         ]
-           
 
         small_codegen_sources = set(
             [

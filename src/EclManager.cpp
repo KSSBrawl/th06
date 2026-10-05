@@ -212,8 +212,8 @@ restart_sub_changed:
             EclMathMod(enemy, curInstr->args.alu.res, &args->alu.arg1.id, &args->alu.arg2.id);
             break;
         case ECL_OPCODE_MATH_LINE_ANGLE:
-            EclMathAtan2(enemy, curInstr->args.alu.res, &args->alu.arg1.f32, &args->alu.arg2.f32,
-                                     &args->alu.arg3.f32, &args->alu.arg4.f32);
+            EclMathAtan2(enemy, curInstr->args.alu.res, &args->alu.arg1.f32, &args->alu.arg2.f32, &args->alu.arg3.f32,
+                         &args->alu.arg4.f32);
             break;
 #pragma var_order(rhs, lhs)
         case ECL_OPCODE_CMP_INT: {

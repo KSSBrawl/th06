@@ -117,26 +117,24 @@ static FireBulletResult FireSingleBullet(Player *player, PlayerBullet *bullet, i
     }
 }
 
-static FireBulletResult FireBulletReimuA(Player *player, PlayerBullet *bullet, u32 bulletIdx,
-                                                u32 framesSinceLastBullet)
+static FireBulletResult FireBulletReimuA(Player *player, PlayerBullet *bullet, u32 bulletIdx, u32 framesSinceLastBullet)
 {
     return FireSingleBullet(player, bullet, bulletIdx, framesSinceLastBullet, g_CharacterPowerDataReimuA);
 }
 
-static FireBulletResult FireBulletReimuB(Player *player, PlayerBullet *bullet, u32 bulletIdx,
-                                                u32 framesSinceLastBullet)
+static FireBulletResult FireBulletReimuB(Player *player, PlayerBullet *bullet, u32 bulletIdx, u32 framesSinceLastBullet)
 {
     return FireSingleBullet(player, bullet, bulletIdx, framesSinceLastBullet, g_CharacterPowerDataReimuB);
 }
 
 static FireBulletResult FireBulletMarisaA(Player *player, PlayerBullet *bullet, u32 bulletIdx,
-                                                 u32 framesSinceLastBullet)
+                                          u32 framesSinceLastBullet)
 {
     return FireSingleBullet(player, bullet, bulletIdx, framesSinceLastBullet, g_CharacterPowerDataMarisaA);
 }
 
 static FireBulletResult FireBulletMarisaB(Player *player, PlayerBullet *bullet, u32 bulletIdx,
-                                                 u32 framesSinceLastBullet)
+                                          u32 framesSinceLastBullet)
 {
     return FireSingleBullet(player, bullet, bulletIdx, framesSinceLastBullet, g_CharacterPowerDataMarisaB);
 }
