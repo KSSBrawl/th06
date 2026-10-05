@@ -6,6 +6,73 @@
 
 namespace th06
 {
+struct FormatInfo
+{
+    D3DFORMAT format;
+    i32 bitCount;
+    u32 alphaMask;
+    u32 redMask;
+    u32 greenMask;
+    u32 blueMask;
+};
+
+struct TextHelper
+{
+    TextHelper();
+    ~TextHelper();
+    bool AllocateBufferWithFallback(i32 width, i32 height, D3DFORMAT format);
+    bool TryAllocateBuffer(i32 width, i32 height, D3DFORMAT format);
+    FormatInfo *GetFormatInfo(D3DFORMAT format);
+    bool ReleaseBuffer();
+    bool InvertAlpha(i32 x, i32 y, i32 spriteWidth, i32 fontHeight);
+    bool CopyTextToSurface(LPDIRECT3DSURFACE8 outSurface);
+
+    bool IsAllocated()
+    {
+        return this->gdiObj2 != NULL;
+    }
+
+    D3DFORMAT GetFormat()
+    {
+        return this->format;
+    }
+
+    i32 GetWidth()
+    {
+        return this->width;
+    }
+
+    i32 GetHeight()
+    {
+        return this->height;
+    }
+
+    u32 GetImageWidthInBytes()
+    {
+        return this->imageWidthInBytes;
+    }
+
+    HDC GetHDC()
+    {
+        return this->hdc;
+    }
+
+    u8 *GetBuffer()
+    {
+        return (u8 *)this->buffer;
+    }
+
+    D3DFORMAT format;
+    i32 width;
+    i32 height;
+    u32 imageSizeInBytes;
+    i32 imageWidthInBytes;
+    HDC hdc;
+    HGDIOBJ gdiObj;
+    HGDIOBJ gdiObj2;
+    void *buffer;
+};
+ZUN_ASSERT_TYPE(TextHelper, 0x24, 4);
 
 DIFFABLE_STATIC_ARRAY_ASSIGN(FormatInfo, 7, g_FormatInfoArray) = {
     {D3DFMT_X8R8G8B8, 32, 0x00000000, 0x00FF0000, 0x0000FF00, 0x000000FF},
