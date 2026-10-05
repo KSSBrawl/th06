@@ -1200,7 +1200,7 @@ u32 ResultScreen::DrawFinalStats()
 
         viewport = &this->unk_40[37];
         color = viewport->color;
-        g_AsciiManager.color = color;
+        g_AsciiManager.SetColor(color);
         unknownFloat = 0.0f;
 
         completion = g_GameManager.difficulty < 4 ? g_GameManager.counat / 89500.0f : g_GameManager.counat / 39600.0f;
@@ -1302,7 +1302,7 @@ u32 ResultScreen::DrawFinalStats()
             unknownFloat += 12.5f;
         }
 
-        g_AsciiManager.color = COLOR_WHITE;
+        g_AsciiManager.SetColor(COLOR_WHITE);
     }
     return 0;
 }
@@ -1695,7 +1695,6 @@ static ChainCallbackResult ResultScreen_OnDraw(ResultScreen *resultScreen)
     static const char *g_ShortCharacterList2[] = {"ReimuA ", "ReimuB ", "MarisaA", "MarisaB"};
 
     AnmVm *sprite;
-    char keyboardCharacter[16]; // TODO: Is this actually 16, or is there padding?
     f32 charPosX;
     f32 charPosY;
 
@@ -1760,7 +1759,7 @@ static ChainCallbackResult ResultScreen_OnDraw(ResultScreen *resultScreen)
                     {
                         if (ShootScoreListNodeA->data->base.flag_9)
                         {
-                            g_AsciiManager.color = COLOR_BARELY_BLUE;
+                            g_AsciiManager.SetColor(COLOR_BARELY_BLUE);
 
                             // Yes, this seems to be required to match. No, I don't like it either
                             *(u32 *)&name[0] = *(u32 *)"    ";
@@ -1772,17 +1771,17 @@ static ChainCallbackResult ResultScreen_OnDraw(ResultScreen *resultScreen)
                         }
                         else
                         {
-                            g_AsciiManager.color = COLOR_SET_ALPHA(COLOR_PASTEL_YELLOW, 0x80);
+                            g_AsciiManager.SetColor(COLOR_SET_ALPHA(COLOR_PASTEL_YELLOW, 0x80));
                         }
                     }
                     else
                     {
-                        g_AsciiManager.color = 0x80ffc0c0;
+                        g_AsciiManager.SetColor(0x80ffc0c0);
                     }
                 }
                 else
                 {
-                    g_AsciiManager.color = 0xffffc0c0;
+                    g_AsciiManager.SetColor(0xffffc0c0);
                 }
                 g_AsciiManager.AddFormatText(&spritePos, "%2d", row + 1);
 
@@ -1809,7 +1808,7 @@ static ChainCallbackResult ResultScreen_OnDraw(ResultScreen *resultScreen)
                     {
                         if (ShootScoreListNodeB->data->base.flag_9)
                         {
-                            g_AsciiManager.color = COLOR_BARELY_RED;
+                            g_AsciiManager.SetColor(COLOR_BARELY_RED);
 
                             *(u32 *)&name[0] = *(u32 *)"    ";
                             *(u32 *)&name[4] = *(u32 *)"    ";
@@ -1820,17 +1819,17 @@ static ChainCallbackResult ResultScreen_OnDraw(ResultScreen *resultScreen)
                         }
                         else
                         {
-                            g_AsciiManager.color = COLOR_SET_ALPHA(COLOR_PASTEL_BLUE, 0xc0);
+                            g_AsciiManager.SetColor(COLOR_SET_ALPHA(COLOR_PASTEL_BLUE, 0xc0));
                         }
                     }
                     else
                     {
-                        g_AsciiManager.color = COLOR_SET_ALPHA(COLOR_PASTEL_BLUE, 0x80);
+                        g_AsciiManager.SetColor(COLOR_SET_ALPHA(COLOR_PASTEL_BLUE, 0x80));
                     }
                 }
                 else
                 {
-                    g_AsciiManager.color = COLOR_PASTEL_BLUE;
+                    g_AsciiManager.SetColor(COLOR_PASTEL_BLUE);
                 }
                 if (ShootScoreListNodeB->data->stage <= 6)
                 {
@@ -1869,15 +1868,15 @@ static ChainCallbackResult ResultScreen_OnDraw(ResultScreen *resultScreen)
                 resultScreen->unk_28a0[row].pos = spritePos;
                 if (g_GameManager.catk[spellcardIdx].numAttempts == 0)
                 {
-                    g_AsciiManager.color = COLOR_SET_ALPHA(COLOR_PASTEL_BLUE, 0x80);
+                    g_AsciiManager.SetColor(COLOR_SET_ALPHA(COLOR_PASTEL_BLUE, 0x80));
                 }
                 else if (g_GameManager.catk[spellcardIdx].numSuccess == 0)
                 {
-                    g_AsciiManager.color = 0xffc0a0a0;
+                    g_AsciiManager.SetColor(0xffc0a0a0);
                 }
                 else
                 {
-                    g_AsciiManager.color = COLOR_BARELY_BLUE - row * 0x080800;
+                    g_AsciiManager.SetColor(COLOR_BARELY_BLUE - row * 0x080800);
                 }
                 g_AsciiManager.AddFormatText(&spritePos, "No.%.2d", spellcardIdx + 1);
 
@@ -1907,7 +1906,7 @@ static ChainCallbackResult ResultScreen_OnDraw(ResultScreen *resultScreen)
                 charPosX = 0.0f;
                 if (resultScreen->selectedCharacter == row * RESULT_KEYBOARD_COLUMNS + column)
                 {
-                    g_AsciiManager.color = COLOR_PASTEL_YELLOW;
+                    g_AsciiManager.SetColor(COLOR_PASTEL_YELLOW);
                     if (resultScreen->frameTimer % 64 < 32)
                     {
                         charPosY = 1.2f + 0.8f * (resultScreen->frameTimer % 32) / 32.0f;
@@ -1916,20 +1915,19 @@ static ChainCallbackResult ResultScreen_OnDraw(ResultScreen *resultScreen)
                     {
                         charPosY = 2.0f - 0.8f * (resultScreen->frameTimer % 32) / 32.0f;
                     }
-                    g_AsciiManager.scale.x = charPosY;
-                    g_AsciiManager.scale.y = charPosY;
+                    g_AsciiManager.SetScale(charPosY, charPosY);
                     charPosY = -(charPosY - 1.0f) * 8.0f;
                     charPosX = charPosY;
                 }
                 else
                 {
-                    g_AsciiManager.color = COLOR_SET_ALPHA(COLOR_LIGHT_GREY, 0x60);
-                    g_AsciiManager.scale.x = 1.0f;
-                    g_AsciiManager.scale.y = 1.0f;
+                    g_AsciiManager.SetColor(COLOR_SET_ALPHA(COLOR_LIGHT_GREY, 0x60));
+                    g_AsciiManager.SetScale(1.0f, 1.0f);
                 }
                 strPos = spritePos;
                 strPos.x += charPosY;
                 strPos.y += charPosX;
+                char keyboardCharacter[16];
                 keyboardCharacter[0] = g_AlphabetList[row * RESULT_KEYBOARD_COLUMNS + column];
                 keyboardCharacter[1] = '\0';
 
@@ -1953,8 +1951,7 @@ static ChainCallbackResult ResultScreen_OnDraw(ResultScreen *resultScreen)
             spritePos[1] += 18.0f;
         }
     }
-    g_AsciiManager.scale.x = 1.0f;
-    g_AsciiManager.scale.y = 1.0f;
+    g_AsciiManager.SetScale(1.0f, 1.0f);
     if (resultScreen->resultScreenState >= RESULT_SCREEN_STATE_SAVE_REPLAY_QUESTION &&
         resultScreen->resultScreenState <= RESULT_SCREEN_STATE_OVERWRITE_REPLAY_FILE)
     {
@@ -1973,11 +1970,11 @@ static ChainCallbackResult ResultScreen_OnDraw(ResultScreen *resultScreen)
             sprite++;
             if (row == resultScreen->replayNumber)
             {
-                g_AsciiManager.color = COLOR_LIGHT_RED;
+                g_AsciiManager.SetColor(COLOR_LIGHT_RED);
             }
             else
             {
-                g_AsciiManager.color = COLOR_GREY;
+                g_AsciiManager.SetColor(COLOR_GREY);
             }
             if (resultScreen->resultScreenState == RESULT_SCREEN_STATE_WRITING_REPLAY_NAME)
             {
@@ -1985,7 +1982,7 @@ static ChainCallbackResult ResultScreen_OnDraw(ResultScreen *resultScreen)
                                              resultScreen->defaultReplay.date,
                                              g_ShortCharacterList2[GameManager_CharacterShotType()],
                                              resultScreen->defaultReplay.score);
-                g_AsciiManager.color = COLOR_BARELY_BLUE;
+                g_AsciiManager.SetColor(COLOR_BARELY_BLUE);
 
                 *(u32 *)&name[0] = *(u32 *)"    ";
                 *(u32 *)&name[4] = *(u32 *)"    ";
@@ -2008,7 +2005,7 @@ static ChainCallbackResult ResultScreen_OnDraw(ResultScreen *resultScreen)
             }
         }
     }
-    g_AsciiManager.color = COLOR_WHITE;
+    g_AsciiManager.SetColor(COLOR_WHITE);
     resultScreen->DrawFinalStats();
 
     return CHAIN_CALLBACK_RESULT_CONTINUE;

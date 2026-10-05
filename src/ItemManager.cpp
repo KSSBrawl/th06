@@ -75,13 +75,10 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(i32, 11, g_PowerUpThresholds) = {8, 16, 32, 48, 64,
 #define PIV_LINE 128
 #define ITEM_SPRITE_SIZE 16.0f
 
-__forceinline i32 calculatePointScore(Item *curItem, i32 scoreAcquiredItemTop, i32 scoreAcquiredItemBottom,
-                                      i32 posMultiplier)
-{
-    return ((i32)curItem->currentPosition.y < PIV_LINE)
-               ? scoreAcquiredItemTop
-               : (scoreAcquiredItemBottom - (((i32)curItem->currentPosition.y - PIV_LINE) * posMultiplier));
-}
+#define CALCULATE_POINT_SCORE(item, top, bottom, multiplier)                                                           \
+    (((i32)(item)->currentPosition.y < PIV_LINE)                                                                       \
+         ? (top)                                                                                                       \
+         : ((bottom) - (((i32)(item)->currentPosition.y - PIV_LINE) * (multiplier))))
 
 #pragma var_order(idx, itemScore, playerAngle, itemAcquired, curItem)
 void ItemManager::OnUpdate()
@@ -109,7 +106,7 @@ void ItemManager::OnUpdate()
         {
             if (curItem->timer < 60)
             {
-                float fVar5 = curItem->timer.AsFramesFloat() / 60.0f;
+                float fVar5 = (f32)curItem->timer / 60.0f;
                 curItem->currentPosition = fVar5 * curItem->targetPosition + curItem->startPosition * (1.0f - fVar5);
                 goto yolo;
             }
@@ -210,27 +207,27 @@ void ItemManager::OnUpdate()
                 {
                 case EASY:
                 case NORMAL:
-                    itemScore = calculatePointScore(curItem, 100000, 60000, 100);
+                    itemScore = CALCULATE_POINT_SCORE(curItem, 100000, 60000, 100);
                     g_AsciiManager.CreatePopup1(&curItem->currentPosition, itemScore,
                                                 itemScore >= 100000 ? COLOR_YELLOW : COLOR_WHITE);
                     break;
                 case HARD:
-                    itemScore = calculatePointScore(curItem, 150000, 100000, 180);
+                    itemScore = CALCULATE_POINT_SCORE(curItem, 150000, 100000, 180);
                     g_AsciiManager.CreatePopup1(&curItem->currentPosition, itemScore,
                                                 itemScore >= 150000 ? COLOR_YELLOW : COLOR_WHITE);
                     break;
                 case LUNATIC:
-                    itemScore = calculatePointScore(curItem, 200000, 150000, 270);
+                    itemScore = CALCULATE_POINT_SCORE(curItem, 200000, 150000, 270);
                     g_AsciiManager.CreatePopup1(&curItem->currentPosition, itemScore,
                                                 itemScore >= 200000 ? COLOR_YELLOW : COLOR_WHITE);
                     break;
                 case EXTRA:
-                    itemScore = calculatePointScore(curItem, 300000, 200000, 400);
+                    itemScore = CALCULATE_POINT_SCORE(curItem, 300000, 200000, 400);
                     g_AsciiManager.CreatePopup1(&curItem->currentPosition, itemScore,
                                                 itemScore >= 300000 ? COLOR_YELLOW : COLOR_WHITE);
                     break;
                 }
-                g_GameManager.score += itemScore;
+                g_GameManager.AddScore(itemScore);
                 g_GameManager.pointItemsCollectedInStage++;
                 g_GameManager.pointItemsCollected++;
                 g_Gui.flags.flag4 = 2;
@@ -252,7 +249,7 @@ void ItemManager::OnUpdate()
                         g_GameManager.powerItemCountForScore = 30;
                     }
                     itemScore = g_PowerItemScore[g_GameManager.powerItemCountForScore];
-                    g_GameManager.score += itemScore;
+                    g_GameManager.AddScore(itemScore);
                     g_AsciiManager.CreatePopup1(&curItem->currentPosition, itemScore,
                                                 itemScore >= 12800 ? COLOR_YELLOW : COLOR_WHITE);
                 }
@@ -325,7 +322,7 @@ void ItemManager::OnUpdate()
                 {
                     itemScore = 100;
                 }
-                g_GameManager.score += itemScore;
+                g_GameManager.AddScore(itemScore);
                 g_AsciiManager.CreatePopup2(&curItem->currentPosition, itemScore, COLOR_WHITE);
                 break;
             }
@@ -374,7 +371,7 @@ void ItemManager::OnDraw()
         curItem->sprite.pos.x = g_GameManager.gameRegionScreenPos.x + curItem->currentPosition.x;
         curItem->sprite.pos.y = g_GameManager.gameRegionScreenPos.y + curItem->currentPosition.y;
         curItem->sprite.pos.z = 0.01f;
-        if (curItem->currentPosition.y < -(ITEM_SPRITE_SIZE / 2.0f))
+        if (curItem->currentPosition[1] < -(ITEM_SPRITE_SIZE / 2.0f))
         {
             curItem->sprite.pos.y = (ITEM_SPRITE_SIZE / 2.0f) + g_GameManager.gameRegionScreenPos.y;
             if (curItem->isIndicatorHidden)
@@ -382,7 +379,7 @@ void ItemManager::OnDraw()
                 g_AnmManager->SetActiveSprite(&curItem->sprite, curItem->itemType + ANM_SPRITE_ITEM_INDICATORS_START);
                 curItem->isIndicatorHidden = false;
             }
-            itemAlpha = 255 - (i32)((((ITEM_SPRITE_SIZE / 2.0f) - curItem->currentPosition.y) * 255.0f) / 128.0f);
+            itemAlpha = 255 - (i32)((((ITEM_SPRITE_SIZE / 2.0f) - curItem->currentPosition[1]) * 255.0f) / 128.0f);
             if (itemAlpha < 0x40)
             {
                 itemAlpha = 0x40;

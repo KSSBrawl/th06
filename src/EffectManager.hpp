@@ -36,14 +36,14 @@ enum ParticleEffects
 
 struct EffectManager
 {
-    i32 nextIndex;
-    i32 activeEffects;
-    Effect effects[MAX_EFFECT_COUNT + 1]; // +1 dummy slot to avoid null checks for failed spawns
-
     EffectManager();
 
     void Reset();
     Effect *SpawnParticles(i32 effectIdx, D3DXVECTOR3 *pos, i32 count, ZunColor color);
+
+    i32 nextIndex;
+    i32 activeEffects;
+    Effect effects[MAX_EFFECT_COUNT + 1]; // +1 dummy slot to avoid null checks for failed spawns
 };
 ZUN_ASSERT_TYPE(EffectManager, 0x2f984, 4);
 

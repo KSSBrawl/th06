@@ -119,24 +119,6 @@ ZunResult AsciiManager_AddedCallback(AsciiManager *s)
     return ZUN_SUCCESS;
 }
 
-// TODO: Make this inline in the header somehow
-inline void AsciiManager::InitializeVms()
-{
-    memset(this, 0, sizeof(AsciiManager));
-
-    this->color = COLOR_WHITE;
-    this->scale.x = 1.0f;
-    this->scale.y = 1.0f;
-
-    this->vm1.flags.anchor = AnmVmAnchor_TopLeft;
-
-    g_AnmManager->InitializeAndSetSprite(&this->vm1, 0);
-    g_AnmManager->InitializeAndSetSprite(&this->vm0, 32);
-
-    this->vm1.pos.z = 0.1f;
-    this->isSelected = false;
-}
-
 ZunResult AsciiManager_DeletedCallback(AsciiManager *s)
 {
     g_AnmManager->ReleaseAnm(ANM_FILE_ASCII);
@@ -246,12 +228,12 @@ void AsciiManager::DrawStrings(void)
             {
                 if (!string->isSelected)
                 {
-                    this->vm0.sprite = &g_AnmManager->sprites[*text - 21];
+                    this->vm0.sprite = g_AnmManager->GetSprite(*text - 21);
                     this->vm0.color = string->color;
                 }
                 else
                 {
-                    this->vm0.sprite = &g_AnmManager->sprites[*text + 97];
+                    this->vm0.sprite = g_AnmManager->GetSprite(*text + 97);
                     this->vm0.color = COLOR_WHITE;
                 }
                 g_AnmManager->DrawNoRotation(&this->vm0);
@@ -372,7 +354,7 @@ i32 StageMenu::OnUpdateGameMenu()
         this->curState = GAME_MENU_PAUSE_SELECTED_UNPAUSE;
         for (vmIdx = 0; vmIdx < ARRAY_SIZE_SIGNED(this->menuSprites); vmIdx++)
         {
-            if (this->menuSprites[vmIdx].flags.isVisible)
+            if (this->menuSprites[vmIdx].IsVisible())
             {
                 this->menuSprites[vmIdx].pendingInterrupt = 2;
             }
@@ -385,7 +367,7 @@ i32 StageMenu::OnUpdateGameMenu()
         this->curState = GAME_MENU_QUIT_SELECTED_YES;
         for (vmIdx = 0; vmIdx < ARRAY_SIZE_SIGNED(this->menuSprites); vmIdx++)
         {
-            if (this->menuSprites[vmIdx].flags.isVisible)
+            if (this->menuSprites[vmIdx].IsVisible())
             {
                 this->menuSprites[vmIdx].pendingInterrupt = 2;
             }
@@ -581,7 +563,7 @@ void StageMenu::OnDrawGameMenu()
         }
         for (vmIdx = 0; vmIdx < ARRAY_SIZE_SIGNED(this->menuSprites); vmIdx++)
         {
-            if (this->menuSprites[vmIdx].flags.isVisible)
+            if (this->menuSprites[vmIdx].IsVisible())
             {
                 g_AnmManager->DrawNoRotation(&this->menuSprites[vmIdx]);
             }
@@ -796,12 +778,12 @@ void StageMenu::OnDrawRetryMenu()
             this->menuSprites[RETRY_MENU_SPRITE_RETRIES_NUMBER].pos.x +=
                 8.0f * this->menuSprites[RETRY_MENU_SPRITE_RETRIES_NUMBER].scaleX;
             this->menuSprites[RETRY_MENU_SPRITE_RETRIES_NUMBER].sprite =
-                &g_AnmManager->sprites[30 - g_GameManager.numRetries];
+                g_AnmManager->GetSprite(30 - g_GameManager.numRetries);
             g_AnmManager->DrawNoRotation(&this->menuSprites[RETRY_MENU_SPRITE_RETRIES_NUMBER]);
         }
         for (i32 idx = RETRY_MENU_SPRITES_START; idx < RETRY_MENU_SPRITES_END; idx++)
         {
-            if (this->menuSprites[idx].flags.isVisible)
+            if (this->menuSprites[idx].IsVisible())
             {
                 g_AnmManager->DrawNoRotation(&this->menuSprites[idx]);
             }
@@ -838,7 +820,7 @@ void AsciiManager::DrawPopupsWithHwVertexProcessing()
         currentDigit = (u8 *)currentPopup->digits + currentPopup->characterCount - 1;
         for (j = currentPopup->characterCount; j > 0; j--)
         {
-            this->vm1.sprite = g_AnmManager->sprites + *currentDigit;
+            this->vm1.sprite = g_AnmManager->GetSprite(*currentDigit);
             if (*currentDigit >= '\n')
             {
                 this->vm1.matrix.m[0][0] = 0.1875f;
@@ -887,7 +869,7 @@ void AsciiManager::DrawPopupsWithoutHwVertexProcessing()
         currentDigit = (u8 *)currentPopup->digits + currentPopup->characterCount - 1;
         for (j = currentPopup->characterCount; j > 0; j--)
         {
-            this->vm1.sprite = g_AnmManager->sprites + *currentDigit;
+            this->vm1.sprite = g_AnmManager->GetSprite(*currentDigit);
             if (*currentDigit >= '\n')
             {
                 this->vm1.matrix.m[0][0] = 0.1875f;

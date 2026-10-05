@@ -57,7 +57,7 @@ static FireBulletResult FireSingleBullet(Player *player, PlayerBullet *bullet, i
     if (bulletData->bulletType == BULLET_TYPE_LASER)
     {
         bulletFrame = bulletData->bulletFrame;
-        if (!player->laserTimer[bulletFrame])
+        if (!(i32)player->laserTimer[bulletFrame])
         {
             player->laserTimer[bulletFrame] = bulletData->waitBetweenBullets;
 
@@ -217,7 +217,7 @@ i32 Player::CalcDamageToEnemy(D3DXVECTOR3 *enemyPos, D3DXVECTOR3 *enemyHitboxSiz
                 bullet->size.x = 48.0f;
                 bullet->size.y = 48.0f;
             }
-            if (bullet->lifetime % 6 == 0)
+            if ((i32)bullet->lifetime % 6 == 0)
             {
                 g_EffectManager.SpawnParticles(PARTICLE_EFFECT_UNK_5, &bullet->position, 1, COLOR_WHITE);
             }
@@ -741,7 +741,7 @@ ZunResult Player::HandlePlayerInputs()
     case ORB_FOCUSING:
         this->focusMovementTimer++;
 
-        intermediateFloat = this->focusMovementTimer.AsFramesFloat() / 8.0f;
+        intermediateFloat = (f32)this->focusMovementTimer / 8.0f;
         orbOffsetY = (1.0f - intermediateFloat) * 32.0f + -32.0f;
         intermediateFloat *= intermediateFloat;
         orbOffsetX = -16.0f * intermediateFloat + 24.0f;
@@ -753,7 +753,7 @@ ZunResult Player::HandlePlayerInputs()
         if (!this->isFocus)
         {
             this->orbState = ORB_UNFOCUSING;
-            this->focusMovementTimer = 8 - this->focusMovementTimer;
+            this->focusMovementTimer = 8 - (i32)this->focusMovementTimer;
 
             goto CASE_ORB_UNFOCUSING;
         }
@@ -779,7 +779,7 @@ ZunResult Player::HandlePlayerInputs()
     case ORB_UNFOCUSING:
         this->focusMovementTimer++;
 
-        intermediateFloat = this->focusMovementTimer.AsFramesFloat() / 8.0f;
+        intermediateFloat = (f32)this->focusMovementTimer / 8.0f;
         orbOffsetY = (32.0f * intermediateFloat) + -32.0f;
         intermediateFloat *= intermediateFloat;
         intermediateFloat = 1.0f - intermediateFloat;
@@ -791,7 +791,7 @@ ZunResult Player::HandlePlayerInputs()
         if (this->isFocus)
         {
             this->orbState = ORB_FOCUSING;
-            this->focusMovementTimer = 8 - this->focusMovementTimer;
+            this->focusMovementTimer = 8 - (i32)this->focusMovementTimer;
             goto CASE_ORB_FOCUSING;
         }
     }
@@ -871,7 +871,7 @@ static void UpdatePlayerBullets(Player *player)
 
     for (idx = 0; idx < ARRAY_SIZE_SIGNED(player->laserTimer); idx++)
     {
-        if (player->laserTimer[idx] != 0)
+        if ((i32)player->laserTimer[idx] != 0)
         {
             player->laserTimer[idx]--;
         }
@@ -1035,7 +1035,7 @@ static ZunResult UpdateFireBulletsTimer(Player *p)
     if (p->fireBulletTimer.HasTicked() && (!g_Player.bombInfo.isInUse || g_GameManager.character != CHARA_MARISA ||
                                            g_GameManager.shotType != SHOT_TYPE_B))
     {
-        SpawnBullets(p, p->fireBulletTimer);
+        SpawnBullets(p, (i32)p->fireBulletTimer);
     }
 
     p->fireBulletTimer++;
@@ -1123,11 +1123,11 @@ static ChainCallbackResult Player_OnUpdate(Player *p)
         }
         else
         {
-            float scaleFactor = p->invulnerabilityTimer.AsFramesFloat() / 30.0f;
+            float scaleFactor = (f32)p->invulnerabilityTimer / 30.0f;
             p->playerSprite.scaleY = 3.0f * scaleFactor + 1.0f;
             p->playerSprite.scaleX = 1.0f - 1.0f * scaleFactor;
             p->playerSprite.color =
-                COLOR_SET_ALPHA(COLOR_WHITE, (u32)(255.0f - p->invulnerabilityTimer.AsFramesFloat() * 255.0f / 30.0f));
+                COLOR_SET_ALPHA(COLOR_WHITE, (u32)(255.0f - (f32)p->invulnerabilityTimer * 255.0f / 30.0f));
             p->playerSprite.flags.blendMode = AnmBlendMode_Additive;
             p->previousSpeed.x = 0.0f;
             p->previousSpeed.y = 0.0f;
@@ -1170,12 +1170,12 @@ static ChainCallbackResult Player_OnUpdate(Player *p)
     {
     spawning:
         p->bulletGracePeriod = 90;
-        float scaleFactor = 1.0f - p->invulnerabilityTimer.AsFramesFloat() / 30.0f;
+        float scaleFactor = 1.0f - (f32)p->invulnerabilityTimer / 30.0f;
         p->playerSprite.scaleY = 2.0f * scaleFactor + 1.0f;
         p->playerSprite.scaleX = 1.0f - 1.0f * scaleFactor;
         p->playerSprite.flags.blendMode = AnmBlendMode_Additive;
         p->speedMultiplierDuringBomb.x = p->speedMultiplierDuringBomb.y = 1.0f;
-        p->playerSprite.color = COLOR_SET_ALPHA(COLOR_WHITE, p->invulnerabilityTimer * 255 / 30);
+        p->playerSprite.color = COLOR_SET_ALPHA(COLOR_WHITE, (i32)p->invulnerabilityTimer * 255 / 30);
         p->respawnTimer = 0;
         if ((i32)p->invulnerabilityTimer >= 30)
         {
@@ -1202,7 +1202,7 @@ static ChainCallbackResult Player_OnUpdate(Player *p)
             p->playerSprite.flags.colorOp = AnmColorOp_Modulate;
             p->playerSprite.color = COLOR_WHITE;
         }
-        else if (p->invulnerabilityTimer % 8 < 2)
+        else if ((i32)p->invulnerabilityTimer % 8 < 2)
         {
             p->playerSprite.flags.colorOp = AnmColorOp_Add;
             p->playerSprite.color = 0xff404040;

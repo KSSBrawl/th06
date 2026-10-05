@@ -1588,25 +1588,25 @@ ZunResult MainMenu::DrawReplayMenu()
         {
             if (i == this->chosenReplay)
             {
-                g_AsciiManager.color = COLOR_LIGHT_RED;
+                g_AsciiManager.SetColor(COLOR_LIGHT_RED);
             }
             else
             {
-                g_AsciiManager.color = COLOR_GREY;
+                g_AsciiManager.SetColor(COLOR_GREY);
             }
         }
         else
         {
             ZunBool isSelected = (i == this->chosenReplay);
-            g_AsciiManager.isSelected = isSelected;
+            g_AsciiManager.SetIsSelected(isSelected);
 
             if (i == this->chosenReplay)
             {
-                g_AsciiManager.color = COLOR_WHITE;
+                g_AsciiManager.SetColor(COLOR_WHITE);
             }
             else
             {
-                g_AsciiManager.color = COLOR_GREY;
+                g_AsciiManager.SetColor(COLOR_GREY);
             }
         }
 
@@ -1617,8 +1617,8 @@ ZunResult MainMenu::DrawReplayMenu()
     }
     if (this->gameState == STATE_REPLAY_SELECT && this->currentReplay)
     {
-        g_AsciiManager.color = COLOR_WHITE;
-        g_AsciiManager.isSelected = false;
+        g_AsciiManager.SetColor(COLOR_WHITE);
+        g_AsciiManager.SetIsSelected(false);
 
         vmRef = &this->vm[97];
         g_AsciiManager.AddFormatText(&vmRef->pos, "       %2.3f%%", this->currentReplay->slowdownRate);
@@ -1638,24 +1638,24 @@ ZunResult MainMenu::DrawReplayMenu()
             {
                 if (i == this->cursor)
                 {
-                    g_AsciiManager.color = COLOR_LIGHT_RED;
+                    g_AsciiManager.SetColor(COLOR_LIGHT_RED);
                 }
                 else
                 {
-                    g_AsciiManager.color = COLOR_GREY;
+                    g_AsciiManager.SetColor(COLOR_GREY);
                 }
             }
             else
             {
                 ZunBool isSelected = (i == this->cursor);
-                g_AsciiManager.isSelected = isSelected;
+                g_AsciiManager.SetIsSelected(isSelected);
                 if (i == this->cursor)
                 {
-                    g_AsciiManager.color = COLOR_WHITE;
+                    g_AsciiManager.SetColor(COLOR_WHITE);
                 }
                 else
                 {
-                    g_AsciiManager.color = COLOR_GREY;
+                    g_AsciiManager.SetColor(COLOR_GREY);
                 }
             }
             if (this->currentReplay->stageReplayData[i])
@@ -1669,8 +1669,8 @@ ZunResult MainMenu::DrawReplayMenu()
             }
         }
     }
-    g_AsciiManager.color = COLOR_WHITE;
-    g_AsciiManager.isSelected = false;
+    g_AsciiManager.SetColor(COLOR_WHITE);
+    g_AsciiManager.SetIsSelected(false);
     return ZUN_SUCCESS;
 }
 
@@ -2007,17 +2007,17 @@ ZunResult MainMenu::ChoosePracticeLevel()
         {
             if (stageNum == this->cursor)
             {
-                g_AsciiManager.color = color << 24 | 0x00C0F0F0;
+                g_AsciiManager.SetColor(color << 24 | 0x00C0F0F0);
             }
             else
             {
-                g_AsciiManager.color = (color >> 1) << 24 | 0x0080C0C0;
+                g_AsciiManager.SetColor((color >> 1) << 24 | 0x0080C0C0);
             }
             g_AsciiManager.AddFormatText(&textPos, "STAGE %d  %.9d", stageNum + 1,
                                          g_GameManager.pscr[charShotType][stageNum][g_GameManager.difficulty].score);
             textPos.y += 24.0f;
         }
-        g_AsciiManager.color = COLOR_WHITE;
+        g_AsciiManager.SetColor(COLOR_WHITE);
     }
     return ZUN_SUCCESS;
 }
@@ -2285,7 +2285,6 @@ ZunResult MainMenu_AddedCallback(MainMenu *menu)
         g_Supervisor.SetupMidiPlayback("bgm/th06_01.mid");
     }
 
-    // TODO: Make this an inline function?
     g_AnmManager->ClearScriptRange(ANM_OFFSET_TITLE01, ANM_OFFSET_TITLE01S - ANM_OFFSET_TITLE01);
     menu->unk_81e4 = 0;
 

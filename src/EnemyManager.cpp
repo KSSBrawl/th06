@@ -183,7 +183,7 @@ void EnemyManager::RunEclTimeline()
         // number of lives lost?
         i32 subrankIncreaseFrame = 10 * 4 * 60;
         subrankIncreaseFrame -= g_GameManager.livesRemaining * 4 * 60;
-        if (this->timelineTime.HasTicked() && this->timelineTime % subrankIncreaseFrame == 0)
+        if (this->timelineTime.HasTicked() && (i32)this->timelineTime % subrankIncreaseFrame == 0)
         {
             g_GameManager.IncreaseSubrank(100);
         }
@@ -406,7 +406,7 @@ ZunBool Enemy::HandleTimerCallback()
 
     if (this->flags.isBoss)
     {
-        g_Gui.SetSpellcardSeconds((this->timerCallbackThreshold - this->phaseTimer) / 60);
+        g_Gui.SetSpellcardSeconds((this->timerCallbackThreshold - (i32)this->phaseTimer) / 60);
     }
 
     if (this->HasPhaseTimerFinished())

@@ -4,6 +4,8 @@
 #include "pbg3/Pbg3Archive.hpp"
 #include <munit.h>
 
+using namespace th06;
+
 static MunitResult test_read_raw(const MunitParameter params[], void *user_data)
 {
     Pbg3Archive archive;

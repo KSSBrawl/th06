@@ -192,7 +192,7 @@ struct Enemy
 
     ZunBool HasPhaseTimerFinished()
     {
-        return this->phaseTimer.current >= this->timerCallbackThreshold;
+        return this->phaseTimer >= this->timerCallbackThreshold;
     }
 
     void ResetRank()

@@ -92,8 +92,9 @@ ZUN_ASSERT_TYPE(RenderVertexInfo, 0x14, 4);
 #define MAX_ANM_SCRIPTS 2048
 #define MAX_ANM_SPRITES 2048
 
-struct AnmManager
+class AnmManager
 {
+  public:
     AnmManager();
     ~AnmManager();
 
@@ -235,6 +236,12 @@ struct AnmManager
         this->screenshotHeight = height;
     }
 
+    AnmLoadedSprite *GetSprite(i32 index)
+    {
+        return &this->sprites[index];
+    }
+
+  private:
     AnmLoadedSprite sprites[MAX_ANM_SPRITES];
     AnmVm virtualMachine;
     LPDIRECT3DTEXTURE8 textures[264];

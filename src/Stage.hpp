@@ -39,9 +39,10 @@ struct RawStageObject
     i8 flags;
     D3DXVECTOR3 position;
     D3DXVECTOR3 size;
-    RawStageQuadBasic firstQuad;
+    // Records end at a negative type and are stepped by byteSize.
+    RawStageQuadBasic quads[];
 };
-ZUN_ASSERT_TYPE(RawStageObject, 0x38, 4);
+ZUN_ASSERT_TYPE(RawStageObject, 0x1c, 4);
 
 struct RawStageObjectInstance
 {

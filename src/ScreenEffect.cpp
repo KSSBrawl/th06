@@ -51,7 +51,7 @@ ChainCallbackResult ScreenEffect_CalcFadeIn(ScreenEffect *effect)
 {
     if (effect->effectLength != 0)
     {
-        effect->fadeAlpha = 255.0f - ((effect->timer.AsFramesFloat() * 255.0f) / effect->effectLength);
+        effect->fadeAlpha = 255.0f - (((f32)effect->timer * 255.0f) / effect->effectLength);
         if (effect->fadeAlpha < 0)
         {
             effect->fadeAlpha = 0;
@@ -115,7 +115,7 @@ ChainCallbackResult ScreenEffect_CalcFadeOut(ScreenEffect *effect)
 {
     if (effect->effectLength != 0)
     {
-        effect->fadeAlpha = (effect->timer.AsFramesFloat() * 255.0f) / effect->effectLength;
+        effect->fadeAlpha = ((f32)effect->timer * 255.0f) / effect->effectLength;
         if (effect->fadeAlpha < 0)
         {
             effect->fadeAlpha = 0;
@@ -235,9 +235,8 @@ ChainCallbackResult ScreenEffect_ShakeScreen(ScreenEffect *effect)
         return CHAIN_CALLBACK_RESULT_CONTINUE_AND_REMOVE_JOB;
     }
 
-    f32 screenOffset =
-        ((effect->timer.AsFramesFloat() * (effect->shakinessParam - effect->genericParam)) / effect->effectLength) +
-        effect->genericParam;
+    f32 screenOffset = (((f32)effect->timer * (effect->shakinessParam - effect->genericParam)) / effect->effectLength) +
+                       effect->genericParam;
 
     switch (g_Rng.GetRandomU32InRange(3))
     {

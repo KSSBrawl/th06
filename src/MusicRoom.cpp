@@ -236,12 +236,12 @@ static ChainCallbackResult MusicRoom_OnDraw(MusicRoom *musicRoom)
         if (musicRoom->cursor != i)
         {
             musicRoom->titleSprites[i].color = COLOR_SET_ALPHA(COLOR_GREY, 0xe0);
-            g_AsciiManager.color = COLOR_SET_ALPHA(COLOR_GREY, 0xe0);
+            g_AsciiManager.SetColor(COLOR_SET_ALPHA(COLOR_GREY, 0xe0));
         }
         else
         {
             musicRoom->titleSprites[i].color = COLOR_WHITE;
-            g_AsciiManager.color = COLOR_WHITE;
+            g_AsciiManager.SetColor(COLOR_WHITE);
         }
 
         musicRoom->titleSprites[i].pos.x = 93.0f;
@@ -268,7 +268,7 @@ static ChainCallbackResult MusicRoom_OnDraw(MusicRoom *musicRoom)
         g_AnmManager->DrawNoRotation(&musicRoom->descriptionSprites[i]);
     }
 
-    g_AsciiManager.color = COLOR_WHITE;
+    g_AsciiManager.SetColor(COLOR_WHITE);
 
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
