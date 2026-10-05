@@ -36,6 +36,9 @@ DIFFABLE_STATIC_SORTED(H1, GameManager, g_GameManager);
 DIFFABLE_STATIC_SORTED(H2, ChainElem, g_GameManagerCalcChain);
 DIFFABLE_STATIC_SORTED(H3, ChainElem, g_GameManagerDrawChain);
 
+ZunResult GameManager_AddedCallback(GameManager *gameManager);
+ZunResult GameManager_DeletedCallback(GameManager *gameManager);
+
 #define MAX_SCORE 999999999
 
 #define DEMO_FADEOUT_FRAMES 3600
@@ -481,7 +484,7 @@ ZunResult GameManager_DeletedCallback(GameManager *mgr)
     g_EclManager.Unload();
     EffectManager_CutChain();
     Gui_CutChain();
-    ReplayManager_StopRecording();
+    StopRecordingReplay();
     mgr->isInMenu = false;
     g_AsciiManager.InitializeVms();
     return ZUN_SUCCESS;

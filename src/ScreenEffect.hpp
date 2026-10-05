@@ -46,13 +46,7 @@ ZUN_ASSERT_TYPE(ScreenEffect, 0x30, 4);
 // multiplier over time
 ScreenEffect *ScreenEffect_RegisterChain(i32 effect, u32 ticks, u32 effectParam1, u32 effectParam2,
                                          u32 unusedEffectParam);
-ZunResult ScreenEffect_AddedCallback(ScreenEffect *effect);
-ZunResult ScreenEffect_DeletedCallback(ScreenEffect *effect);
-ChainCallbackResult ScreenEffect_DrawFadeIn(ScreenEffect *effect);
-ChainCallbackResult ScreenEffect_CalcFadeIn(ScreenEffect *effect);
-ChainCallbackResult ScreenEffect_ShakeScreen(ScreenEffect *effect);
-ChainCallbackResult ScreenEffect_DrawFadeOut(ScreenEffect *effect);
-ChainCallbackResult ScreenEffect_CalcFadeOut(ScreenEffect *effect);
+
 void ScreenEffect_DrawSquare(ZunRect *rect, D3DCOLOR rectColor);
 void ScreenEffect_Clear(D3DCOLOR color);
 void ScreenEffect_SetViewport(D3DCOLOR color);

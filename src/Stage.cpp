@@ -31,6 +31,9 @@ DIFFABLE_STATIC_SORTED(B5, ChainElem, g_StageCalcChain);
 DIFFABLE_STATIC_SORTED(B2, ChainElem, g_StageOnDrawHighPrioChain);
 DIFFABLE_STATIC_SORTED(B4, ChainElem, g_StageOnDrawLowPrioChain);
 
+ZunResult Stage_AddedCallback(Stage *stage);
+ZunResult Stage_DeletedCallback(Stage *stage);
+
 #define GET_ARG(type, num) ((type *)curInstr->args)[num]
 #define GET_INT_ARG(num) GET_ARG(i32, num)
 #define GET_FLOAT_ARG(num) GET_ARG(float, num)

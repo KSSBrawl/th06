@@ -18,6 +18,10 @@ DIFFABLE_STATIC_SORTED(A3, AsciiManager, g_AsciiManager);
 DIFFABLE_STATIC_SORTED(A4, ChainElem, g_AsciiManagerCalcChain);
 DIFFABLE_STATIC_SORTED(A2, ChainElem, g_AsciiManagerOnDrawMenusChain);
 DIFFABLE_STATIC_SORTED(A5, ChainElem, g_AsciiManagerOnDrawPopupsChain);
+
+ZunResult AsciiManager_AddedCallback(AsciiManager *s);
+ZunResult AsciiManager_DeletedCallback(AsciiManager *s);
+
 ChainCallbackResult AsciiManager_OnUpdate(AsciiManager *mgr)
 {
     if (!g_GameManager.isInGameMenu && !g_GameManager.isInRetryMenu)

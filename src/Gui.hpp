@@ -89,10 +89,6 @@ ZUN_ASSERT_TYPE(Gui, 0x2c, 4);
 
 ZunResult Gui_RegisterChain();
 void Gui_CutChain();
-ZunResult Gui_AddedCallback(Gui *);
-ZunResult Gui_DeletedCallback(Gui *);
-ChainCallbackResult Gui_OnUpdate(Gui *);
-ChainCallbackResult Gui_OnDraw(Gui *);
 
 DIFFABLE_EXTERN(Gui, g_Gui);
 } // namespace th06

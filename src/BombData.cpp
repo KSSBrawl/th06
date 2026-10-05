@@ -10,7 +10,7 @@ namespace th06
 {
 
 #pragma var_order(angleY, angleX, i, bombSprite, vecLength, bombPivot, bombIdx)
-void BombData_BombReimuACalc(Player *player)
+void BombReimuACalc(Player *player)
 {
     i32 i;
     f32 vecLength;
@@ -206,7 +206,7 @@ static void DarkenViewport(Player *player)
 }
 
 #pragma var_order(bombSprite, idx)
-void BombData_BombReimuADraw(Player *player)
+void BombReimuADraw(Player *player)
 {
     i32 idx;
     AnmVm *bombSprite;
@@ -244,7 +244,7 @@ void BombData_BombReimuADraw(Player *player)
 }
 
 #pragma var_order(i, bombSprite, unusedVector)
-void BombData_BombReimuBCalc(Player *player)
+void BombReimuBCalc(Player *player)
 {
     AnmVm *bombSprite;
     i32 i;
@@ -324,7 +324,7 @@ void BombData_BombReimuBCalc(Player *player)
 }
 
 #pragma var_order(bombSprite, i)
-void BombData_BombReimuBDraw(Player *player)
+void BombReimuBDraw(Player *player)
 {
     AnmVm *bombSprite;
     i32 i;
@@ -342,7 +342,7 @@ void BombData_BombReimuBDraw(Player *player)
 }
 
 #pragma var_order(i, starSprite, pad)
-void BombData_BombMarisaACalc(Player *player)
+void BombMarisaACalc(Player *player)
 {
     i32 pad[3];
     AnmVm *starSprite;
@@ -405,7 +405,7 @@ void BombData_BombMarisaACalc(Player *player)
 }
 
 #pragma var_order(bombSprite, idx)
-void BombData_BombMarisaADraw(Player *player)
+void BombMarisaADraw(Player *player)
 {
     AnmVm *bombSprite;
     i32 idx;
@@ -447,7 +447,7 @@ void BombData_BombMarisaADraw(Player *player)
 }
 
 #pragma var_order(i, bombSprite, unusedVector)
-void BombData_BombMarisaBCalc(Player *player)
+void BombMarisaBCalc(Player *player)
 {
     AnmVm *bombSprite;
     i32 i;
@@ -511,7 +511,7 @@ void BombData_BombMarisaBCalc(Player *player)
 }
 
 #pragma var_order(bombSprite, i)
-void BombData_BombMarisaBDraw(Player *player)
+void BombMarisaBDraw(Player *player)
 {
     AnmVm *bombSprite;
     i32 i;

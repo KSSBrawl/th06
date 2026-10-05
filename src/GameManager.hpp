@@ -129,10 +129,10 @@ struct GameManager
     u32 gameFrames;
     i32 currentStage;
     u32 menuCursorBackup;
-    D3DXVECTOR2 gameRegionScreenPos;
-    D3DXVECTOR2 gameRegionSize;
-    D3DXVECTOR2 playerMovementAreaTopLeftPos;
-    D3DXVECTOR2 playerMovementAreaSize;
+    ZunVec2 gameRegionScreenPos;
+    ZunVec2 gameRegionSize;
+    ZunVec2 playerMovementAreaTopLeftPos;
+    ZunVec2 playerMovementAreaSize;
     f32 cameraDistance;
     D3DXVECTOR3 stageCameraFacingDir;
     i32 counat;
@@ -143,10 +143,6 @@ struct GameManager
 };
 ZunResult GameManager_RegisterChain();
 void GameManager_CutChain();
-ChainCallbackResult GameManager_OnUpdate(GameManager *gameManager);
-ChainCallbackResult GameManager_OnDraw(GameManager *gameManager);
-ZunResult GameManager_AddedCallback(GameManager *gameManager);
-ZunResult GameManager_DeletedCallback(GameManager *gameManager);
 void GameManager_SetupCamera(f32 extraRenderDistance);
 void GameManager_SetupCameraStageBackground(f32 extraRenderDistance);
 

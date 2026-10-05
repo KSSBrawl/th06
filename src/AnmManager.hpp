@@ -23,7 +23,7 @@ ZUN_ASSERT_TYPE(VertexDiffuseXyzrwh, 0x14, 4);
 struct VertexTex1Xyzrwh
 {
     D3DXVECTOR4 position;
-    D3DXVECTOR2 textureUV;
+    ZunVec2 textureUV;
 };
 ZUN_ASSERT_TYPE(VertexTex1Xyzrwh, 0x18, 4);
 
@@ -32,7 +32,7 @@ struct VertexTex1DiffuseXyzrwh
 {
     D3DXVECTOR4 position;
     D3DCOLOR diffuse;
-    D3DXVECTOR2 textureUV;
+    ZunVec2 textureUV;
 };
 ZUN_ASSERT_TYPE(VertexTex1DiffuseXyzrwh, 0x1c, 4);
 
@@ -41,15 +41,15 @@ struct VertexTex1DiffuseXyz
 {
     D3DXVECTOR3 position;
     D3DCOLOR diffuse;
-    D3DXVECTOR2 textureUV;
+    ZunVec2 textureUV;
 };
 ZUN_ASSERT_TYPE(VertexTex1DiffuseXyz, 0x18, 4);
 
 struct AnmRawSprite
 {
     u32 id;
-    D3DXVECTOR2 offset;
-    D3DXVECTOR2 size;
+    ZunVec2 offset;
+    ZunVec2 size;
 };
 ZUN_ASSERT_TYPE(AnmRawSprite, 0x14, 4);
 
@@ -85,7 +85,7 @@ ZUN_ASSERT_TYPE(AnmRawEntry, 0x40, 4);
 struct RenderVertexInfo
 {
     D3DXVECTOR3 position;
-    D3DXVECTOR2 textureUV;
+    ZunVec2 textureUV;
 };
 ZUN_ASSERT_TYPE(RenderVertexInfo, 0x14, 4);
 
@@ -97,10 +97,7 @@ struct AnmManager
     AnmManager();
     ~AnmManager();
 
-    void ReleaseVertexBuffer()
-    {
-        SAFE_RELEASE(this->vertexBuffer);
-    }
+    void ReleaseVertexBuffer();
     void SetupVertexBuffer();
 
     ZunResult CreateEmptyTexture(i32 textureIdx, u32 width, u32 height, i32 textureFormat);

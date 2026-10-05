@@ -27,7 +27,7 @@ struct AsciiManagerString
     char text[64];
     D3DXVECTOR3 position;
     D3DCOLOR color;
-    D3DXVECTOR2 scale;
+    ZunVec2 scale;
     // If true, we are drawing the currently selected element of the MainMenu
     // class.
     ZunBool isSelected;
@@ -78,7 +78,7 @@ struct AsciiManager
     AsciiManagerString strings[ASCII_STRING_COUNT];
     i32 numStrings;
     D3DCOLOR color;
-    D3DXVECTOR2 scale;
+    ZunVec2 scale;
     // If true, we are drawing an element of the Gui class.
     ZunBool isGui;
     // If true, we are drawing the currently selected element of the MainMenu
@@ -97,11 +97,6 @@ ZUN_ASSERT_TYPE(AsciiManager, 0xc1ac, 4);
 
 ZunResult AsciiManager_RegisterChain();
 void AsciiManager_CutChain();
-ChainCallbackResult AsciiManager_OnUpdate(AsciiManager *s);
-ChainCallbackResult AsciiManager_OnDrawMenus(AsciiManager *s);
-ChainCallbackResult AsciiManager_OnDrawPopups(AsciiManager *s);
-ZunResult AsciiManager_AddedCallback(AsciiManager *s);
-ZunResult AsciiManager_DeletedCallback(AsciiManager *s);
 
 DIFFABLE_EXTERN(AsciiManager, g_AsciiManager);
 } // namespace th06

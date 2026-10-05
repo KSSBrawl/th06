@@ -258,8 +258,8 @@ struct Enemy
     i16 anmPoseNeutralFromRight;
     i16 anmPoseLeft;
     i16 anmPoseRight;
-    D3DXVECTOR2 lowerMoveLimit;
-    D3DXVECTOR2 upperMoveLimit;
+    ZunVec2 lowerMoveLimit;
+    ZunVec2 upperMoveLimit;
     Effect *effectArray[12];
     i32 effectIdx;
     f32 effectDistance;

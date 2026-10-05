@@ -120,14 +120,14 @@ struct MainMenu
 };
 ZUN_ASSERT_TYPE(MainMenu, 0x10f34, 4);
 
-ZunResult MainMenu_LoadTitleAnm(MainMenu *menu);
-ZunResult MainMenu_LoadReplayMenu(MainMenu *menu);
+ZunResult LoadTitleAnm(MainMenu *menu);
+ZunResult LoadReplayMenu(MainMenu *menu);
 ChainCallbackResult MainMenu_OnUpdate(MainMenu *s);
 ChainCallbackResult MainMenu_OnDraw(MainMenu *s);
 ZunResult MainMenu_AddedCallback(MainMenu *s);
 ZunResult MainMenu_DeletedCallback(MainMenu *s);
-ZunResult MainMenu_LoadDiffCharSelect(MainMenu *s);
-void MainMenu_ReleaseTitleAnm();
+ZunResult LoadDiffCharSelect(MainMenu *s);
+void ReleaseTitleAnm();
 
 static CursorMovement MoveCursor(MainMenu *menu, i32 menuLength);
 static void SwapMapping(MainMenu *menu, i16 btnPressed, i16 oldMapping, ZunBool unk);
@@ -375,7 +375,7 @@ ChainCallbackResult MainMenu_OnUpdate(MainMenu *menu)
     case STATE_DIFFICULTY_LOAD:
         if (menu->stateTimer == 60)
         {
-            if (MainMenu_LoadDiffCharSelect(menu) != ZUN_SUCCESS)
+            if (LoadDiffCharSelect(menu) != ZUN_SUCCESS)
             {
                 g_GameErrorContext.Log(TH_ERR_MAINMENU_LOAD_SELECT_SCREEN_FAILED);
                 g_Supervisor.curState = SUPERVISOR_STATE_EXITSUCCESS;
@@ -1072,7 +1072,7 @@ ZunResult MainMenu::BeginStartup()
     DWORD time;
     i32 i;
 
-    if (MainMenu_LoadTitleAnm(this) != ZUN_SUCCESS)
+    if (LoadTitleAnm(this) != ZUN_SUCCESS)
     {
         g_Supervisor.curState = SUPERVISOR_STATE_EXITSUCCESS;
         return ZUN_ERROR;
@@ -1351,7 +1351,7 @@ i32 MainMenu::ReplayHandling()
     case STATE_REPLAY_LOAD:
         if (this->stateTimer == 60)
         {
-            if (MainMenu_LoadReplayMenu(this))
+            if (LoadReplayMenu(this))
             {
                 g_GameErrorContext.Log(TH_ERR_MAINMENU_LOAD_SELECT_SCREEN_FAILED);
                 g_Supervisor.curState = SUPERVISOR_STATE_EXITSUCCESS;
@@ -1368,7 +1368,7 @@ i32 MainMenu::ReplayHandling()
                     {
                         continue;
                     }
-                    if (!ReplayManager_ValidateReplayData(replayData, g_LastFileSize))
+                    if (!ValidateReplayData(replayData, g_LastFileSize))
                     {
                         this->replayFileData[replayFileIdx] = *replayData;
                         strcpy(this->replayFilePaths[replayFileIdx], replayFilePath);
@@ -1389,7 +1389,7 @@ i32 MainMenu::ReplayHandling()
                         {
                             continue;
                         }
-                        if (!ReplayManager_ValidateReplayData(replayData, g_LastFileSize))
+                        if (!ValidateReplayData(replayData, g_LastFileSize))
                         {
                             this->replayFileData[replayFileIdx] = *replayData;
                             sprintf(this->replayFilePaths[replayFileIdx], "./replay/%s", replayFileInfo.cFileName);
@@ -1449,7 +1449,7 @@ i32 MainMenu::ReplayHandling()
                 g_SoundPlayer.PlaySoundByIdx(SOUND_SELECT);
                 this->currentReplay =
                     (ReplayData *)FileSystem::OpenPath(this->replayFilePaths[this->chosenReplay], EXTERNAL_FILE);
-                ReplayManager_ValidateReplayData(this->currentReplay, g_LastFileSize);
+                ValidateReplayData(this->currentReplay, g_LastFileSize);
                 for (cur = 0; cur < ARRAY_SIZE_SIGNED(this->currentReplay->stageReplayData); cur++)
                 {
                     if (this->currentReplay->stageReplayData[cur] != NULL)
@@ -2087,7 +2087,7 @@ ChainCallbackResult MainMenu_OnDraw(MainMenu *menu)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
-ZunResult MainMenu_LoadTitleAnm(MainMenu *menu)
+ZunResult LoadTitleAnm(MainMenu *menu)
 {
     i32 i;
 
@@ -2137,7 +2137,7 @@ ZunResult MainMenu_LoadTitleAnm(MainMenu *menu)
     return ZUN_SUCCESS;
 }
 
-ZunResult MainMenu_LoadDiffCharSelect(MainMenu *menu)
+ZunResult LoadDiffCharSelect(MainMenu *menu)
 {
     AnmVm *vm;
     i32 i;
@@ -2207,7 +2207,7 @@ ZunResult MainMenu_LoadDiffCharSelect(MainMenu *menu)
 }
 
 #pragma var_order(fileIdx, vm)
-ZunResult MainMenu_LoadReplayMenu(MainMenu *menu)
+ZunResult LoadReplayMenu(MainMenu *menu)
 {
     AnmVm *vm;
     i32 fileIdx;
@@ -2354,7 +2354,7 @@ ZunResult MainMenu_AddedCallback(MainMenu *menu)
 ZunResult MainMenu_DeletedCallback(MainMenu *menu)
 {
     g_Supervisor.d3dDevice->ResourceManagerDiscardBytes(0);
-    MainMenu_ReleaseTitleAnm();
+    ReleaseTitleAnm();
     for (i32 i = ANM_FILE_SELECT01; i <= ANM_FILE_REPLAY; i++)
     {
         g_AnmManager->ReleaseAnm(i);
@@ -2368,7 +2368,7 @@ ZunResult MainMenu_DeletedCallback(MainMenu *menu)
     return ZUN_SUCCESS;
 }
 
-void MainMenu_ReleaseTitleAnm()
+void ReleaseTitleAnm()
 {
     // There's a bit of an off-by-one error here, where it frees
     // ANM_FILE_SELECT01 in addition to the titles. I'm pretty sure this is

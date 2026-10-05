@@ -24,7 +24,7 @@
 #if !TRIALBUILD
 #define ARCHIVE_VERSION GAME_VERSION
 #else
-#define ARCHIVE_VERSION 0x13
+#define ARCHIVE_VERSION 0x013
 #endif
 
 namespace th06
@@ -32,6 +32,7 @@ namespace th06
 FILE_BSS_SORT(M1);
 
 BSS_SORT(M1) DIFFABLE_STATIC(Supervisor, g_Supervisor);
+
 ChainCallbackResult Supervisor_OnUpdate(Supervisor *s)
 {
     if (g_SoundPlayer.backgroundMusic != NULL)
@@ -130,7 +131,7 @@ ChainCallbackResult Supervisor_OnUpdate(Supervisor *s)
             RETURN_TO_MENU_FROM_GAME:
                 GameManager_CutChain();
                 s->curState = SUPERVISOR_STATE_INIT;
-                ReplayManager_SaveReplay(NULL, NULL);
+                SaveReplay(NULL, NULL);
                 goto REINIT_MAINMENU;
 
             case SUPERVISOR_STATE_RESULTSCREEN_FROMGAME:
@@ -157,7 +158,7 @@ ChainCallbackResult Supervisor_OnUpdate(Supervisor *s)
             case SUPERVISOR_STATE_MAINMENU_REPLAY:
                 GameManager_CutChain();
                 s->curState = SUPERVISOR_STATE_INIT;
-                ReplayManager_SaveReplay(NULL, NULL);
+                SaveReplay(NULL, NULL);
                 s->curState = SUPERVISOR_STATE_MAINMENU;
                 g_Supervisor.d3dDevice->ResourceManagerDiscardBytes(0);
                 if (MainMenu_RegisterChain(true) != ZUN_SUCCESS)
@@ -179,11 +180,11 @@ ChainCallbackResult Supervisor_OnUpdate(Supervisor *s)
             switch (s->curState)
             {
             case SUPERVISOR_STATE_EXITSUCCESS:
-                ReplayManager_SaveReplay(NULL, NULL);
+                SaveReplay(NULL, NULL);
                 return CHAIN_CALLBACK_RESULT_EXIT_GAME_SUCCESS;
             case SUPERVISOR_STATE_MAINMENU:
                 s->curState = SUPERVISOR_STATE_INIT;
-                ReplayManager_SaveReplay(NULL, NULL);
+                SaveReplay(NULL, NULL);
                 goto REINIT_MAINMENU;
             }
             break;
@@ -222,6 +223,8 @@ ChainCallbackResult Supervisor_OnUpdate(Supervisor *s)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
+static void Supervisor_DrawFpsCounter();
+
 ChainCallbackResult Supervisor_OnDraw(Supervisor *s)
 {
     g_AnmManager->SetCurrentVertexShader(AnmVertexShader_NotSet);
@@ -235,6 +238,23 @@ ChainCallbackResult Supervisor_OnDraw(Supervisor *s)
     return CHAIN_CALLBACK_RESULT_CONTINUE;
 }
 
+static ZunResult Supervisor_AddedCallback(Supervisor *s);
+static ZunResult Supervisor_DeletedCallback(Supervisor *s);
+
+static BOOL CALLBACK Supervisor_EnumGameControllersCb(LPCDIDEVICEINSTANCE pdidInstance, LPVOID pContext)
+{
+    if (!g_Supervisor.controller)
+    {
+        HRESULT result =
+            g_Supervisor.dinputIface->CreateDevice(pdidInstance->guidInstance, &g_Supervisor.controller, NULL);
+        if (FAILED(result))
+        {
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
 #pragma var_order(diprange, pvRefBackup)
 BOOL CALLBACK Supervisor_ControllerCallback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOID pvRef)
 {
@@ -243,8 +263,8 @@ BOOL CALLBACK Supervisor_ControllerCallback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LP
 
     if (lpddoi->dwType & DIDFT_AXIS)
     {
-        diprange.diph.dwSize = sizeof(diprange);
-        diprange.diph.dwHeaderSize = sizeof(diprange.diph);
+        diprange.diph.dwSize = sizeof(DIPROPRANGE);
+        diprange.diph.dwHeaderSize = sizeof(DIPROPHEADER);
         diprange.diph.dwHow = DIPH_BYID;
         diprange.diph.dwObj = lpddoi->dwType;
         diprange.lMin = -1000;
@@ -341,7 +361,7 @@ static ZunResult SetupDInput(Supervisor *supervisor)
         supervisor->controller->SetDataFormat(&c_dfDIJoystick2);
         supervisor->controller->SetCooperativeLevel(supervisor->hwndGameWindow, DISCL_EXCLUSIVE | DISCL_FOREGROUND);
 
-        g_Supervisor.controllerCaps.dwSize = sizeof(g_Supervisor.controllerCaps);
+        g_Supervisor.controllerCaps.dwSize = sizeof(DIDEVCAPS);
 
         supervisor->controller->GetCapabilities(&g_Supervisor.controllerCaps);
         supervisor->controller->EnumObjects(Supervisor_ControllerCallback, NULL, DIDFT_ALL);
@@ -351,7 +371,7 @@ static ZunResult SetupDInput(Supervisor *supervisor)
     return ZUN_SUCCESS;
 }
 
-ZunResult Supervisor_AddedCallback(Supervisor *s)
+static ZunResult Supervisor_AddedCallback(Supervisor *s)
 {
     for (i32 i = 0; i < ARRAY_SIZE_SIGNED(s->pbg3Archives); i++)
     {
@@ -405,21 +425,7 @@ ZunResult Supervisor_AddedCallback(Supervisor *s)
     return ZUN_SUCCESS;
 }
 
-BOOL CALLBACK Supervisor_EnumGameControllersCb(LPCDIDEVICEINSTANCE pdidInstance, LPVOID pContext)
-{
-    if (!g_Supervisor.controller)
-    {
-        HRESULT result =
-            g_Supervisor.dinputIface->CreateDevice(pdidInstance->guidInstance, &g_Supervisor.controller, NULL);
-        if (FAILED(result))
-        {
-            return TRUE;
-        }
-    }
-    return FALSE;
-}
-
-ZunResult Supervisor_DeletedCallback(Supervisor *s)
+static ZunResult Supervisor_DeletedCallback(Supervisor *s)
 {
     g_AnmManager->ReleaseVertexBuffer();
     for (i32 pbg3Idx = 0; pbg3Idx < ARRAY_SIZE_SIGNED(s->pbg3Archives); pbg3Idx++)
@@ -434,7 +440,7 @@ ZunResult Supervisor_DeletedCallback(Supervisor *s)
         s->midiOutput->StopPlayback();
         ZUN_DELETE(s->midiOutput);
     }
-    ReplayManager_SaveReplay(NULL, NULL);
+    SaveReplay(NULL, NULL);
     TextHelper_ReleaseTextBuffer();
     if (s->keyboard != NULL)
     {
@@ -451,7 +457,7 @@ ZunResult Supervisor_DeletedCallback(Supervisor *s)
 }
 
 #pragma var_order(curTime, framerate, fps, elapsed)
-void Supervisor_DrawFpsCounter()
+static void Supervisor_DrawFpsCounter()
 {
     DWORD curTime;
     float framerate;
@@ -492,6 +498,11 @@ void Supervisor_DrawFpsCounter()
     {
         g_AsciiManager.AddString(&D3DXVECTOR3(512.0f, 464.0f, 0.0f), g_FpsCounterBuffer);
     }
+}
+
+void AnmManager::ReleaseVertexBuffer()
+{
+    SAFE_RELEASE(this->vertexBuffer);
 }
 
 void ZunTimer::Initialize()

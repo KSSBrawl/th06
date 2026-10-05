@@ -870,7 +870,7 @@ i32 ResultScreen::HandleReplaySaveKeyboard()
                     continue;
                 }
 
-                if (ReplayManager_ValidateReplayData(replayLoaded, g_LastFileSize) == ZUN_SUCCESS)
+                if (ValidateReplayData(replayLoaded, g_LastFileSize) == ZUN_SUCCESS)
                 {
                     this->replays[idx] = *replayLoaded;
                 }
@@ -1018,7 +1018,7 @@ i32 ResultScreen::HandleReplaySaveKeyboard()
             {
                 char replayPath[64];
                 sprintf(replayPath, "./replay/th6_%.2d.rpy", this->replayNumber + 1);
-                ReplayManager_SaveReplay(replayPath, this->replayName);
+                SaveReplay(replayPath, this->replayName);
                 this->frameTimer = 0;
                 this->resultScreenState = RESULT_SCREEN_STATE_EXITING;
                 sprite = &this->unk_40[0];

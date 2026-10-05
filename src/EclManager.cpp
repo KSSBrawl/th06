@@ -12,24 +12,20 @@
 
 namespace th06
 {
-namespace EnemyEclInstr
-{
-static i32 *GetVar(Enemy *enemy, EclVarId *varId, EclValueType *valueType);
-static f32 *GetVarFloat(Enemy *enemy, f32 *varId, EclValueType *valueType);
-static void SetVar(Enemy *enemy, EclVarId out, void *value);
+static i32 *EclGetVar(Enemy *enemy, EclVarId *varId, EclValueType *valueType);
+static f32 *EclGetVarFloat(Enemy *enemy, f32 *varId, EclValueType *valueType);
+static void EclSetVar(Enemy *enemy, EclVarId out, void *value);
 
-static void MathAdd(Enemy *enemy, EclVarId out, EclVarId *lhs, EclVarId *rhs);
-static void MathSub(Enemy *enemy, EclVarId out, EclVarId *lhs, EclVarId *rhs);
-static void MathMul(Enemy *enemy, EclVarId out, EclVarId *lhs, EclVarId *rhs);
-static void MathDiv(Enemy *enemy, EclVarId out, EclVarId *lhs, EclVarId *rhs);
-static void MathMod(Enemy *enemy, EclVarId out, EclVarId *lhs, EclVarId *rhs);
-static void MathAtan2(Enemy *enemy, EclVarId out, f32 *a1, f32 *a2, f32 *b1, f32 *b2);
+static void EclMathAdd(Enemy *enemy, EclVarId out, EclVarId *lhs, EclVarId *rhs);
+static void EclMathSub(Enemy *enemy, EclVarId out, EclVarId *lhs, EclVarId *rhs);
+static void EclMathMul(Enemy *enemy, EclVarId out, EclVarId *lhs, EclVarId *rhs);
+static void EclMathDiv(Enemy *enemy, EclVarId out, EclVarId *lhs, EclVarId *rhs);
+static void EclMathMod(Enemy *enemy, EclVarId out, EclVarId *lhs, EclVarId *rhs);
+static void EclMathAtan2(Enemy *enemy, EclVarId out, f32 *a1, f32 *a2, f32 *b1, f32 *b2);
 
-static void MoveDirTime(Enemy *enemy, EclRawInstr *instr);
-static void MovePosTime(Enemy *enemy, EclRawInstr *instr);
-static void MoveTime(Enemy *enemy, EclRawInstr *instr);
-
-} // namespace EnemyEclInstr
+static void EclMoveDirTime(Enemy *enemy, EclRawInstr *instr);
+static void EclMovePosTime(Enemy *enemy, EclRawInstr *instr);
+static void EclMoveTime(Enemy *enemy, EclRawInstr *instr);
 
 DIFFABLE_STATIC_ARRAY_ASSIGN(i32, 64, g_SpellcardScore) = {
     200000, 200000, 200000, 200000, 200000, 200000, 200000, 250000, 250000, 250000, 250000, 250000, 250000,
@@ -38,23 +34,23 @@ DIFFABLE_STATIC_ARRAY_ASSIGN(i32, 64, g_SpellcardScore) = {
     400000, 500000, 500000, 500000, 500000, 500000, 500000, 600000, 600000, 600000, 600000, 600000, 700000,
     700000, 700000, 700000, 700000, 700000, 700000, 700000, 700000, 700000, 700000, 700000, 700000};
 typedef void (*ExInsn)(Enemy *, EclRawInstr *);
-DIFFABLE_STATIC_ARRAY_ASSIGN(ExInsn, 17, g_EclExInsn) = {EnemyEclInstr::ExInsCirnoRainbowBallJank,
-                                                         EnemyEclInstr::ExInsShootAtRandomArea,
-                                                         EnemyEclInstr::ExInsShootStarPattern,
-                                                         EnemyEclInstr::ExInsPatchouliShottypeSetVars,
-                                                         EnemyEclInstr::ExInsStage56Func4,
-                                                         EnemyEclInstr::ExInsStage5Func5,
-                                                         EnemyEclInstr::ExInsBatWingEffect,
-                                                         EnemyEclInstr::ExInsStage6Func7,
-                                                         EnemyEclInstr::ExInsStage6Func8,
-                                                         EnemyEclInstr::ExInsStage6Func9,
-                                                         EnemyEclInstr::ExInsHandleBatTransformation,
-                                                         EnemyEclInstr::ExInsStage6Func11,
-                                                         EnemyEclInstr::ExInsStage4Func12,
-                                                         EnemyEclInstr::ExInsStageXFunc13,
-                                                         EnemyEclInstr::ExInsStageXFunc14,
-                                                         EnemyEclInstr::ExInsStageXFunc15,
-                                                         EnemyEclInstr::ExInsFlandreFinalContextUpdate};
+DIFFABLE_STATIC_ARRAY_ASSIGN(ExInsn, 17, g_EclExInsn) = {ExInsCirnoRainbowBallJank,
+                                                         ExInsShootAtRandomArea,
+                                                         ExInsShootStarPattern,
+                                                         ExInsPatchouliShottypeSetVars,
+                                                         ExInsStage56Func4,
+                                                         ExInsStage5Func5,
+                                                         ExInsBatWingEffect,
+                                                         ExInsStage6Func7,
+                                                         ExInsStage6Func8,
+                                                         ExInsStage6Func9,
+                                                         ExInsHandleBatTransformation,
+                                                         ExInsStage6Func11,
+                                                         ExInsStage4Func12,
+                                                         ExInsStageXFunc13,
+                                                         ExInsStageXFunc14,
+                                                         ExInsStageXFunc15,
+                                                         ExInsFlandreFinalContextUpdate};
 
 DIFFABLE_STATIC_SORTED(C5, ChainElem, g_EclManagerCalcChain); // unused
 DIFFABLE_STATIC_SORTED(C4, EclManager, g_EclManager);
@@ -126,9 +122,9 @@ restart_sub_changed:
         case ECL_OPCODE_ENEMY_DELETE:
             return ZUN_ERROR;
         case ECL_OPCODE_LOOP:
-            genericInt = *EnemyEclInstr::GetVar(enemy, &args->jump.var, NULL);
+            genericInt = *EclGetVar(enemy, &args->jump.var, NULL);
             genericInt--;
-            EnemyEclInstr::SetVar(enemy, args->jump.var, &genericInt);
+            EclSetVar(enemy, args->jump.var, &genericInt);
             if (genericInt <= 0)
                 break;
             // fallthrough
@@ -139,97 +135,97 @@ restart_sub_changed:
             continue;
         case ECL_OPCODE_SET_INT:
         case ECL_OPCODE_SET_FLOAT:
-            EnemyEclInstr::SetVar(enemy, curInstr->args.alu.res, &args->alu.arg1.i32);
+            EclSetVar(enemy, curInstr->args.alu.res, &args->alu.arg1.i32);
             break;
         case ECL_OPCODE_MATH_REDUCE_ANGLE:
-            genericFloat = *(f32 *)EnemyEclInstr::GetVar(enemy, &curInstr->args.alu.res, NULL);
+            genericFloat = *(f32 *)EclGetVar(enemy, &curInstr->args.alu.res, NULL);
             genericFloat = utils::AddNormalizeAngle(genericFloat, 0.0f);
-            EnemyEclInstr::SetVar(enemy, curInstr->args.alu.res, &genericFloat);
+            EclSetVar(enemy, curInstr->args.alu.res, &genericFloat);
             break;
         case ECL_OPCODE_SET_INT_RAND: {
-            i32 range = *EnemyEclInstr::GetVar(enemy, &args->alu.arg1.id, NULL);
+            i32 range = *EclGetVar(enemy, &args->alu.arg1.id, NULL);
             genericInt = g_Rng.GetRandomU32InRange(range);
-            EnemyEclInstr::SetVar(enemy, curInstr->args.alu.res, &genericInt);
+            EclSetVar(enemy, curInstr->args.alu.res, &genericInt);
             break;
         }
 #pragma var_order(range, minVal)
         case ECL_OPCODE_SET_INT_RAND_MIN: {
-            i32 range = *EnemyEclInstr::GetVar(enemy, &args->alu.arg1.id, NULL);
-            i32 minVal = *EnemyEclInstr::GetVar(enemy, &args->alu.arg2.id, NULL);
+            i32 range = *EclGetVar(enemy, &args->alu.arg1.id, NULL);
+            i32 minVal = *EclGetVar(enemy, &args->alu.arg2.id, NULL);
             genericInt = g_Rng.GetRandomU32InRange(range);
             genericInt += minVal;
-            EnemyEclInstr::SetVar(enemy, curInstr->args.alu.res, &genericInt);
+            EclSetVar(enemy, curInstr->args.alu.res, &genericInt);
             break;
         }
         case ECL_OPCODE_SET_FLOAT_RAND: {
-            f32 range = *EnemyEclInstr::GetVarFloat(enemy, &args->alu.arg1.f32, NULL);
+            f32 range = *EclGetVarFloat(enemy, &args->alu.arg1.f32, NULL);
             genericFloat = g_Rng.GetRandomF32InRange(range);
-            EnemyEclInstr::SetVar(enemy, curInstr->args.alu.res, &genericFloat);
+            EclSetVar(enemy, curInstr->args.alu.res, &genericFloat);
             break;
         }
 #pragma var_order(range, minVal)
         case ECL_OPCODE_SET_FLOAT_RAND_MIN: {
-            float range = *EnemyEclInstr::GetVarFloat(enemy, &args->alu.arg1.f32, NULL);
-            float minVal = *EnemyEclInstr::GetVarFloat(enemy, &args->alu.arg2.f32, NULL);
+            float range = *EclGetVarFloat(enemy, &args->alu.arg1.f32, NULL);
+            float minVal = *EclGetVarFloat(enemy, &args->alu.arg2.f32, NULL);
             genericFloat = g_Rng.GetRandomF32InRange(range);
             genericFloat += minVal;
-            EnemyEclInstr::SetVar(enemy, curInstr->args.alu.res, &genericFloat);
+            EclSetVar(enemy, curInstr->args.alu.res, &genericFloat);
             break;
         }
         case ECL_OPCODE_SET_VAR_SELF_X:
-            EnemyEclInstr::SetVar(enemy, curInstr->args.alu.res, &enemy->position.x);
+            EclSetVar(enemy, curInstr->args.alu.res, &enemy->position.x);
             break;
         case ECL_OPCODE_SET_VAR_SELF_Y:
-            EnemyEclInstr::SetVar(enemy, curInstr->args.alu.res, &enemy->position.y);
+            EclSetVar(enemy, curInstr->args.alu.res, &enemy->position.y);
             break;
         case ECL_OPCODE_SET_VAR_SELF_Z:
-            EnemyEclInstr::SetVar(enemy, curInstr->args.alu.res, &enemy->position.z);
+            EclSetVar(enemy, curInstr->args.alu.res, &enemy->position.z);
             break;
         case ECL_OPCODE_MATH_INT_ADD:
         case ECL_OPCODE_MATH_FLOAT_ADD:
-            EnemyEclInstr::MathAdd(enemy, curInstr->args.alu.res, &args->alu.arg1.id, &args->alu.arg2.id);
+            EclMathAdd(enemy, curInstr->args.alu.res, &args->alu.arg1.id, &args->alu.arg2.id);
             break;
         case ECL_OPCODE_MATH_INC: {
-            i32 *var = EnemyEclInstr::GetVar(enemy, &curInstr->args.alu.res, NULL);
+            i32 *var = EclGetVar(enemy, &curInstr->args.alu.res, NULL);
             *var += 1;
             break;
         }
         case ECL_OPCODE_MATH_DEC: {
-            i32 *var = EnemyEclInstr::GetVar(enemy, &curInstr->args.alu.res, NULL);
+            i32 *var = EclGetVar(enemy, &curInstr->args.alu.res, NULL);
             *var -= 1;
             break;
         }
         case ECL_OPCODE_MATH_INT_SUB:
         case ECL_OPCODE_MATH_FLOAT_SUB:
-            EnemyEclInstr::MathSub(enemy, curInstr->args.alu.res, &args->alu.arg1.id, &args->alu.arg2.id);
+            EclMathSub(enemy, curInstr->args.alu.res, &args->alu.arg1.id, &args->alu.arg2.id);
             break;
         case ECL_OPCODE_MATH_INT_MUL:
         case ECL_OPCODE_MATH_FLOAT_MUL:
-            EnemyEclInstr::MathMul(enemy, curInstr->args.alu.res, &args->alu.arg1.id, &args->alu.arg2.id);
+            EclMathMul(enemy, curInstr->args.alu.res, &args->alu.arg1.id, &args->alu.arg2.id);
             break;
         case ECL_OPCODE_MATH_INT_DIV:
         case ECL_OPCODE_MATH_FLOAT_DIV:
-            EnemyEclInstr::MathDiv(enemy, curInstr->args.alu.res, &args->alu.arg1.id, &args->alu.arg2.id);
+            EclMathDiv(enemy, curInstr->args.alu.res, &args->alu.arg1.id, &args->alu.arg2.id);
             break;
         case ECL_OPCODE_MATH_INT_MOD:
         case ECL_OPCODE_MATH_FLOAT_MOD:
-            EnemyEclInstr::MathMod(enemy, curInstr->args.alu.res, &args->alu.arg1.id, &args->alu.arg2.id);
+            EclMathMod(enemy, curInstr->args.alu.res, &args->alu.arg1.id, &args->alu.arg2.id);
             break;
         case ECL_OPCODE_MATH_LINE_ANGLE:
-            EnemyEclInstr::MathAtan2(enemy, curInstr->args.alu.res, &args->alu.arg1.f32, &args->alu.arg2.f32,
+            EclMathAtan2(enemy, curInstr->args.alu.res, &args->alu.arg1.f32, &args->alu.arg2.f32,
                                      &args->alu.arg3.f32, &args->alu.arg4.f32);
             break;
 #pragma var_order(rhs, lhs)
         case ECL_OPCODE_CMP_INT: {
-            i32 lhs = *EnemyEclInstr::GetVar(enemy, &curInstr->args.cmp.lhs.id, NULL);
-            i32 rhs = *EnemyEclInstr::GetVar(enemy, &curInstr->args.cmp.rhs.id, NULL);
+            i32 lhs = *EclGetVar(enemy, &curInstr->args.cmp.lhs.id, NULL);
+            i32 rhs = *EclGetVar(enemy, &curInstr->args.cmp.rhs.id, NULL);
             enemy->currentContext.compareRegister = lhs == rhs ? 0 : lhs < rhs ? -1 : 1;
             break;
         }
 #pragma var_order(lhs, rhs)
         case ECL_OPCODE_CMP_FLOAT: {
-            float lhs = *EnemyEclInstr::GetVarFloat(enemy, &curInstr->args.cmp.lhs.f32, NULL);
-            float rhs = *EnemyEclInstr::GetVarFloat(enemy, &curInstr->args.cmp.rhs.f32, NULL);
+            float lhs = *EclGetVarFloat(enemy, &curInstr->args.cmp.lhs.f32, NULL);
+            float rhs = *EclGetVarFloat(enemy, &curInstr->args.cmp.rhs.f32, NULL);
             enemy->currentContext.compareRegister = lhs == rhs ? 0 : (lhs < rhs ? -1 : 1);
             break;
         }
@@ -282,32 +278,32 @@ restart_sub_changed:
             enemy->currentContext = enemy->savedContextStack[enemy->stackDepth];
             goto restart_sub_changed;
         case ECL_OPCODE_CALL_LSS:
-            genericInt = *EnemyEclInstr::GetVar(enemy, &args->call.cmpLhs, NULL);
+            genericInt = *EclGetVar(enemy, &args->call.cmpLhs, NULL);
             if (genericInt < args->call.cmpRhs)
                 goto handle_call;
             break;
         case ECL_OPCODE_CALL_LEQ:
-            genericInt = *EnemyEclInstr::GetVar(enemy, &args->call.cmpLhs, NULL);
+            genericInt = *EclGetVar(enemy, &args->call.cmpLhs, NULL);
             if (genericInt <= args->call.cmpRhs)
                 goto handle_call;
             break;
         case ECL_OPCODE_CALL_EQU:
-            genericInt = *EnemyEclInstr::GetVar(enemy, &args->call.cmpLhs, NULL);
+            genericInt = *EclGetVar(enemy, &args->call.cmpLhs, NULL);
             if (genericInt == args->call.cmpRhs)
                 goto handle_call;
             break;
         case ECL_OPCODE_CALL_GRE:
-            genericInt = *EnemyEclInstr::GetVar(enemy, &args->call.cmpLhs, NULL);
+            genericInt = *EclGetVar(enemy, &args->call.cmpLhs, NULL);
             if (genericInt > args->call.cmpRhs)
                 goto handle_call;
             break;
         case ECL_OPCODE_CALL_GEQ:
-            genericInt = *EnemyEclInstr::GetVar(enemy, &args->call.cmpLhs, NULL);
+            genericInt = *EclGetVar(enemy, &args->call.cmpLhs, NULL);
             if (genericInt >= args->call.cmpRhs)
                 goto handle_call;
             break;
         case ECL_OPCODE_CALL_NEQ:
-            genericInt = *EnemyEclInstr::GetVar(enemy, &args->call.cmpLhs, NULL);
+            genericInt = *EclGetVar(enemy, &args->call.cmpLhs, NULL);
             if (genericInt != args->call.cmpRhs)
                 goto handle_call;
             break;
@@ -325,48 +321,48 @@ restart_sub_changed:
             break;
         case ECL_OPCODE_MOVE_POSITION:
             enemy->position = *curInstr->args.float3.AsD3dXVec();
-            enemy->position.x = *EnemyEclInstr::GetVarFloat(enemy, &enemy->position.x, NULL);
-            enemy->position.y = *EnemyEclInstr::GetVarFloat(enemy, &enemy->position.y, NULL);
-            enemy->position.z = *EnemyEclInstr::GetVarFloat(enemy, &enemy->position.z, NULL);
+            enemy->position.x = *EclGetVarFloat(enemy, &enemy->position.x, NULL);
+            enemy->position.y = *EclGetVarFloat(enemy, &enemy->position.y, NULL);
+            enemy->position.z = *EclGetVarFloat(enemy, &enemy->position.z, NULL);
             enemy->ClampPos();
             break;
         case ECL_OPCODE_MOVE_AXIS_SPEED:
             enemy->axisSpeed = *curInstr->args.float3.AsD3dXVec();
-            enemy->axisSpeed.x = *EnemyEclInstr::GetVarFloat(enemy, &enemy->axisSpeed.x, NULL);
-            enemy->axisSpeed.y = *EnemyEclInstr::GetVarFloat(enemy, &enemy->axisSpeed.y, NULL);
-            enemy->axisSpeed.z = *EnemyEclInstr::GetVarFloat(enemy, &enemy->axisSpeed.z, NULL);
+            enemy->axisSpeed.x = *EclGetVarFloat(enemy, &enemy->axisSpeed.x, NULL);
+            enemy->axisSpeed.y = *EclGetVarFloat(enemy, &enemy->axisSpeed.y, NULL);
+            enemy->axisSpeed.z = *EclGetVarFloat(enemy, &enemy->axisSpeed.z, NULL);
             enemy->flags.movementMode = EnemyMove_AxisSpeed;
             break;
         case ECL_OPCODE_MOVE_VELOCITY:
             // BUG: This instruction is encoded with 2 floats, not 3
             genericFloat3 = curInstr->args.float3;
-            enemy->angle = *EnemyEclInstr::GetVarFloat(enemy, &genericFloat3.x, NULL);
-            enemy->speed = *EnemyEclInstr::GetVarFloat(enemy, &genericFloat3.y, NULL);
+            enemy->angle = *EclGetVarFloat(enemy, &genericFloat3.x, NULL);
+            enemy->speed = *EclGetVarFloat(enemy, &genericFloat3.y, NULL);
             enemy->flags.movementMode = EnemyMove_Velocity;
             break;
         case ECL_OPCODE_MOVE_ANGULAR_VELOCITY:
             // BUG: This instruction is encoded with 1 float, not 3
             genericFloat3 = curInstr->args.float3;
-            enemy->angularVelocity = *EnemyEclInstr::GetVarFloat(enemy, &genericFloat3.x, NULL);
+            enemy->angularVelocity = *EclGetVarFloat(enemy, &genericFloat3.x, NULL);
             enemy->flags.movementMode = EnemyMove_Velocity;
             break;
         case ECL_OPCODE_MOVE_TOWARDS_PLAYER:
             // BUG: This instruction is encoded with 2 floats, not 3
             genericFloat3 = curInstr->args.float3;
             enemy->angle = g_Player.AngleToPlayer(&enemy->position) + genericFloat3.x;
-            enemy->speed = *EnemyEclInstr::GetVarFloat(enemy, &genericFloat3.y, NULL);
+            enemy->speed = *EclGetVarFloat(enemy, &genericFloat3.y, NULL);
             enemy->flags.movementMode = EnemyMove_Velocity;
             break;
         case ECL_OPCODE_MOVE_SPEED:
             // BUG: This instruction is encoded with 1 float, not 3
             genericFloat3 = curInstr->args.float3;
-            enemy->speed = *EnemyEclInstr::GetVarFloat(enemy, &genericFloat3.x, NULL);
+            enemy->speed = *EclGetVarFloat(enemy, &genericFloat3.x, NULL);
             enemy->flags.movementMode = EnemyMove_Velocity;
             break;
         case ECL_OPCODE_MOVE_ACCELERATION:
             // BUG: This instruction is encoded with 1 float, not 3
             genericFloat3 = curInstr->args.float3;
-            enemy->acceleration = *EnemyEclInstr::GetVarFloat(enemy, &genericFloat3.x, NULL);
+            enemy->acceleration = *EclGetVarFloat(enemy, &genericFloat3.x, NULL);
             enemy->flags.movementMode = EnemyMove_Velocity;
             break;
         case ECL_OPCODE_BULLET_FAN_AIMED:
@@ -384,22 +380,22 @@ restart_sub_changed:
             EnemyBulletShooter *shooter = &enemy->bulletProps;
             shooter->sprite = args->sprite;
             shooter->aimMode = curInstr->opCode - ECL_OPCODE_BULLET_FAN_AIMED;
-            shooter->count1 = *EnemyEclInstr::GetVar(enemy, &args->count1, NULL);
+            shooter->count1 = *EclGetVar(enemy, &args->count1, NULL);
             shooter->count1 += g_GameManager.RankLerpInt(enemy->bulletRankAmount1Low, enemy->bulletRankAmount1High);
             if (shooter->count1 <= 0)
             {
                 shooter->count1 = 1;
             }
-            shooter->count2 = *EnemyEclInstr::GetVar(enemy, &args->count2, NULL);
+            shooter->count2 = *EclGetVar(enemy, &args->count2, NULL);
             shooter->count2 += g_GameManager.RankLerpInt(enemy->bulletRankAmount2Low, enemy->bulletRankAmount2High);
             if (shooter->count2 <= 0)
             {
                 shooter->count2 = 1;
             }
             shooter->position = enemy->position + enemy->shootOffset;
-            shooter->angle1 = *EnemyEclInstr::GetVarFloat(enemy, &args->angle1, NULL);
+            shooter->angle1 = *EclGetVarFloat(enemy, &args->angle1, NULL);
             shooter->angle1 = utils::AddNormalizeAngle(shooter->angle1, 0.0f);
-            shooter->speed1 = *EnemyEclInstr::GetVarFloat(enemy, &args->speed1, NULL);
+            shooter->speed1 = *EclGetVarFloat(enemy, &args->speed1, NULL);
             if (shooter->speed1 != 0.0f)
             {
                 shooter->speed1 += g_GameManager.RankLerpFloat(enemy->bulletRankSpeedLow, enemy->bulletRankSpeedHigh);
@@ -408,8 +404,8 @@ restart_sub_changed:
                     shooter->speed1 = 0.3;
                 }
             }
-            shooter->angle2 = *EnemyEclInstr::GetVarFloat(enemy, &args->angle2, NULL);
-            shooter->speed2 = *EnemyEclInstr::GetVarFloat(enemy, &args->speed2, NULL);
+            shooter->angle2 = *EclGetVarFloat(enemy, &args->angle2, NULL);
+            shooter->speed2 = *EclGetVarFloat(enemy, &args->speed2, NULL);
             shooter->speed2 +=
                 g_GameManager.RankLerpFloat(enemy->bulletRankSpeedLow, enemy->bulletRankSpeedHigh) / 2.0f;
             if (shooter->speed2 < 0.3f)
@@ -419,7 +415,7 @@ restart_sub_changed:
             shooter->unk_4a = 0;
             shooter->flags = args->flags;
             genericInt = args->color;
-            shooter->spriteOffset = *EnemyEclInstr::GetVar(enemy, (EclVarId *)&genericInt, NULL);
+            shooter->spriteOffset = *EclGetVar(enemy, (EclVarId *)&genericInt, NULL);
             if (!enemy->flags.shootingDisabled)
             {
                 g_BulletManager.SpawnBulletPattern(shooter);
@@ -427,14 +423,14 @@ restart_sub_changed:
             break;
         }
         case ECL_OPCODE_BULLET_EFFECTS:
-            enemy->bulletProps.exInts[0] = *EnemyEclInstr::GetVar(enemy, &args->bulletEffects.ivar1, NULL);
-            enemy->bulletProps.exInts[1] = *EnemyEclInstr::GetVar(enemy, &args->bulletEffects.ivar2, NULL);
-            enemy->bulletProps.exInts[2] = *EnemyEclInstr::GetVar(enemy, &args->bulletEffects.ivar3, NULL);
-            enemy->bulletProps.exInts[3] = *EnemyEclInstr::GetVar(enemy, &args->bulletEffects.ivar4, NULL);
-            enemy->bulletProps.exFloats[0] = *EnemyEclInstr::GetVarFloat(enemy, &args->bulletEffects.fvar1, NULL);
-            enemy->bulletProps.exFloats[1] = *EnemyEclInstr::GetVarFloat(enemy, &args->bulletEffects.fvar2, NULL);
-            enemy->bulletProps.exFloats[2] = *EnemyEclInstr::GetVarFloat(enemy, &args->bulletEffects.fvar3, NULL);
-            enemy->bulletProps.exFloats[3] = *EnemyEclInstr::GetVarFloat(enemy, &args->bulletEffects.fvar4, NULL);
+            enemy->bulletProps.exInts[0] = *EclGetVar(enemy, &args->bulletEffects.ivar1, NULL);
+            enemy->bulletProps.exInts[1] = *EclGetVar(enemy, &args->bulletEffects.ivar2, NULL);
+            enemy->bulletProps.exInts[2] = *EclGetVar(enemy, &args->bulletEffects.ivar3, NULL);
+            enemy->bulletProps.exInts[3] = *EclGetVar(enemy, &args->bulletEffects.ivar4, NULL);
+            enemy->bulletProps.exFloats[0] = *EclGetVarFloat(enemy, &args->bulletEffects.fvar1, NULL);
+            enemy->bulletProps.exFloats[1] = *EclGetVarFloat(enemy, &args->bulletEffects.fvar2, NULL);
+            enemy->bulletProps.exFloats[2] = *EclGetVarFloat(enemy, &args->bulletEffects.fvar3, NULL);
+            enemy->bulletProps.exFloats[3] = *EclGetVarFloat(enemy, &args->bulletEffects.fvar4, NULL);
             break;
         case ECL_OPCODE_ANM_DEATH_EFFECTS: {
             EclRawInstrAnmSetDeathArgs *args = &curInstr->args.anmSetDeath;
@@ -467,9 +463,9 @@ restart_sub_changed:
             g_BulletManager.SpawnBulletPattern(&enemy->bulletProps);
             break;
         case ECL_OPCODE_SHOOT_OFFSET:
-            enemy->shootOffset.x = *EnemyEclInstr::GetVarFloat(enemy, &args->float3.x, NULL);
-            enemy->shootOffset.y = *EnemyEclInstr::GetVarFloat(enemy, &args->float3.y, NULL);
-            enemy->shootOffset.z = *EnemyEclInstr::GetVarFloat(enemy, &args->float3.z, NULL);
+            enemy->shootOffset.x = *EclGetVarFloat(enemy, &args->float3.x, NULL);
+            enemy->shootOffset.y = *EclGetVarFloat(enemy, &args->float3.y, NULL);
+            enemy->shootOffset.z = *EclGetVarFloat(enemy, &args->float3.z, NULL);
             break;
         case ECL_OPCODE_LASER_CREATE:
         case ECL_OPCODE_LASER_CREATE_AIMED:
@@ -480,11 +476,11 @@ restart_sub_changed:
             shooter->position = enemy->position + enemy->shootOffset;
             shooter->sprite = args->sprite;
             shooter->spriteOffset = args->color;
-            shooter->angle = *EnemyEclInstr::GetVarFloat(enemy, &args->angle, NULL);
-            shooter->speed = *EnemyEclInstr::GetVarFloat(enemy, &args->speed, NULL);
-            shooter->startOffset = *EnemyEclInstr::GetVarFloat(enemy, &args->startOffset, NULL);
-            shooter->endOffset = *EnemyEclInstr::GetVarFloat(enemy, &args->endOffset, NULL);
-            shooter->startLength = *EnemyEclInstr::GetVarFloat(enemy, &args->startLength, NULL);
+            shooter->angle = *EclGetVarFloat(enemy, &args->angle, NULL);
+            shooter->speed = *EclGetVarFloat(enemy, &args->speed, NULL);
+            shooter->startOffset = *EclGetVarFloat(enemy, &args->startOffset, NULL);
+            shooter->endOffset = *EclGetVarFloat(enemy, &args->endOffset, NULL);
+            shooter->startLength = *EclGetVarFloat(enemy, &args->startLength, NULL);
             shooter->width = args->width;
             shooter->startTime = args->startTime;
             shooter->duration = args->duration;
@@ -504,13 +500,13 @@ restart_sub_changed:
             break;
         }
         case ECL_OPCODE_LASER_INDEX:
-            enemy->laserStore = *EnemyEclInstr::GetVar(enemy, &curInstr->args.alu.res, NULL);
+            enemy->laserStore = *EclGetVar(enemy, &curInstr->args.alu.res, NULL);
             break;
         case ECL_OPCODE_LASER_ROTATE:
             if (enemy->lasers[curInstr->args.laserOp.laserIdx] != NULL)
             {
                 enemy->lasers[curInstr->args.laserOp.laserIdx]->angle +=
-                    *EnemyEclInstr::GetVarFloat(enemy, &curInstr->args.laserOp.arg1.x, NULL);
+                    *EclGetVarFloat(enemy, &curInstr->args.laserOp.arg1.x, NULL);
             }
             break;
         case ECL_OPCODE_LASER_ROTATE_FROM_PLAYER:
@@ -518,7 +514,7 @@ restart_sub_changed:
             {
                 enemy->lasers[curInstr->args.laserOp.laserIdx]->angle =
                     g_Player.AngleToPlayer(&enemy->lasers[curInstr->args.laserOp.laserIdx]->pos) +
-                    *EnemyEclInstr::GetVarFloat(enemy, &curInstr->args.laserOp.arg1.x, NULL);
+                    *EclGetVarFloat(enemy, &curInstr->args.laserOp.arg1.x, NULL);
             }
             break;
         case ECL_OPCODE_LASER_OFFSET:
@@ -581,55 +577,55 @@ restart_sub_changed:
             break;
         }
         case ECL_OPCODE_MOVE_VELOCITY_INTERP_DECELERATE:
-            EnemyEclInstr::MoveDirTime(enemy, curInstr);
+            EclMoveDirTime(enemy, curInstr);
             enemy->flags.moveInterpMode = EnemyInterp_Decelerate;
             break;
         case ECL_OPCODE_MOVE_VELOCITY_INTERP_DECELERATE_FAST:
-            EnemyEclInstr::MoveDirTime(enemy, curInstr);
+            EclMoveDirTime(enemy, curInstr);
             enemy->flags.moveInterpMode = EnemyInterp_DecelerateFast;
             break;
         case ECL_OPCODE_MOVE_VELOCITY_INTERP_ACCELERATE:
-            EnemyEclInstr::MoveDirTime(enemy, curInstr);
+            EclMoveDirTime(enemy, curInstr);
             enemy->flags.moveInterpMode = EnemyInterp_Accelerate;
             break;
         case ECL_OPCODE_MOVE_VELOCITY_INTERP_ACCELERATE_FAST:
-            EnemyEclInstr::MoveDirTime(enemy, curInstr);
+            EclMoveDirTime(enemy, curInstr);
             enemy->flags.moveInterpMode = EnemyInterp_AccelerateFast;
             break;
         case ECL_OPCODE_MOVE_POSITION_INTERP_LINEAR:
-            EnemyEclInstr::MovePosTime(enemy, curInstr);
+            EclMovePosTime(enemy, curInstr);
             enemy->flags.moveInterpMode = EnemyInterp_Linear;
             break;
         case ECL_OPCODE_MOVE_POSITION_INTERP_DECELERATE:
-            EnemyEclInstr::MovePosTime(enemy, curInstr);
+            EclMovePosTime(enemy, curInstr);
             enemy->flags.moveInterpMode = EnemyInterp_Decelerate;
             break;
         case ECL_OPCODE_MOVE_POSITION_INTERP_DECELERATE_FAST:
-            EnemyEclInstr::MovePosTime(enemy, curInstr);
+            EclMovePosTime(enemy, curInstr);
             enemy->flags.moveInterpMode = EnemyInterp_DecelerateFast;
             break;
         case ECL_OPCODE_MOVE_POSITION_INTERP_ACCELERATE:
-            EnemyEclInstr::MovePosTime(enemy, curInstr);
+            EclMovePosTime(enemy, curInstr);
             enemy->flags.moveInterpMode = EnemyInterp_Accelerate;
             break;
         case ECL_OPCODE_MOVE_POSITION_INTERP_ACCELERATE_FAST:
-            EnemyEclInstr::MovePosTime(enemy, curInstr);
+            EclMovePosTime(enemy, curInstr);
             enemy->flags.moveInterpMode = EnemyInterp_AccelerateFast;
             break;
         case ECL_OPCODE_MOVE_AS_INTERP_DECELERATE:
-            EnemyEclInstr::MoveTime(enemy, curInstr);
+            EclMoveTime(enemy, curInstr);
             enemy->flags.moveInterpMode = EnemyInterp_Decelerate;
             break;
         case ECL_OPCODE_MOVE_AS_INTERP_DECELERATE_FAST:
-            EnemyEclInstr::MoveTime(enemy, curInstr);
+            EclMoveTime(enemy, curInstr);
             enemy->flags.moveInterpMode = EnemyInterp_DecelerateFast;
             break;
         case ECL_OPCODE_MOVE_AS_INTERP_ACCELERATE:
-            EnemyEclInstr::MoveTime(enemy, curInstr);
+            EclMoveTime(enemy, curInstr);
             enemy->flags.moveInterpMode = EnemyInterp_Accelerate;
             break;
         case ECL_OPCODE_MOVE_AS_INTERP_ACCELERATE_FAST:
-            EnemyEclInstr::MoveTime(enemy, curInstr);
+            EclMoveTime(enemy, curInstr);
             enemy->flags.moveInterpMode = EnemyInterp_AccelerateFast;
             break;
         case ECL_OPCODE_MOVE_BOUNDS_SET:
@@ -861,7 +857,7 @@ restart_sub_changed:
             }
             break;
         case ECL_OPCODE_ECL_TIME_ADD:
-            enemy->currentContext.time += *EnemyEclInstr::GetVar(enemy, &curInstr->args.timeToAdd, NULL);
+            enemy->currentContext.time += *EclGetVar(enemy, &curInstr->args.timeToAdd, NULL);
             break;
         case ECL_OPCODE_DROP_ITEM_ID:
             g_ItemManager.SpawnItem(&enemy->position, curInstr->args.itemId, 0);
@@ -875,9 +871,9 @@ restart_sub_changed:
             break;
         case ECL_OPCODE_ENEMY_CREATE: {
             EclRawInstrEnemyCreateArgs args = curInstr->args.enemyCreate;
-            args.pos.x = *EnemyEclInstr::GetVarFloat(enemy, &args.pos.x, NULL);
-            args.pos.y = *EnemyEclInstr::GetVarFloat(enemy, &args.pos.y, NULL);
-            args.pos.z = *EnemyEclInstr::GetVarFloat(enemy, &args.pos.z, NULL);
+            args.pos.x = *EclGetVarFloat(enemy, &args.pos.x, NULL);
+            args.pos.y = *EclGetVarFloat(enemy, &args.pos.y, NULL);
+            args.pos.z = *EclGetVarFloat(enemy, &args.pos.z, NULL);
             g_EnemyManager.SpawnEnemy(args.subId, args.pos.AsD3dXVec(), args.life, args.itemDrop, args.score);
             break;
         }
@@ -1059,17 +1055,15 @@ restart_sub_changed:
     enemy->currentContext.time++;
     return ZUN_SUCCESS;
 }
-namespace EnemyEclInstr
-{
 
 #pragma var_order(alu, angle)
-static void MoveDirTime(Enemy *enemy, EclRawInstr *instr)
+static void EclMoveDirTime(Enemy *enemy, EclRawInstr *instr)
 {
     EclRawInstrAluArgs *alu;
     f32 angle;
 
     alu = &instr->args.alu;
-    angle = *GetVarFloat(enemy, &alu->arg1.f32, NULL);
+    angle = *EclGetVarFloat(enemy, &alu->arg1.f32, NULL);
 
     enemy->moveInterp.x = cosf(angle) * alu->arg2.f32 * alu->res / 2.0f;
     enemy->moveInterp.y = sinf(angle) * alu->arg2.f32 * alu->res / 2.0f;
@@ -1083,14 +1077,14 @@ static void MoveDirTime(Enemy *enemy, EclRawInstr *instr)
     enemy->flags.movementMode = EnemyMove_Interp;
 }
 
-static void MovePosTime(Enemy *enemy, EclRawInstr *instr)
+static void EclMovePosTime(Enemy *enemy, EclRawInstr *instr)
 {
     D3DXVECTOR3 newPos;
     EclRawInstrAluArgs *alu = &instr->args.alu;
 
-    newPos.x = *GetVarFloat(enemy, &alu->arg1.f32, NULL);
-    newPos.y = *GetVarFloat(enemy, &alu->arg2.f32, NULL);
-    newPos.z = *GetVarFloat(enemy, &alu->arg3.f32, NULL);
+    newPos.x = *EclGetVarFloat(enemy, &alu->arg1.f32, NULL);
+    newPos.y = *EclGetVarFloat(enemy, &alu->arg2.f32, NULL);
+    newPos.z = *EclGetVarFloat(enemy, &alu->arg3.f32, NULL);
 
     enemy->moveInterp = newPos - enemy->position;
     enemy->moveInterpStartPos = enemy->position;
@@ -1102,13 +1096,13 @@ static void MovePosTime(Enemy *enemy, EclRawInstr *instr)
     enemy->axisSpeed = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 }
 
-static void MoveTime(Enemy *enemy, EclRawInstr *instr)
+static void EclMoveTime(Enemy *enemy, EclRawInstr *instr)
 {
     EclRawInstrAluArgs *alu;
     f32 angle;
 
     alu = &instr->args.alu;
-    angle = *GetVarFloat(enemy, &enemy->angle, NULL);
+    angle = *EclGetVarFloat(enemy, &enemy->angle, NULL);
 
     enemy->moveInterp.x = cosf(angle) * enemy->speed * alu->res / 2.0f;
     enemy->moveInterp.y = sinf(angle) * enemy->speed * alu->res / 2.0f;
@@ -1122,7 +1116,7 @@ static void MoveTime(Enemy *enemy, EclRawInstr *instr)
     enemy->flags.movementMode = EnemyMove_Interp;
 }
 
-static i32 *GetVar(Enemy *enemy, EclVarId *eclVarId, EclValueType *valueType)
+static i32 *EclGetVar(Enemy *enemy, EclVarId *eclVarId, EclValueType *valueType)
 {
     if (valueType != NULL)
         *valueType = ECL_VALUE_TYPE_UNDEFINED;
@@ -1262,10 +1256,10 @@ static i32 *GetVar(Enemy *enemy, EclVarId *eclVarId, EclValueType *valueType)
     return (i32 *)eclVarId;
 }
 
-static f32 *GetVarFloat(Enemy *enemy, f32 *eclVarId, EclValueType *valueType)
+static f32 *EclGetVarFloat(Enemy *enemy, f32 *eclVarId, EclValueType *valueType)
 {
     i32 varId = *eclVarId;
-    i32 *res = GetVar(enemy, (EclVarId *)&varId, valueType);
+    i32 *res = EclGetVar(enemy, (EclVarId *)&varId, valueType);
     if (res == &varId)
     {
         return eclVarId;
@@ -1277,14 +1271,14 @@ static f32 *GetVarFloat(Enemy *enemy, f32 *eclVarId, EclValueType *valueType)
 }
 
 #pragma var_order(lhsPtr, rhsPtr, lhsType)
-static void SetVar(Enemy *enemy, EclVarId out, void *value)
+static void EclSetVar(Enemy *enemy, EclVarId out, void *value)
 {
     i32 *lhsPtr;
     EclValueType lhsType;
     i32 *rhsPtr;
 
-    rhsPtr = GetVar(enemy, (EclVarId *)value, NULL);
-    lhsPtr = GetVar(enemy, &out, &lhsType);
+    rhsPtr = EclGetVar(enemy, (EclVarId *)value, NULL);
+    lhsPtr = EclGetVar(enemy, &out, &lhsType);
     if (lhsType == ECL_VALUE_TYPE_INT)
     {
         *lhsPtr = *rhsPtr;
@@ -1296,7 +1290,7 @@ static void SetVar(Enemy *enemy, EclVarId out, void *value)
 }
 
 #pragma var_order(outPtr, rhsPtr, lhsPtr, outType)
-static void MathAdd(Enemy *enemy, EclVarId outVarId, EclVarId *lhsVarId, EclVarId *rhsVarId)
+static void EclMathAdd(Enemy *enemy, EclVarId outVarId, EclVarId *lhsVarId, EclVarId *rhsVarId)
 {
     EclValueType outType;
     i32 *outPtr;
@@ -1304,131 +1298,130 @@ static void MathAdd(Enemy *enemy, EclVarId outVarId, EclVarId *lhsVarId, EclVarI
     i32 *rhsPtr;
 
     // Get output variable.
-    outPtr = GetVar(enemy, &outVarId, &outType);
+    outPtr = EclGetVar(enemy, &outVarId, &outType);
     if (outType == ECL_VALUE_TYPE_INT)
     {
-        lhsPtr = GetVar(enemy, lhsVarId, NULL);
-        rhsPtr = GetVar(enemy, rhsVarId, NULL);
+        lhsPtr = EclGetVar(enemy, lhsVarId, NULL);
+        rhsPtr = EclGetVar(enemy, rhsVarId, NULL);
         *outPtr = *lhsPtr + *rhsPtr;
     }
     else if (outType == ECL_VALUE_TYPE_FLOAT)
     {
-        lhsPtr = (i32 *)GetVarFloat(enemy, (f32 *)lhsVarId, NULL);
-        rhsPtr = (i32 *)GetVarFloat(enemy, (f32 *)rhsVarId, NULL);
+        lhsPtr = (i32 *)EclGetVarFloat(enemy, (f32 *)lhsVarId, NULL);
+        rhsPtr = (i32 *)EclGetVarFloat(enemy, (f32 *)rhsVarId, NULL);
         *(f32 *)outPtr = *(f32 *)lhsPtr + *(f32 *)rhsPtr;
     }
 }
 
 #pragma var_order(outPtr, rhsPtr, lhsPtr, outType)
-static void MathSub(Enemy *enemy, EclVarId outVarId, EclVarId *lhsVarId, EclVarId *rhsVarId)
+static void EclMathSub(Enemy *enemy, EclVarId outVarId, EclVarId *lhsVarId, EclVarId *rhsVarId)
 {
     EclValueType outType;
     i32 *outPtr;
     i32 *lhsPtr;
     i32 *rhsPtr;
 
-    outPtr = GetVar(enemy, &outVarId, &outType);
+    outPtr = EclGetVar(enemy, &outVarId, &outType);
     if (outType == ECL_VALUE_TYPE_INT)
     {
-        lhsPtr = GetVar(enemy, lhsVarId, NULL);
-        rhsPtr = GetVar(enemy, rhsVarId, NULL);
+        lhsPtr = EclGetVar(enemy, lhsVarId, NULL);
+        rhsPtr = EclGetVar(enemy, rhsVarId, NULL);
         *outPtr = *lhsPtr - *rhsPtr;
     }
     else if (outType == ECL_VALUE_TYPE_FLOAT)
     {
-        lhsPtr = (i32 *)GetVarFloat(enemy, (f32 *)lhsVarId, NULL);
-        rhsPtr = (i32 *)GetVarFloat(enemy, (f32 *)rhsVarId, NULL);
+        lhsPtr = (i32 *)EclGetVarFloat(enemy, (f32 *)lhsVarId, NULL);
+        rhsPtr = (i32 *)EclGetVarFloat(enemy, (f32 *)rhsVarId, NULL);
         *(f32 *)outPtr = *(f32 *)lhsPtr - *(f32 *)rhsPtr;
     }
 }
 
 #pragma var_order(outPtr, rhsPtr, lhsPtr, outType)
-static void MathMul(Enemy *enemy, EclVarId outVarId, EclVarId *lhsVarId, EclVarId *rhsVarId)
+static void EclMathMul(Enemy *enemy, EclVarId outVarId, EclVarId *lhsVarId, EclVarId *rhsVarId)
 {
     EclValueType outType;
     i32 *outPtr;
     i32 *lhsPtr;
     i32 *rhsPtr;
 
-    lhsPtr = GetVar(enemy, lhsVarId, NULL);
-    rhsPtr = GetVar(enemy, rhsVarId, NULL);
-    outPtr = GetVar(enemy, &outVarId, &outType);
+    lhsPtr = EclGetVar(enemy, lhsVarId, NULL);
+    rhsPtr = EclGetVar(enemy, rhsVarId, NULL);
+    outPtr = EclGetVar(enemy, &outVarId, &outType);
     if (outType == ECL_VALUE_TYPE_INT)
     {
-        lhsPtr = GetVar(enemy, lhsVarId, NULL);
-        rhsPtr = GetVar(enemy, rhsVarId, NULL);
+        lhsPtr = EclGetVar(enemy, lhsVarId, NULL);
+        rhsPtr = EclGetVar(enemy, rhsVarId, NULL);
         *outPtr = *lhsPtr * *rhsPtr;
     }
     else if (outType == ECL_VALUE_TYPE_FLOAT)
     {
-        lhsPtr = (i32 *)GetVarFloat(enemy, (f32 *)lhsVarId, NULL);
-        rhsPtr = (i32 *)GetVarFloat(enemy, (f32 *)rhsVarId, NULL);
+        lhsPtr = (i32 *)EclGetVarFloat(enemy, (f32 *)lhsVarId, NULL);
+        rhsPtr = (i32 *)EclGetVarFloat(enemy, (f32 *)rhsVarId, NULL);
         *(f32 *)outPtr = *(f32 *)lhsPtr * *(f32 *)rhsPtr;
     }
 }
 
 #pragma var_order(outPtr, rhsPtr, lhsPtr, outType)
-static void MathDiv(Enemy *enemy, EclVarId outVarId, EclVarId *lhsVarId, EclVarId *rhsVarId)
+static void EclMathDiv(Enemy *enemy, EclVarId outVarId, EclVarId *lhsVarId, EclVarId *rhsVarId)
 {
     EclValueType outType;
     i32 *outPtr;
     i32 *lhsPtr;
     i32 *rhsPtr;
 
-    outPtr = GetVar(enemy, &outVarId, &outType);
+    outPtr = EclGetVar(enemy, &outVarId, &outType);
     if (outType == ECL_VALUE_TYPE_INT)
     {
-        lhsPtr = GetVar(enemy, lhsVarId, NULL);
-        rhsPtr = GetVar(enemy, rhsVarId, NULL);
+        lhsPtr = EclGetVar(enemy, lhsVarId, NULL);
+        rhsPtr = EclGetVar(enemy, rhsVarId, NULL);
         *outPtr = *lhsPtr / *rhsPtr;
     }
     else if (outType == ECL_VALUE_TYPE_FLOAT)
     {
-        lhsPtr = (i32 *)GetVarFloat(enemy, (f32 *)lhsVarId, NULL);
-        rhsPtr = (i32 *)GetVarFloat(enemy, (f32 *)rhsVarId, NULL);
+        lhsPtr = (i32 *)EclGetVarFloat(enemy, (f32 *)lhsVarId, NULL);
+        rhsPtr = (i32 *)EclGetVarFloat(enemy, (f32 *)rhsVarId, NULL);
         *(f32 *)outPtr = *(f32 *)lhsPtr / *(f32 *)rhsPtr;
     }
 }
 
 #pragma var_order(outPtr, rhsPtr, lhsPtr, outType)
-static void MathMod(Enemy *enemy, EclVarId outVarId, EclVarId *lhsVarId, EclVarId *rhsVarId)
+static void EclMathMod(Enemy *enemy, EclVarId outVarId, EclVarId *lhsVarId, EclVarId *rhsVarId)
 {
     EclValueType outType;
     i32 *outPtr;
     i32 *lhsPtr;
     i32 *rhsPtr;
 
-    outPtr = GetVar(enemy, &outVarId, &outType);
+    outPtr = EclGetVar(enemy, &outVarId, &outType);
     if (outType == ECL_VALUE_TYPE_INT)
     {
-        lhsPtr = GetVar(enemy, lhsVarId, NULL);
-        rhsPtr = GetVar(enemy, rhsVarId, NULL);
+        lhsPtr = EclGetVar(enemy, lhsVarId, NULL);
+        rhsPtr = EclGetVar(enemy, rhsVarId, NULL);
         *outPtr = *lhsPtr % *rhsPtr;
     }
     else if (outType == ECL_VALUE_TYPE_FLOAT)
     {
-        lhsPtr = (i32 *)GetVarFloat(enemy, (f32 *)lhsVarId, NULL);
-        rhsPtr = (i32 *)GetVarFloat(enemy, (f32 *)rhsVarId, NULL);
+        lhsPtr = (i32 *)EclGetVarFloat(enemy, (f32 *)lhsVarId, NULL);
+        rhsPtr = (i32 *)EclGetVarFloat(enemy, (f32 *)rhsVarId, NULL);
         *(f32 *)outPtr = fmodf(*(f32 *)lhsPtr, *(f32 *)rhsPtr);
     }
 }
 
 #pragma var_order(y2Ptr, outPtr, x1Ptr, y1Ptr, outType, x2Ptr)
-static void MathAtan2(Enemy *enemy, EclVarId outVarId, f32 *x1, f32 *y1, f32 *y2, f32 *x2)
+static void EclMathAtan2(Enemy *enemy, EclVarId outVarId, f32 *x1, f32 *y1, f32 *y2, f32 *x2)
 {
     EclValueType outType;
     f32 *outPtr;
     f32 *y1Ptr, *x1Ptr, *x2Ptr, *y2Ptr;
 
-    outPtr = (f32 *)GetVar(enemy, &outVarId, &outType);
+    outPtr = (f32 *)EclGetVar(enemy, &outVarId, &outType);
     if (outType == ECL_VALUE_TYPE_FLOAT)
     {
-        y1Ptr = GetVarFloat(enemy, x1, NULL);
-        x1Ptr = GetVarFloat(enemy, y1, NULL);
-        y2Ptr = GetVarFloat(enemy, y2, NULL);
-        x2Ptr = GetVarFloat(enemy, x2, NULL);
+        y1Ptr = EclGetVarFloat(enemy, x1, NULL);
+        x1Ptr = EclGetVarFloat(enemy, y1, NULL);
+        y2Ptr = EclGetVarFloat(enemy, y2, NULL);
+        x2Ptr = EclGetVarFloat(enemy, x2, NULL);
         *outPtr = atan2f(*x2Ptr - *x1Ptr, *y2Ptr - *y1Ptr);
     }
 }
-} // namespace EnemyEclInstr
 } // namespace th06
