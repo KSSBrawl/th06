@@ -781,7 +781,7 @@ restart_sub_changed:
                             g_EnemyManager.spellcardInfo.captureScore +
                             g_EnemyManager.spellcardInfo.captureScore * g_Gui.SpellcardSecondsRemaining() / 10;
                         g_Gui.ShowSpellcardBonus(scoreIncrease);
-                        g_GameManager.score += scoreIncrease;
+                        g_GameManager.AddScore(scoreIncrease);
                         if (!g_GameManager.isInReplay)
                         {
                             catk->numSuccess++;
@@ -957,7 +957,7 @@ restart_sub_changed:
         break;
     case EnemyMove_Interp: {
         enemy->moveInterpTimer--;
-        f32 interpVal = enemy->moveInterpTimer.AsFramesFloat() / enemy->moveInterpStartTime;
+        f32 interpVal = (f32)enemy->moveInterpTimer / enemy->moveInterpStartTime;
         if (interpVal >= 1.0f)
         {
             interpVal = 1.0f;

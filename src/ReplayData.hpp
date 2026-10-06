@@ -22,9 +22,9 @@ struct StageReplayData
     u8 rank;
     i8 powerItemCountForScore;
     alignment_padding(0x3);
-    ReplayDataInput replayInputs[53998];
+    ReplayDataInput replayInputs[];
 };
-ZUN_ASSERT_TYPE(StageReplayData, 0x69780, 4);
+ZUN_ASSERT_TYPE(StageReplayData, 0x10, 4);
 
 struct ReplayData
 {

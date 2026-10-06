@@ -171,7 +171,6 @@ ZUN_ASSERT_TYPE(CharacterPowerData, 0xc, 4);
 
 struct Player
 {
-
     ZunResult HandlePlayerInputs();
 
     f32 AngleFromPlayer(D3DXVECTOR3 *pos);
@@ -228,8 +227,7 @@ struct Player
     ChainElem *chainDraw1;
     ChainElem *chainDraw2;
 
-    // TODO: This really looks like a hack
-    inline void SetToTopLeftPos(AnmVm *sprite)
+    void ApplyGameRegionOffset(AnmVm *sprite)
     {
         sprite->pos[0] += g_GameManager.gameRegionScreenPos.x;
         sprite->pos[1] += g_GameManager.gameRegionScreenPos.y;

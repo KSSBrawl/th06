@@ -11,6 +11,35 @@
 
 namespace th06
 {
+// Recording reserves this many bytes; saved stages contain only the used input records.
+#define STAGE_REPLAY_BUFFER_SIZE 0x69780
+
+struct ReplayManager
+{
+    ReplayManager()
+    {
+    }
+
+    ZunBool IsDemo()
+    {
+        return this->isDemo;
+    }
+
+    i32 frameId;
+    ReplayData *replayData;
+    ZunBool isDemo;
+    const char *replayFile;
+    unreferenced_fields(0x34);
+    u16 unk44;
+    alignment_padding(0x2);
+    ReplayDataInput *replayInputs;
+    ReplayDataInput *replayInputStageBookmarks[7];
+    ChainElem *calcChain;
+    ChainElem *drawChain;
+    ChainElem *calcChainDemoHighPrio;
+};
+ZUN_ASSERT_TYPE(ReplayManager, 0x74, 4);
+
 static ZunResult ReplayManager_DeletedCallback(ReplayManager *mgr);
 static ZunResult ReplayManager_AddedCallbackDemo(ReplayManager *mgr);
 static ZunResult ReplayManager_AddedCallback(ReplayManager *mgr);
@@ -245,7 +274,8 @@ static ZunResult ReplayManager_AddedCallback(ReplayManager *mgr)
     {
         utils::DebugPrint2("error : replay.cpp");
     }
-    mgr->replayData->stageReplayData[g_GameManager.currentStage - 1] = ZUN_ALLOC_TYPE(StageReplayData);
+    mgr->replayData->stageReplayData[g_GameManager.currentStage - 1] =
+        (StageReplayData *)ZUN_ALLOC(STAGE_REPLAY_BUFFER_SIZE);
     StageReplayData *stageReplayData = mgr->replayData->stageReplayData[g_GameManager.currentStage - 1];
     stageReplayData->bombsRemaining = g_GameManager.bombsRemaining;
     stageReplayData->livesRemaining = g_GameManager.livesRemaining;

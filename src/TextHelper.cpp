@@ -16,8 +16,9 @@ struct FormatInfo
     u32 blueMask;
 };
 
-struct TextHelper
+class TextHelper
 {
+  public:
     TextHelper();
     ~TextHelper();
     bool AllocateBufferWithFallback(i32 width, i32 height, D3DFORMAT format);

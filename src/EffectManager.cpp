@@ -167,7 +167,7 @@ EffectCallbackResult Effect_Attract(Effect *effect)
         effect->pos2.z = 0.0;
     }
 
-    angle = 256.0f - effect->timer.AsFramesFloat() * 256.0f / 60.0f;
+    angle = 256.0f - (f32)effect->timer * 256.0f / 60.0f;
 
     effect->pos1 = angle * effect->pos2 + effect->position;
 
@@ -188,7 +188,7 @@ EffectCallbackResult Effect_AttractSlow(Effect *effect)
         effect->pos2.z = 0.0;
     }
 
-    angle = 256.0f - effect->timer.AsFramesFloat() * 256.0f / 240.0f;
+    angle = 256.0f - (f32)effect->timer * 256.0f / 240.0f;
 
     effect->pos1 = angle * effect->pos2 + effect->position;
 

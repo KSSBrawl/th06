@@ -56,9 +56,9 @@ ChainCallbackResult Stage_OnUpdate(Stage *stage)
         // spellcard background a bit, to give a visual indication of what's
         // going on.
         COLOR_SET_COMPONENT(stage->spellcardBackground.color, COLOR_ALPHA_BYTE_IDX, 0x60);
-        COLOR_SET_COMPONENT(stage->spellcardBackground.color, COLOR_BLUE_BYTE_IDX, 0x80);
+        COLOR_SET_COMPONENT(stage->spellcardBackground.color, COLOR_RED_BYTE_IDX, 0x80);
         COLOR_SET_COMPONENT(stage->spellcardBackground.color, COLOR_GREEN_BYTE_IDX, 0x30);
-        COLOR_SET_COMPONENT(stage->spellcardBackground.color, COLOR_RED_BYTE_IDX, 0x30);
+        COLOR_SET_COMPONENT(stage->spellcardBackground.color, COLOR_BLUE_BYTE_IDX, 0x30);
         return CHAIN_CALLBACK_RESULT_CONTINUE;
     }
     for (;;)
@@ -148,7 +148,7 @@ ChainCallbackResult Stage_OnUpdate(Stage *stage)
         }
         if (curInstr->time != -1)
         {
-            posInterpRatio = (stage->scriptTime.AsFramesFloat() - stage->positionInterpStartTime) /
+            posInterpRatio = ((f32)stage->scriptTime - stage->positionInterpStartTime) /
                              (stage->positionInterpEndTime - stage->positionInterpStartTime);
             pos = stage->positionInterpFinal;
             stage->position.x =
@@ -169,7 +169,7 @@ ChainCallbackResult Stage_OnUpdate(Stage *stage)
                 stage->facingDirInterpTimer = stage->facingDirInterpDuration;
             }
             pos = stage->facingDirInterpFinal - stage->facingDirInterpInitial;
-            f32 facingDirInterpRatio = stage->facingDirInterpTimer.AsFramesFloat() / stage->facingDirInterpDuration;
+            f32 facingDirInterpRatio = (f32)stage->facingDirInterpTimer / stage->facingDirInterpDuration;
             g_GameManager.stageCameraFacingDir.x = pos.x * facingDirInterpRatio + stage->facingDirInterpInitial.x;
             g_GameManager.stageCameraFacingDir.y = pos.y * facingDirInterpRatio + stage->facingDirInterpInitial.y;
             g_GameManager.stageCameraFacingDir.z = pos.z * facingDirInterpRatio + stage->facingDirInterpInitial.z;
@@ -177,7 +177,7 @@ ChainCallbackResult Stage_OnUpdate(Stage *stage)
         if (stage->skyFogInterpDuration != 0)
         {
             stage->skyFogInterpTimer++;
-            f32 skyFogInterpRatio = stage->skyFogInterpTimer.AsFramesFloat() / stage->skyFogInterpDuration;
+            f32 skyFogInterpRatio = (f32)stage->skyFogInterpTimer / stage->skyFogInterpDuration;
             if (skyFogInterpRatio >= 1.0f)
             {
                 skyFogInterpRatio = 1.0f;
@@ -264,7 +264,7 @@ ChainCallbackResult Stage_OnDrawLowPrio(Stage *stage)
             }
         }
     }
-    if (RUNNING <= stage->spellcardState)
+    if (stage->spellcardState >= RUNNING)
     {
         if (stage->ticksSinceSpellcardStarted <= g_Supervisor.cfg.frameskipConfig)
         {
@@ -399,7 +399,7 @@ ZunResult Stage::LoadStageData(const char *anmpath, const char *stdpath)
     {
         curObj = this->objects[idx];
         curObj->flags = 1;
-        curQuad = &curObj->firstQuad;
+        curQuad = curObj->quads;
         while (curQuad->type >= 0)
         {
             g_AnmManager->ExecuteAnmIdx(&this->quadVms[vmIdx], curQuad->anmScript + ANM_OFFSET_STAGEBG);
@@ -424,7 +424,7 @@ ZunResult Stage::UpdateObjects()
         if (obj->flags & 1)
         {
             vmsNotFinished = 0;
-            RawStageQuadBasic *objQuad = &obj->firstQuad;
+            RawStageQuadBasic *objQuad = obj->quads;
             while (objQuad->type >= 0)
             {
                 vm = &this->quadVms[objQuad->vmIdx];
@@ -484,7 +484,7 @@ ZunResult Stage::RenderObjects(i32 zLevel)
         obj = this->objects[instance->id];
         if (obj->zLevel == zLevel)
         {
-            curQuad = &obj->firstQuad;
+            curQuad = obj->quads;
             unk8 = 0;
 
             //  Say hello to helper cube:

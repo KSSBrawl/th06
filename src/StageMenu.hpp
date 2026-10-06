@@ -4,14 +4,16 @@
 
 namespace th06
 {
-struct StageMenu
+class StageMenu
 {
+  public:
     i32 OnUpdateGameMenu();
     i32 OnUpdateRetryMenu();
 
     void OnDrawGameMenu();
     void OnDrawRetryMenu();
 
+  private:
     // Current state of this menu.
     u32 curState;
     // Number of frames since last state change. Used to delay certain actions

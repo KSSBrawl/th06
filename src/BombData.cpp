@@ -47,26 +47,31 @@ void BombReimuACalc(Player *player)
     }
     if (player->bombInfo.timer >= 60 && player->bombInfo.timer < 180)
     {
-        if (player->bombInfo.timer % 16 == 0 && (i = (player->bombInfo.timer - 60) / 16))
+        if ((i32)player->bombInfo.timer % 16 == 0)
         {
-            player->bombInfo.reimuABombProjectilesState[i] = 1;
-            player->bombInfo.reimuABombProjectilesRelated[i] = 4.0f;
-            player->bombInfo.bombRegionPositions[i] = player->positionCenter;
-
-            angleX = g_Rng.GetRandomF32ZeroToOne() * ZUN_2PI - ZUN_PI;
-
-            player->bombInfo.bombRegionVelocities[i].x =
-                cosf(angleX) * player->bombInfo.reimuABombProjectilesRelated[i];
-
-            player->bombInfo.bombRegionVelocities[i].y =
-                sinf(angleX) * player->bombInfo.reimuABombProjectilesRelated[i];
-            player->bombRegionTotalDamages[i] = 0;
-
-            for (bombSprite = &player->bombInfo.sprites[0][i * 4], bombIdx = 0; bombIdx < 4; bombIdx++, bombSprite++)
+            i = ((i32)player->bombInfo.timer - 60) / 16;
+            if (i != 0)
             {
-                g_AnmManager->ExecuteAnmIdx(bombSprite, ANM_SCRIPT_PLAYER_REIMU_A_BOMB_ARRAY + bombIdx);
+                player->bombInfo.reimuABombProjectilesState[i] = 1;
+                player->bombInfo.reimuABombProjectilesRelated[i] = 4.0f;
+                player->bombInfo.bombRegionPositions[i] = player->positionCenter;
+
+                angleX = g_Rng.GetRandomF32ZeroToOne() * ZUN_2PI - ZUN_PI;
+
+                player->bombInfo.bombRegionVelocities[i].x =
+                    cosf(angleX) * player->bombInfo.reimuABombProjectilesRelated[i];
+
+                player->bombInfo.bombRegionVelocities[i].y =
+                    sinf(angleX) * player->bombInfo.reimuABombProjectilesRelated[i];
+                player->bombRegionTotalDamages[i] = 0;
+
+                for (bombSprite = &player->bombInfo.sprites[0][i * 4], bombIdx = 0; bombIdx < 4;
+                     bombIdx++, bombSprite++)
+                {
+                    g_AnmManager->ExecuteAnmIdx(bombSprite, ANM_SCRIPT_PLAYER_REIMU_A_BOMB_ARRAY + bombIdx);
+                }
+                g_SoundPlayer.PlaySoundByIdx(SOUND_BOMB_REIMU_A);
             }
-            g_SoundPlayer.PlaySoundByIdx(SOUND_BOMB_REIMU_A);
         }
     }
     player->playerState = PLAYER_STATE_INVULNERABLE;
@@ -189,12 +194,12 @@ static void DarkenViewport(Player *player)
 
     if (player->bombInfo.timer < 60)
     {
-        darkeningTimeLeft = (player->bombInfo.timer.AsFramesFloat() * 176.0f) / 60.0f;
+        darkeningTimeLeft = ((f32)player->bombInfo.timer * 176.0f) / 60.0f;
         darknessLevel = darkeningTimeLeft >= 176.0f ? 176 : (i32)darkeningTimeLeft;
     }
     else if (player->bombInfo.timer >= player->bombInfo.duration + -60)
     {
-        darkeningTimeLeft = ((player->bombInfo.duration - player->bombInfo.timer.AsFramesFloat()) * 176.0f) / 60.0f;
+        darkeningTimeLeft = ((player->bombInfo.duration - (f32)player->bombInfo.timer) * 176.0f) / 60.0f;
         darknessLevel = darkeningTimeLeft < 0.0f ? 0 : (i32)darkeningTimeLeft;
     }
     else
@@ -222,22 +227,22 @@ void BombReimuADraw(Player *player)
         }
 
         bombSprite->pos = player->bombInfo.bombRegionPositions[idx] + bombSprite->posOffset;
-        player->SetToTopLeftPos(bombSprite);
+        player->ApplyGameRegionOffset(bombSprite);
         g_AnmManager->DrawNoRotation(bombSprite);
         bombSprite++;
 
         bombSprite->pos = player->bombInfo.bombRegionPositions[idx] + bombSprite->posOffset;
-        player->SetToTopLeftPos(bombSprite);
+        player->ApplyGameRegionOffset(bombSprite);
         g_AnmManager->DrawNoRotation(bombSprite);
         bombSprite++;
 
         bombSprite->pos = player->bombInfo.bombRegionPositions[idx] + bombSprite->posOffset;
-        player->SetToTopLeftPos(bombSprite);
+        player->ApplyGameRegionOffset(bombSprite);
         g_AnmManager->DrawNoRotation(bombSprite);
         bombSprite++;
 
         bombSprite->pos = player->bombInfo.bombRegionPositions[idx] + bombSprite->posOffset;
-        player->SetToTopLeftPos(bombSprite);
+        player->ApplyGameRegionOffset(bombSprite);
         g_AnmManager->DrawNoRotation(bombSprite);
         bombSprite++;
     }
@@ -304,7 +309,7 @@ void BombReimuBCalc(Player *player)
         for (i = 0; i < 4; i++)
         {
             g_AnmManager->ExecuteScript(&player->bombInfo.sprites[0][i]);
-            if (player->bombInfo.timer.HasTicked() && player->bombInfo.timer % 2 != 0)
+            if (player->bombInfo.timer.HasTicked() && (i32)player->bombInfo.timer % 2 != 0)
             {
                 player->bombProjectiles[i].pos.x =
                     player->bombInfo.bombRegionPositions[i].x + player->bombInfo.sprites[0][i].posOffset.x;
@@ -385,7 +390,7 @@ void BombMarisaACalc(Player *player)
             player->bombInfo.bombRegionPositions[i] +=
                 player->bombInfo.bombRegionVelocities[i] * g_Supervisor.effectiveFramerateMultiplier;
 
-            if (player->bombInfo.timer.HasTicked() && player->bombInfo.timer % 3 != 0)
+            if (player->bombInfo.timer.HasTicked() && (i32)player->bombInfo.timer % 3 != 0)
             {
                 player->bombProjectiles[i].pos.x = player->bombInfo.bombRegionPositions[i].x;
                 player->bombProjectiles[i].pos.y = player->bombInfo.bombRegionPositions[i].y;
@@ -487,7 +492,7 @@ void BombMarisaBCalc(Player *player)
             ScreenEffect_RegisterChain(SCREEN_EFFECT_SHAKE, 200, 24, 0, 0);
         }
 
-        if (player->bombInfo.timer.HasTicked() && player->bombInfo.timer % 4 != 0)
+        if (player->bombInfo.timer.HasTicked() && (i32)player->bombInfo.timer % 4 != 0)
         {
             player->bombProjectiles[0].pos.x = GAME_REGION_WIDTH / 2.0f;
             player->bombProjectiles[0].pos.y = player->positionCenter.y / 2.0f;

@@ -186,8 +186,6 @@ u32 BulletManager::SpawnSingleBullet(EnemyBulletShooter *bulletProps, i32 bullet
 
     if (bullet->exFlags & 2)
     {
-        // TODO: Make an inline function for this?
-        // It's the same damn code, copy pasted four times.
         bullet->sprites.spriteSpawnEffectFast = this->bulletTypeTemplates[bulletProps->sprite].spriteSpawnEffectFast;
 
         if (bullet->sprites.spriteBullet.sprite->heightPx <= 16.0f)
@@ -516,7 +514,7 @@ i32 BulletManager::DespawnBullets(i32 maxBonusScore, ZunBool awardPoints)
         laser->hitboxEndDelay = 0;
     }
 
-    g_GameManager.score += totalBonusScore;
+    g_GameManager.AddScore(totalBonusScore);
 
     if (totalBonusScore != 0)
     {
@@ -668,7 +666,7 @@ static ChainCallbackResult BulletManager_OnUpdate(BulletManager *mgr)
                 {
                     if (curBullet->timer <= 16)
                     {
-                        bulletSpeed = 5.0f - curBullet->timer.AsFramesFloat() * 5.0f / 16.0f;
+                        bulletSpeed = 5.0f - (f32)curBullet->timer * 5.0f / 16.0f;
                         sincosmul(&curBullet->velocity, curBullet->angle, bulletSpeed + curBullet->speed);
                     }
                     else
@@ -721,10 +719,10 @@ static ChainCallbackResult BulletManager_OnUpdate(BulletManager *mgr)
                     else
                     {
                         bulletSpeed =
-                            curBullet->speed - ((curBullet->timer.AsFramesFloat() -
-                                                 (curBullet->dirChangeInterval * curBullet->dirChangeNumTimes)) *
-                                                curBullet->speed) /
-                                                   curBullet->dirChangeInterval;
+                            curBullet->speed -
+                            (((f32)curBullet->timer - (curBullet->dirChangeInterval * curBullet->dirChangeNumTimes)) *
+                             curBullet->speed) /
+                                curBullet->dirChangeInterval;
                     }
 
                     sincosmul(&curBullet->velocity, curBullet->angle, bulletSpeed);
@@ -747,10 +745,10 @@ static ChainCallbackResult BulletManager_OnUpdate(BulletManager *mgr)
                     else
                     {
                         bulletSpeed =
-                            curBullet->speed - ((curBullet->timer.AsFramesFloat() -
-                                                 (curBullet->dirChangeInterval * curBullet->dirChangeNumTimes)) *
-                                                curBullet->speed) /
-                                                   curBullet->dirChangeInterval;
+                            curBullet->speed -
+                            (((f32)curBullet->timer - (curBullet->dirChangeInterval * curBullet->dirChangeNumTimes)) *
+                             curBullet->speed) /
+                                curBullet->dirChangeInterval;
                     }
 
                     sincosmul(&curBullet->velocity, curBullet->angle, bulletSpeed);
@@ -773,10 +771,10 @@ static ChainCallbackResult BulletManager_OnUpdate(BulletManager *mgr)
                     else
                     {
                         bulletSpeed =
-                            curBullet->speed - ((curBullet->timer.AsFramesFloat() -
-                                                 (curBullet->dirChangeInterval * curBullet->dirChangeNumTimes)) *
-                                                curBullet->speed) /
-                                                   curBullet->dirChangeInterval;
+                            curBullet->speed -
+                            (((f32)curBullet->timer - (curBullet->dirChangeInterval * curBullet->dirChangeNumTimes)) *
+                             curBullet->speed) /
+                                curBullet->dirChangeInterval;
                     }
                     sincosmul(&curBullet->velocity, curBullet->angle, bulletSpeed);
                 }
@@ -941,7 +939,7 @@ static ChainCallbackResult BulletManager_OnUpdate(BulletManager *mgr)
         case 0:
             if (curLaser->flags & 1)
             {
-                laserColor = curLaser->timer.AsFramesFloat() * 255.0f / curLaser->startTime;
+                laserColor = (f32)curLaser->timer * 255.0f / curLaser->startTime;
 
                 if (laserColor > 255)
                 {
@@ -953,9 +951,9 @@ static ChainCallbackResult BulletManager_OnUpdate(BulletManager *mgr)
             else
             {
                 i32 res = ZUN_MIN(curLaser->startTime, 30);
-                if (curLaser->startTime - res < curLaser->timer)
+                if (curLaser->startTime - res < (i32)curLaser->timer)
                 {
-                    length = curLaser->timer.AsFramesFloat() * curLaser->width / curLaser->startTime;
+                    length = (f32)curLaser->timer * curLaser->width / curLaser->startTime;
                 }
                 else
                 {
@@ -972,7 +970,7 @@ static ChainCallbackResult BulletManager_OnUpdate(BulletManager *mgr)
             if (curLaser->timer >= curLaser->hitboxStartTime)
             {
                 g_Player.CalcLaserHitbox(&laserCenter, &laserSize, &curLaser->pos, curLaser->angle,
-                                         curLaser->timer % 12 == 0);
+                                         (i32)curLaser->timer % 12 == 0);
             }
 
             if (curLaser->timer < curLaser->startTime)
@@ -984,7 +982,7 @@ static ChainCallbackResult BulletManager_OnUpdate(BulletManager *mgr)
             curLaser->state++;
         case 1:
             g_Player.CalcLaserHitbox(&laserCenter, &laserSize, &curLaser->pos, curLaser->angle,
-                                     curLaser->timer % 12 == 0);
+                                     (i32)curLaser->timer % 12 == 0);
 
             if (curLaser->timer < curLaser->duration)
             {
@@ -1002,7 +1000,7 @@ static ChainCallbackResult BulletManager_OnUpdate(BulletManager *mgr)
         case 2:
             if (curLaser->flags & 1)
             {
-                laserColor = curLaser->timer.AsFramesFloat() * 255.0f / curLaser->startTime;
+                laserColor = (f32)curLaser->timer * 255.0f / curLaser->startTime;
 
                 if (laserColor > 255)
                 {
@@ -1015,8 +1013,7 @@ static ChainCallbackResult BulletManager_OnUpdate(BulletManager *mgr)
             {
                 if (curLaser->despawnDuration > 0)
                 {
-                    length = curLaser->width -
-                             (curLaser->timer.AsFramesFloat() * curLaser->width) / curLaser->despawnDuration;
+                    length = curLaser->width - ((f32)curLaser->timer * curLaser->width) / curLaser->despawnDuration;
                     curLaser->vm0.scaleX = length / 16.0f;
                     // Bug: ZUN intended to set laserSize.y instead of laserSize.x
                     // This way, for hitboxEndDelay ticks after the laser starts despawning,
@@ -1029,7 +1026,7 @@ static ChainCallbackResult BulletManager_OnUpdate(BulletManager *mgr)
             if (curLaser->timer < curLaser->hitboxEndDelay)
             {
                 g_Player.CalcLaserHitbox(&laserCenter, &laserSize, &curLaser->pos, curLaser->angle,
-                                         curLaser->timer % 12 == 0);
+                                         (i32)curLaser->timer % 12 == 0);
             }
 
             if (curLaser->timer < curLaser->despawnDuration)

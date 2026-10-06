@@ -42,6 +42,11 @@ struct ZunTimer
         return this->current <= time;
     }
 
+    i32 operator%(i32 divisor)
+    {
+        return this->current % divisor;
+    }
+
     void Initialize();
     void Increment(i32 value);
     void Decrement(i32 value);
@@ -81,9 +86,7 @@ struct ZunTimer
         return this->current;
     }
 
-    // Changing this to operator f32 requires way too many
-    // casts on comparison operators to be realistic...
-    f32 AsFramesFloat()
+    operator f32()
     {
         return this->current + this->subFrame;
     }

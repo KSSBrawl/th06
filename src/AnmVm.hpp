@@ -208,6 +208,11 @@ struct AnmVm : AnmVmBase
         this->activeSpriteIndex = -1;
     }
 
+    ZunBool IsVisible()
+    {
+        return this->flags.isVisible;
+    }
+
     void SetInvisible()
     {
         this->flags.isVisible = false;

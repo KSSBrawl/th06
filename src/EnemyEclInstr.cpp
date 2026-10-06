@@ -69,15 +69,6 @@ void ExInsShootStarPattern(Enemy *enemy, EclRawInstr *instr)
 #define ENEMY_POS 0
 #define PLAYER_POS 1
 
-    // Variable names are more quick guesses at functionality than anything else, they should not be trusted
-    D3DXVECTOR3 baseTargetPosition;
-    i32 i;
-    f32 propsSpeedBackup;
-    f32 patternPosition;
-    D3DXVECTOR3 starPatternTarget0;
-    D3DXVECTOR3 starPatterTarget1;
-    f32 targetDistance;
-
     if (enemy->currentContext.int2 >= enemy->currentContext.int3)
     {
         enemy->currentContext.funcSetFunc = NULL;
@@ -108,6 +99,15 @@ void ExInsShootStarPattern(Enemy *enemy, EclRawInstr *instr)
     }
     if (enemy->currentContext.int2 % 6 == 0)
     {
+        // Variable names are quick guesses at functionality and should not be trusted.
+        D3DXVECTOR3 baseTargetPosition;
+        i32 i;
+        f32 propsSpeedBackup;
+        f32 patternPosition;
+        D3DXVECTOR3 starPatternTarget0;
+        D3DXVECTOR3 starPatterTarget1;
+        f32 targetDistance;
+
         patternPosition = (f32)enemy->currentContext.int2 / (f32)enemy->currentContext.int3;
         targetDistance = patternPosition * 0.1f;
 
@@ -394,11 +394,10 @@ void ExInsBatWingEffect(Enemy *enemy, EclRawInstr *instr)
 
     // Run every 8 frames for first 30 frames, then every 4 for next 30, then every 2 for next 60, then every frame
     if (enemy->exInsFunc6Timer.HasTicked() &&
-        (enemy->exInsFunc6Timer > 120 || (enemy->exInsFunc6Timer > 60 && enemy->exInsFunc6Timer.current % 2 == 0) ||
-         (enemy->exInsFunc6Timer > 30 && enemy->exInsFunc6Timer.current % 4 == 0) ||
-         enemy->exInsFunc6Timer.current % 8 == 0))
+        (enemy->exInsFunc6Timer > 120 || (enemy->exInsFunc6Timer > 60 && enemy->exInsFunc6Timer % 2 == 0) ||
+         (enemy->exInsFunc6Timer > 30 && enemy->exInsFunc6Timer % 4 == 0) || enemy->exInsFunc6Timer % 8 == 0))
     {
-        baseAngleModifier = enemy->exInsFunc6Timer.current % 16;
+        baseAngleModifier = enemy->exInsFunc6Timer % 16;
         baseAngleModifier = g_Rng.GetRandomU16InRange(baseAngleModifier / 2) + baseAngleModifier / 2;
         distanceModifier = (baseAngleModifier * 160.0f) / 16.0f + 32.0f;
         finalAngle = enemy->exInsFunc6Angle - (baseAngleModifier * RADIANS(180.0f)) / 40.0f;
@@ -416,7 +415,6 @@ void ExInsBatWingEffect(Enemy *enemy, EclRawInstr *instr)
         effect->unk_11c.z = 0.0f;
         effect->unk_128 = -effect->unk_11c / 120.0f;
 
-        // TODO: Trial codegen doesn't match here
         particlePos = enemy->position;
         particlePos.x -= cosf(finalAngle) * distanceModifier;
         particlePos.y += sinf(finalAngle) * distanceModifier;

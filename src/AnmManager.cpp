@@ -602,7 +602,7 @@ ZunResult AnmManager::DrawInner(AnmVm *vm, ZunBool roundVertices)
 
 ZunResult AnmManager::DrawNoRotation(AnmVm *vm)
 {
-    if (!vm->flags.isVisible)
+    if (!vm->IsVisible())
     {
         return ZUN_ERROR;
     }
@@ -663,7 +663,7 @@ ZunResult AnmManager::Draw(AnmVm *vm)
     {
         return this->DrawNoRotation(vm);
     }
-    if (!vm->flags.isVisible)
+    if (!vm->IsVisible())
     {
         return ZUN_ERROR;
     }
@@ -710,7 +710,7 @@ ZunResult AnmManager::Draw(AnmVm *vm)
 
 ZunResult AnmManager::DrawFacingCamera(AnmVm *vm)
 {
-    if (!vm->flags.isVisible)
+    if (!vm->IsVisible())
     {
         return ZUN_ERROR;
     }
@@ -757,7 +757,7 @@ ZunResult AnmManager::Draw3(AnmVm *vm)
     D3DXMATRIX rotationMatrix;
     D3DXMATRIX textureMatrix;
 
-    if (!vm->flags.isVisible)
+    if (!vm->IsVisible())
     {
         return ZUN_ERROR;
     }
@@ -869,7 +869,7 @@ ZunResult AnmManager::Draw2(AnmVm *vm)
     D3DXMATRIX unusedMatrix;
     D3DXMATRIX textureMatrix;
 
-    if (!vm->flags.isVisible)
+    if (!vm->IsVisible())
     {
         return ZUN_ERROR;
     }
@@ -960,7 +960,7 @@ i32 AnmManager::ExecuteScript(AnmVm *vm)
     }
 
     AnmRawInstr *curInstr;
-    while (curInstr = vm->currentInstruction, curInstr->time <= vm->currentTimeInScript)
+    while (curInstr = vm->currentInstruction, curInstr->time <= (i32)vm->currentTimeInScript)
     {
         switch (curInstr->opcode)
         {
@@ -1195,12 +1195,12 @@ break_parser:
         }
         else
         {
-            vm->scaleX = (vm->scaleInterpFinalX - vm->scaleInterpInitialX) * vm->scaleInterpTime.AsFramesFloat() /
-                             vm->scaleInterpEndTime +
-                         vm->scaleInterpInitialX;
-            vm->scaleY = (vm->scaleInterpFinalY - vm->scaleInterpInitialY) * vm->scaleInterpTime.AsFramesFloat() /
-                             vm->scaleInterpEndTime +
-                         vm->scaleInterpInitialY;
+            vm->scaleX =
+                (vm->scaleInterpFinalX - vm->scaleInterpInitialX) * (f32)vm->scaleInterpTime / vm->scaleInterpEndTime +
+                vm->scaleInterpInitialX;
+            vm->scaleY =
+                (vm->scaleInterpFinalY - vm->scaleInterpInitialY) * (f32)vm->scaleInterpTime / vm->scaleInterpEndTime +
+                vm->scaleInterpInitialY;
         }
         if (vm->flags.flip & AnmVmMirror_X)
         {
@@ -1224,7 +1224,7 @@ break_parser:
         D3DCOLOR colors[2];
         colors[0] = vm->alphaInterpInitial;
         colors[1] = vm->alphaInterpFinal;
-        float alphaInterpVal = vm->alphaInterpTime.AsFramesFloat() / (f32)vm->alphaInterpEndTime;
+        float alphaInterpVal = (f32)vm->alphaInterpTime / (f32)vm->alphaInterpEndTime;
         if (alphaInterpVal >= 1.0f)
         {
             alphaInterpVal = 1.0f;
@@ -1252,7 +1252,7 @@ break_parser:
 
     if (vm->posInterpEndTime != 0)
     {
-        float interpVal = vm->posInterpTime.AsFramesFloat() / (f32)vm->posInterpEndTime;
+        float interpVal = (f32)vm->posInterpTime / (f32)vm->posInterpEndTime;
         if (interpVal >= 1.0f)
         {
             interpVal = 1.0f;
